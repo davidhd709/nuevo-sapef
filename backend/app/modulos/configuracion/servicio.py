@@ -1181,3 +1181,166 @@ def sembrar_catalogos(db: Session, *, archivo_max_evidencia_mb: int) -> dict[str
                 n[clave] += 1
     db.flush()
     return n
+
+
+# === Helpers públicos para otros módulos (frontera por servicio) ================================
+
+
+def listar_sedes_activas_resumen(db: Session) -> list[dict[str, Any]]:
+    return [
+        {"id": s.id, "codigo": s.codigo, "nombre": s.nombre}
+        for s in repositorio.listar_sedes(db)
+        if s.activa
+    ]
+
+
+def obtener_sede_por_codigo_publico(db: Session, codigo: str) -> dict[str, Any] | None:
+    s = repositorio.obtener_sede_por_codigo(db, codigo.strip().lower())
+    if s is None:
+        return None
+    return {"id": s.id, "codigo": s.codigo, "nombre": s.nombre, "activa": s.activa}
+
+
+def resolver_barrio_sede(db: Session, sede_id: int, barrio_id: int) -> dict[str, Any] | None:
+    encontrado = repositorio.obtener_barrio(db, sede_id, barrio_id)
+    if encontrado is None:
+        return None
+    barrio, zona_nombre = encontrado
+    return {
+        "id": barrio.id,
+        "nombre": barrio.nombre,
+        "zona_id": barrio.zona_id,
+        "zona_nombre": zona_nombre,
+    }
+
+
+def resolver_barrio_por_nombre(
+    db: Session, sede_id: int, nombre: str
+) -> dict[str, Any] | None:
+    objetivo = nombre.strip().lower()
+    for barrio, zona_nombre in repositorio.listar_barrios(db, sede_id):
+        if barrio.nombre.strip().lower() == objetivo:
+            return {
+                "id": barrio.id,
+                "nombre": barrio.nombre,
+                "zona_id": barrio.zona_id,
+                "zona_nombre": zona_nombre,
+            }
+    return None
+
+
+def asegurar_zona_y_barrio(
+    db: Session,
+    sede_id: int,
+    zona_nombre: str,
+    barrio_nombre: str,
+    *,
+    actor_id: int | None = None,
+) -> dict[str, Any]:
+    zona_limpia = dominio.normalizar_nombre(zona_nombre)
+    barrio_limpio = dominio.normalizar_nombre(barrio_nombre)
+    zona = next(
+        (
+            z
+            for z, _ in repositorio.listar_zonas_con_conteo(db, sede_id)
+            if z.nombre.lower() == zona_limpia.lower()
+        ),
+        None,
+    )
+    if zona is None:
+        zona = Zona(
+            sede_id=sede_id,
+            nombre=zona_limpia,
+            activa=True,
+            creado_por=actor_id,
+            modificado_por=actor_id,
+        )
+        db.add(zona)
+        db.flush()
+    barrio = next(
+        (
+            b
+            for b, _ in repositorio.listar_barrios(db, sede_id, zona_id=zona.id)
+            if b.nombre.lower() == barrio_limpio.lower()
+        ),
+        None,
+    )
+    if barrio is None:
+        barrio = Barrio(
+            sede_id=sede_id,
+            zona_id=zona.id,
+            nombre=barrio_limpio,
+            activo=True,
+            creado_por=actor_id,
+            modificado_por=actor_id,
+        )
+        db.add(barrio)
+        db.flush()
+    return {
+        "id": barrio.id,
+        "nombre": barrio.nombre,
+        "zona_id": zona.id,
+        "zona_nombre": zona.nombre,
+    }
+
+
+def obtener_estado_por_id_o_codigo(
+    db: Session,
+    proceso: str,
+    *,
+    estado_id: int | None = None,
+    codigo: str | None = None,
+) -> dict[str, Any] | None:
+    estados = repositorio.listar_estados(db, proceso=proceso)
+    for e in estados:
+        if estado_id is not None and e.id == estado_id:
+            return {"id": e.id, "codigo": e.codigo, "nombre": e.nombre, "final": e.final}
+        if codigo is not None and e.codigo.strip().upper() == codigo.strip().upper():
+            return {"id": e.id, "codigo": e.codigo, "nombre": e.nombre, "final": e.final}
+    return None
+
+
+def obtener_valor_maestro(
+    db: Session,
+    clase_codigo: str,
+    *,
+    valor_id: int | None = None,
+    codigo: str | None = None,
+) -> dict[str, Any] | None:
+    clase = repositorio.obtener_clase_por_codigo(db, clase_codigo.strip().upper())
+    if clase is None:
+        return None
+    valores = repositorio.listar_valores(db, clase.id)
+    for v in valores:
+        if valor_id is not None and v.id == valor_id:
+            return {"id": v.id, "codigo": v.codigo, "nombre": v.nombre}
+        if codigo is not None and v.codigo.strip().upper() == codigo.strip().upper():
+            return {"id": v.id, "codigo": v.codigo, "nombre": v.nombre}
+    return None
+
+
+def asegurar_valor_maestro(
+    db: Session,
+    clase_codigo: str,
+    codigo: str,
+    nombre: str,
+    *,
+    actor_id: int | None = None,
+) -> dict[str, Any]:
+    clase = _obtener_clase(db, clase_codigo)
+    codigo_norm = dominio.normalizar_codigo_maestro(codigo)
+    for v in repositorio.listar_valores(db, clase.id):
+        if v.codigo == codigo_norm or v.nombre.strip().lower() == nombre.strip().lower():
+            return {"id": v.id, "codigo": v.codigo, "nombre": v.nombre}
+    nuevo = MaestroValor(
+        clase_id=clase.id,
+        codigo=codigo_norm,
+        nombre=dominio.normalizar_nombre(nombre),
+        orden=900,
+        activo=True,
+        creado_por=actor_id,
+        modificado_por=actor_id,
+    )
+    db.add(nuevo)
+    db.flush()
+    return {"id": nuevo.id, "codigo": nuevo.codigo, "nombre": nuevo.nombre}

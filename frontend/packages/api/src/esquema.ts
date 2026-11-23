@@ -123,6 +123,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/yo/aceptar-condiciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Registrar aceptación de términos y condiciones */
+        post: operations["aceptar_condiciones_api_v1_yo_aceptar_condiciones_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/aceptar-condiciones": {
         parameters: {
             query?: never;
@@ -716,6 +733,213 @@ export interface paths {
         patch: operations["editar_item_catalogo_api_v1_comercial_catalogos__tipo___item_id__patch"];
         trace?: never;
     };
+    "/api/v1/luminarias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar luminarias de la sede activa con filtros y paginación */
+        get: operations["listar_luminarias_api_v1_luminarias_get"];
+        put?: never;
+        /** Registrar una nueva luminaria en la sede activa */
+        post: operations["crear_luminaria_api_v1_luminarias_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/luminarias/buscar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Autocompletar luminarias en el servidor */
+        get: operations["buscar_luminarias_api_v1_luminarias_buscar_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/luminarias/exportar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Encolar exportación de luminarias a Excel */
+        post: operations["exportar_luminarias_api_v1_luminarias_exportar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/luminarias/{luminaria_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar detalle de una luminaria de la sede activa */
+        get: operations["obtener_luminaria_api_v1_luminarias__luminaria_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Editar datos o estado de una luminaria */
+        patch: operations["editar_luminaria_api_v1_luminarias__luminaria_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/luminarias/{luminaria_id}/ubicacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Actualizar ubicación geográfica registrando historial */
+        post: operations["mover_ubicacion_api_v1_luminarias__luminaria_id__ubicacion_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/luminarias/{luminaria_id}/historial": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar ficha y hoja de vida completa de una luminaria */
+        get: operations["obtener_historial_api_v1_luminarias__luminaria_id__historial_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lotes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar lotes de marcación de la sede activa */
+        get: operations["listar_lotes_api_v1_lotes_get"];
+        put?: never;
+        /** Registrar lote por consecutivos creando luminarias en bodega (estado 124) */
+        post: operations["crear_lote_api_v1_lotes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mapa/luminarias/{z}/{x}/{y}.mvt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tesela vectorial Mapbox (MVT) desde PostGIS con agrupación en zooms bajos */
+        get: operations["obtener_tesela_mvt_api_v1_mapa_luminarias__z___x___y__mvt_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mapa/base/{sede_codigo}.pmtiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Mapa base PMTiles de una sede con soporte de rangos HTTP (Range) */
+        get: operations["obtener_pmtiles_api_v1_mapa_base__sede_codigo__pmtiles_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/migracion/luminarias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Importar luminarias desde Excel de SAPEF (idempotente) */
+        post: operations["importar_luminarias_api_v1_migracion_luminarias_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/migracion/base": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Importar zonas, barrios y usuarios sin contraseña (IMP-6) */
+        post: operations["importar_base_api_v1_migracion_base_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/migracion/ejecuciones/{ejecucion_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar resultado y conciliación de una ejecución de migración */
+        get: operations["obtener_ejecucion_api_v1_migracion_ejecuciones__ejecucion_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sistema/tareas/prueba": {
         parameters: {
             query?: never;
@@ -1033,6 +1257,16 @@ export interface components {
             /** Activo */
             activo: boolean;
         };
+        /** Body_importar_base_api_v1_migracion_base_post */
+        Body_importar_base_api_v1_migracion_base_post: {
+            /** Archivo */
+            archivo: string;
+        };
+        /** Body_importar_luminarias_api_v1_migracion_luminarias_post */
+        Body_importar_luminarias_api_v1_migracion_luminarias_post: {
+            /** Archivo */
+            archivo: string;
+        };
         /** Body_subir_archivo_api_v1_archivos_post */
         Body_subir_archivo_api_v1_archivos_post: {
             /** Archivo */
@@ -1111,6 +1345,36 @@ export interface components {
             /** Activo */
             activo: boolean;
         };
+        /** EjecucionMigracionSalida */
+        EjecucionMigracionSalida: {
+            /** Id */
+            id: number;
+            /** Ejecucion Id */
+            ejecucion_id: number;
+            /** Ejecucionid */
+            ejecucionId: number;
+            /** Tarea Id */
+            tarea_id?: number | null;
+            /** Tareaid */
+            tareaId?: number | null;
+            /** Tipo */
+            tipo: string;
+            /** Estado */
+            estado: string;
+            /** Conciliacion */
+            conciliacion: {
+                [key: string]: number;
+            };
+            /** Errores */
+            errores: {
+                [key: string]: unknown;
+            }[];
+            /**
+             * Creado En
+             * Format: date-time
+             */
+            creado_en: string;
+        };
         /** EstadoEditarEntrada */
         EstadoEditarEntrada: {
             /** Nombre */
@@ -1152,6 +1416,34 @@ export interface components {
             /** Intentos */
             intentos: number;
         };
+        /** EventoActivoSalida */
+        EventoActivoSalida: {
+            /** Id */
+            id: number;
+            /** Luminaria Id */
+            luminaria_id: number;
+            /** Tipo */
+            tipo: string;
+            /**
+             * Fecha
+             * Format: date-time
+             */
+            fecha: string;
+            /** Orden Id */
+            orden_id: number | null;
+            /** Pqrs Id */
+            pqrs_id: number | null;
+            /** Estado Anterior Id */
+            estado_anterior_id: number | null;
+            /** Estado Nuevo Id */
+            estado_nuevo_id: number | null;
+            /** Detalle */
+            detalle: {
+                [key: string]: unknown;
+            };
+            /** Creado Por */
+            creado_por: number | null;
+        };
         /** ExcepcionEntrada */
         ExcepcionEntrada: {
             /** Identificador */
@@ -1192,6 +1484,22 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** HistorialLuminariaSalida */
+        HistorialLuminariaSalida: {
+            luminaria: components["schemas"]["LuminariaSalida"];
+            /** Eventos */
+            eventos: components["schemas"]["EventoActivoSalida"][];
+            /** Ubicaciones */
+            ubicaciones: components["schemas"]["UbicacionHistorialSalida"][];
+            /** Pqrs */
+            pqrs: {
+                [key: string]: unknown;
+            }[];
+            /** Ordenes */
+            ordenes: {
+                [key: string]: unknown;
+            }[];
+        };
         /** IngresarEntrada */
         IngresarEntrada: {
             /** Usuario */
@@ -1204,6 +1512,317 @@ export interface components {
              * @enum {string}
              */
             tipo_cliente: "web" | "pwa";
+        };
+        /** LoteCrearEntrada */
+        LoteCrearEntrada: {
+            /** Consecutivo Inicial */
+            consecutivo_inicial: number;
+            /** Consecutivo Final */
+            consecutivo_final: number;
+            /** Cantidad */
+            cantidad: number;
+            /** Tecnologia Id */
+            tecnologia_id: number;
+            /** Potencia Id */
+            potencia_id: number;
+            /** Marca Id */
+            marca_id?: number | null;
+            /**
+             * Es Rural
+             * @default false
+             */
+            es_rural: boolean;
+            /** Orden Compra */
+            orden_compra?: string | null;
+            /** Fecha Orden Compra */
+            fecha_orden_compra?: string | null;
+            /** Entrada Almacen */
+            entrada_almacen?: string | null;
+            /** Fecha Entrada Almacen */
+            fecha_entrada_almacen?: string | null;
+        };
+        /** LoteSalida */
+        LoteSalida: {
+            /** Id */
+            id: number;
+            /** Sede Id */
+            sede_id: number;
+            /** Consecutivo Inicial */
+            consecutivo_inicial: number;
+            /** Consecutivo Final */
+            consecutivo_final: number;
+            /** Cantidad */
+            cantidad: number;
+            /** Tecnologia Id */
+            tecnologia_id: number;
+            /** Potencia Id */
+            potencia_id: number;
+            /** Marca Id */
+            marca_id: number | null;
+            /** Es Rural */
+            es_rural: boolean;
+            /** Orden Compra */
+            orden_compra: string | null;
+            /** Fecha Orden Compra */
+            fecha_orden_compra: string | null;
+            /** Entrada Almacen */
+            entrada_almacen: string | null;
+            /** Fecha Entrada Almacen */
+            fecha_entrada_almacen: string | null;
+            /**
+             * Creado En
+             * Format: date-time
+             */
+            creado_en: string;
+        };
+        /** LuminariaCrearEntrada */
+        LuminariaCrearEntrada: {
+            /** Codigo */
+            codigo: string;
+            /** Codigo Externo */
+            codigo_externo?: string | null;
+            /** Barrio Id */
+            barrio_id?: number | null;
+            /** Latitud */
+            latitud?: number | null;
+            /** Longitud */
+            longitud?: number | null;
+            /** Estado Id */
+            estado_id: number;
+            /** Tecnologia Id */
+            tecnologia_id?: number | null;
+            /** Potencia Id */
+            potencia_id?: number | null;
+            /** Marca Id */
+            marca_id?: number | null;
+            /** Tipo Intervencion Id */
+            tipo_intervencion_id?: number | null;
+            /** Accion Operativa Id */
+            accion_operativa_id?: number | null;
+            /** Mision Objetivo Id */
+            mision_objetivo_id?: number | null;
+            /** Fecha Instalacion */
+            fecha_instalacion?: string | null;
+            /** Fecha Mision */
+            fecha_mision?: string | null;
+            /** Fecha Baja */
+            fecha_baja?: string | null;
+            /** Fecha Disposicion Final */
+            fecha_disposicion_final?: string | null;
+            /** Mac */
+            mac?: string | null;
+            /** Poste */
+            poste?: string | null;
+            /** Longitud Brazo */
+            longitud_brazo?: number | string | null;
+            /**
+             * Es Rural
+             * @default false
+             */
+            es_rural: boolean;
+            /**
+             * Subnormal
+             * @default false
+             */
+            subnormal: boolean;
+            /**
+             * Tiene Medida
+             * @default false
+             */
+            tiene_medida: boolean;
+            /**
+             * En Transito
+             * @default false
+             */
+            en_transito: boolean;
+            /**
+             * Validado
+             * @default false
+             */
+            validado: boolean;
+            /** Responsable */
+            responsable?: string | null;
+            /** Observaciones */
+            observaciones?: string | null;
+            /** Luminaria Reemplazada Id */
+            luminaria_reemplazada_id?: number | null;
+        };
+        /** LuminariaEditarEntrada */
+        LuminariaEditarEntrada: {
+            /** Codigo Externo */
+            codigo_externo?: string | null;
+            /** Barrio Id */
+            barrio_id?: number | null;
+            /** Estado Id */
+            estado_id?: number | null;
+            /** Tecnologia Id */
+            tecnologia_id?: number | null;
+            /** Potencia Id */
+            potencia_id?: number | null;
+            /** Marca Id */
+            marca_id?: number | null;
+            /** Tipo Intervencion Id */
+            tipo_intervencion_id?: number | null;
+            /** Accion Operativa Id */
+            accion_operativa_id?: number | null;
+            /** Mision Objetivo Id */
+            mision_objetivo_id?: number | null;
+            /** Fecha Instalacion */
+            fecha_instalacion?: string | null;
+            /** Fecha Mision */
+            fecha_mision?: string | null;
+            /** Fecha Baja */
+            fecha_baja?: string | null;
+            /** Fecha Disposicion Final */
+            fecha_disposicion_final?: string | null;
+            /** Mac */
+            mac?: string | null;
+            /** Poste */
+            poste?: string | null;
+            /** Longitud Brazo */
+            longitud_brazo?: number | string | null;
+            /** Es Rural */
+            es_rural?: boolean | null;
+            /** Subnormal */
+            subnormal?: boolean | null;
+            /** Tiene Medida */
+            tiene_medida?: boolean | null;
+            /** En Transito */
+            en_transito?: boolean | null;
+            /** Validado */
+            validado?: boolean | null;
+            /** Responsable */
+            responsable?: string | null;
+            /** Observaciones */
+            observaciones?: string | null;
+        };
+        /** LuminariaExportarEntrada */
+        LuminariaExportarEntrada: {
+            /** Texto */
+            texto?: string | null;
+            /** Estado Id */
+            estado_id?: number | null;
+            /** Zona Id */
+            zona_id?: number | null;
+            /** Barrio Id */
+            barrio_id?: number | null;
+            /** Tecnologia Id */
+            tecnologia_id?: number | null;
+            /** Potencia Id */
+            potencia_id?: number | null;
+            /** Marca Id */
+            marca_id?: number | null;
+        };
+        /** LuminariaMoverEntrada */
+        LuminariaMoverEntrada: {
+            /** Latitud */
+            latitud: number;
+            /** Longitud */
+            longitud: number;
+            /**
+             * Origen
+             * @default web
+             */
+            origen: string;
+        };
+        /** LuminariaSalida */
+        LuminariaSalida: {
+            /** Id */
+            id: number;
+            /** Sede Id */
+            sede_id: number;
+            /** Codigo */
+            codigo: string;
+            /** Codigo Externo */
+            codigo_externo: string | null;
+            /** Barrio Id */
+            barrio_id: number | null;
+            /** Barrio Nombre */
+            barrio_nombre: string | null;
+            /** Zona Id */
+            zona_id: number | null;
+            /** Zona Nombre */
+            zona_nombre: string | null;
+            /** Latitud */
+            latitud: number | null;
+            /** Longitud */
+            longitud: number | null;
+            /** Google Maps Url */
+            google_maps_url: string | null;
+            /** Estado Id */
+            estado_id: number;
+            /** Estado Codigo */
+            estado_codigo: string | null;
+            /** Estado Nombre */
+            estado_nombre: string | null;
+            /** Tecnologia Id */
+            tecnologia_id: number | null;
+            /** Tecnologia Codigo */
+            tecnologia_codigo: string | null;
+            /** Tecnologia Nombre */
+            tecnologia_nombre: string | null;
+            /** Potencia Id */
+            potencia_id: number | null;
+            /** Potencia Codigo */
+            potencia_codigo: string | null;
+            /** Potencia Nombre */
+            potencia_nombre: string | null;
+            /** Marca Id */
+            marca_id: number | null;
+            /** Marca Codigo */
+            marca_codigo: string | null;
+            /** Marca Nombre */
+            marca_nombre: string | null;
+            /** Tipo Intervencion Id */
+            tipo_intervencion_id: number | null;
+            /** Accion Operativa Id */
+            accion_operativa_id: number | null;
+            /** Mision Objetivo Id */
+            mision_objetivo_id: number | null;
+            /** Lote Id */
+            lote_id: number | null;
+            /** Luminaria Reemplazada Id */
+            luminaria_reemplazada_id: number | null;
+            /** Fecha Instalacion */
+            fecha_instalacion: string | null;
+            /** Fecha Mision */
+            fecha_mision: string | null;
+            /** Fecha Baja */
+            fecha_baja: string | null;
+            /** Fecha Disposicion Final */
+            fecha_disposicion_final: string | null;
+            /** Mac */
+            mac: string | null;
+            /** Poste */
+            poste: string | null;
+            /** Longitud Brazo */
+            longitud_brazo: string | null;
+            /** Es Rural */
+            es_rural: boolean;
+            /** Subnormal */
+            subnormal: boolean;
+            /** Tiene Medida */
+            tiene_medida: boolean;
+            /** En Transito */
+            en_transito: boolean;
+            /** Validado */
+            validado: boolean;
+            /** Es Comodin */
+            es_comodin: boolean;
+            /** Responsable */
+            responsable: string | null;
+            /** Observaciones */
+            observaciones: string | null;
+            /**
+             * Creado En
+             * Format: date-time
+             */
+            creado_en: string;
+            /**
+             * Modificado En
+             * Format: date-time
+             */
+            modificado_en: string;
         };
         /** MaestroClaseSalida */
         MaestroClaseSalida: {
@@ -1277,6 +1896,28 @@ export interface components {
         Pagina_AuditoriaSalida_: {
             /** Items */
             items: components["schemas"]["AuditoriaSalida"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+        };
+        /** Pagina[LoteSalida] */
+        Pagina_LoteSalida_: {
+            /** Items */
+            items: components["schemas"]["LoteSalida"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+        };
+        /** Pagina[LuminariaSalida] */
+        Pagina_LuminariaSalida_: {
+            /** Items */
+            items: components["schemas"]["LuminariaSalida"][];
             /** Total */
             total: number;
             /** Page */
@@ -1406,10 +2047,7 @@ export interface components {
         };
         /** RecuperarClaveEntrada */
         RecuperarClaveEntrada: {
-            /**
-             * Correo
-             * Format: email
-             */
+            /** Correo */
             correo: string;
         };
         /** RestablecerClaveEntrada */
@@ -1584,6 +2222,17 @@ export interface components {
             /** Id */
             id: number;
         };
+        /** TareaExportacionSalida */
+        TareaExportacionSalida: {
+            /** Id */
+            id: number;
+            /** Tarea Id */
+            tarea_id: number;
+            /** Tareaid */
+            tareaId: number;
+            /** Estado */
+            estado: string;
+        };
         /** TarifaEntrada */
         TarifaEntrada: {
             /** Tarifa */
@@ -1620,6 +2269,30 @@ export interface components {
             /** Valor Minimo */
             valor_minimo: string | null;
         };
+        /** UbicacionHistorialSalida */
+        UbicacionHistorialSalida: {
+            /** Id */
+            id: number;
+            /** Luminaria Id */
+            luminaria_id: number;
+            /** Latitud Anterior */
+            latitud_anterior: number | null;
+            /** Longitud Anterior */
+            longitud_anterior: number | null;
+            /** Latitud Nueva */
+            latitud_nueva: number;
+            /** Longitud Nueva */
+            longitud_nueva: number;
+            /** Origen */
+            origen: string;
+            /**
+             * Cambiado En
+             * Format: date-time
+             */
+            cambiado_en: string;
+            /** Cambiado Por */
+            cambiado_por: number | null;
+        };
         /** UsuarioCrearEntrada */
         UsuarioCrearEntrada: {
             /** Nombre Usuario */
@@ -1628,10 +2301,7 @@ export interface components {
             nombre_completo: string;
             /** Identificacion */
             identificacion: string;
-            /**
-             * Correo
-             * Format: email
-             */
+            /** Correo */
             correo: string;
             /** Clave */
             clave?: string | null;
@@ -1939,6 +2609,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MensajeSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    aceptar_condiciones_api_v1_yo_aceptar_condiciones_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["AceptarCondicionesEntrada"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PerfilActual"];
                 };
             };
             /** @description Validation Error */
@@ -3463,6 +4166,547 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CatalogoComercialSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_luminarias_api_v1_luminarias_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+                texto?: string | null;
+                estado_id?: number | null;
+                zona_id?: number | null;
+                barrio_id?: number | null;
+                tecnologia_id?: number | null;
+                potencia_id?: number | null;
+                marca_id?: number | null;
+                tipo_intervencion_id?: number | null;
+                es_rural?: boolean | null;
+                en_transito?: boolean | null;
+                validado?: boolean | null;
+                fecha_instalacion_desde?: string | null;
+                fecha_instalacion_hasta?: string | null;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_LuminariaSalida_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    crear_luminaria_api_v1_luminarias_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LuminariaCrearEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LuminariaSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    buscar_luminarias_api_v1_luminarias_buscar_get: {
+        parameters: {
+            query: {
+                q: string;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LuminariaSalida"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    exportar_luminarias_api_v1_luminarias_exportar_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["LuminariaExportarEntrada"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TareaExportacionSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    obtener_luminaria_api_v1_luminarias__luminaria_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                luminaria_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LuminariaSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    editar_luminaria_api_v1_luminarias__luminaria_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                luminaria_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LuminariaEditarEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LuminariaSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mover_ubicacion_api_v1_luminarias__luminaria_id__ubicacion_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                luminaria_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LuminariaMoverEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LuminariaSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    obtener_historial_api_v1_luminarias__luminaria_id__historial_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                luminaria_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HistorialLuminariaSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_lotes_api_v1_lotes_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_LoteSalida_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    crear_lote_api_v1_lotes_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoteCrearEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoteSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    obtener_tesela_mvt_api_v1_mapa_luminarias__z___x___y__mvt_get: {
+        parameters: {
+            query?: {
+                estado_id?: number | null;
+                tecnologia_id?: number | null;
+                potencia_id?: number | null;
+                marca_id?: number | null;
+                zona_id?: number | null;
+                barrio_id?: number | null;
+                en_bodega?: boolean | null;
+                validado?: boolean | null;
+                en_transito?: boolean | null;
+                texto?: string | null;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                z: number;
+                x: number;
+                y: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    obtener_pmtiles_api_v1_mapa_base__sede_codigo__pmtiles_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                Range?: string | null;
+            };
+            path: {
+                sede_codigo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    importar_luminarias_api_v1_migracion_luminarias_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_importar_luminarias_api_v1_migracion_luminarias_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EjecucionMigracionSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    importar_base_api_v1_migracion_base_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_importar_base_api_v1_migracion_base_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EjecucionMigracionSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    obtener_ejecucion_api_v1_migracion_ejecuciones__ejecucion_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                ejecucion_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EjecucionMigracionSalida"];
                 };
             };
             /** @description Validation Error */

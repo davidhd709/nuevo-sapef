@@ -235,6 +235,54 @@
         }
       }
     },
+    "/api/v1/yo/aceptar-condiciones": {
+      "post": {
+        "tags": [
+          "seguridad"
+        ],
+        "summary": "Registrar aceptación de términos y condiciones",
+        "operationId": "aceptar_condiciones_api_v1_yo_aceptar_condiciones_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/AceptarCondicionesEntrada"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Entrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerfilActual"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/aceptar-condiciones": {
       "post": {
         "tags": [
@@ -3041,6 +3089,1322 @@
         }
       }
     },
+    "/api/v1/luminarias": {
+      "get": {
+        "tags": [
+          "activos"
+        ],
+        "summary": "Listar luminarias de la sede activa con filtros y paginación",
+        "operationId": "listar_luminarias_api_v1_luminarias_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Size"
+            }
+          },
+          {
+            "name": "texto",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Texto"
+            }
+          },
+          {
+            "name": "estado_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Estado Id"
+            }
+          },
+          {
+            "name": "zona_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Zona Id"
+            }
+          },
+          {
+            "name": "barrio_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Barrio Id"
+            }
+          },
+          {
+            "name": "tecnologia_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tecnologia Id"
+            }
+          },
+          {
+            "name": "potencia_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Potencia Id"
+            }
+          },
+          {
+            "name": "marca_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Marca Id"
+            }
+          },
+          {
+            "name": "tipo_intervencion_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tipo Intervencion Id"
+            }
+          },
+          {
+            "name": "es_rural",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Es Rural"
+            }
+          },
+          {
+            "name": "en_transito",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "En Transito"
+            }
+          },
+          {
+            "name": "validado",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Validado"
+            }
+          },
+          {
+            "name": "fecha_instalacion_desde",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Fecha Instalacion Desde"
+            }
+          },
+          {
+            "name": "fecha_instalacion_hasta",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Fecha Instalacion Hasta"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_LuminariaSalida_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "activos"
+        ],
+        "summary": "Registrar una nueva luminaria en la sede activa",
+        "operationId": "crear_luminaria_api_v1_luminarias_post",
+        "parameters": [
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LuminariaCrearEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LuminariaSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/luminarias/buscar": {
+      "get": {
+        "tags": [
+          "activos"
+        ],
+        "summary": "Autocompletar luminarias en el servidor",
+        "operationId": "buscar_luminarias_api_v1_luminarias_buscar_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "title": "Q"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LuminariaSalida"
+                  },
+                  "title": "Response Buscar Luminarias Api V1 Luminarias Buscar Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/luminarias/exportar": {
+      "post": {
+        "tags": [
+          "activos"
+        ],
+        "summary": "Encolar exportación de luminarias a Excel",
+        "operationId": "exportar_luminarias_api_v1_luminarias_exportar_post",
+        "parameters": [
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/LuminariaExportarEntrada"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Entrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TareaExportacionSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/luminarias/{luminaria_id}": {
+      "get": {
+        "tags": [
+          "activos"
+        ],
+        "summary": "Consultar detalle de una luminaria de la sede activa",
+        "operationId": "obtener_luminaria_api_v1_luminarias__luminaria_id__get",
+        "parameters": [
+          {
+            "name": "luminaria_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Luminaria Id"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LuminariaSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "activos"
+        ],
+        "summary": "Editar datos o estado de una luminaria",
+        "operationId": "editar_luminaria_api_v1_luminarias__luminaria_id__patch",
+        "parameters": [
+          {
+            "name": "luminaria_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Luminaria Id"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LuminariaEditarEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LuminariaSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/luminarias/{luminaria_id}/ubicacion": {
+      "post": {
+        "tags": [
+          "activos"
+        ],
+        "summary": "Actualizar ubicación geográfica registrando historial",
+        "operationId": "mover_ubicacion_api_v1_luminarias__luminaria_id__ubicacion_post",
+        "parameters": [
+          {
+            "name": "luminaria_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Luminaria Id"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LuminariaMoverEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LuminariaSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/luminarias/{luminaria_id}/historial": {
+      "get": {
+        "tags": [
+          "activos"
+        ],
+        "summary": "Consultar ficha y hoja de vida completa de una luminaria",
+        "operationId": "obtener_historial_api_v1_luminarias__luminaria_id__historial_get",
+        "parameters": [
+          {
+            "name": "luminaria_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Luminaria Id"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HistorialLuminariaSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lotes": {
+      "get": {
+        "tags": [
+          "activos"
+        ],
+        "summary": "Listar lotes de marcación de la sede activa",
+        "operationId": "listar_lotes_api_v1_lotes_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Size"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_LoteSalida_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "activos"
+        ],
+        "summary": "Registrar lote por consecutivos creando luminarias en bodega (estado 124)",
+        "operationId": "crear_lote_api_v1_lotes_post",
+        "parameters": [
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoteCrearEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoteSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mapa/luminarias/{z}/{x}/{y}.mvt": {
+      "get": {
+        "tags": [
+          "activos"
+        ],
+        "summary": "Tesela vectorial Mapbox (MVT) desde PostGIS con agrupación en zooms bajos",
+        "operationId": "obtener_tesela_mvt_api_v1_mapa_luminarias__z___x___y__mvt_get",
+        "parameters": [
+          {
+            "name": "z",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Z"
+            }
+          },
+          {
+            "name": "x",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "X"
+            }
+          },
+          {
+            "name": "y",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Y"
+            }
+          },
+          {
+            "name": "estado_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Estado Id"
+            }
+          },
+          {
+            "name": "tecnologia_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tecnologia Id"
+            }
+          },
+          {
+            "name": "potencia_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Potencia Id"
+            }
+          },
+          {
+            "name": "marca_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Marca Id"
+            }
+          },
+          {
+            "name": "zona_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Zona Id"
+            }
+          },
+          {
+            "name": "barrio_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Barrio Id"
+            }
+          },
+          {
+            "name": "en_bodega",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "En Bodega"
+            }
+          },
+          {
+            "name": "validado",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Validado"
+            }
+          },
+          {
+            "name": "en_transito",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "En Transito"
+            }
+          },
+          {
+            "name": "texto",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Texto"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mapa/base/{sede_codigo}.pmtiles": {
+      "get": {
+        "tags": [
+          "activos"
+        ],
+        "summary": "Mapa base PMTiles de una sede con soporte de rangos HTTP (Range)",
+        "operationId": "obtener_pmtiles_api_v1_mapa_base__sede_codigo__pmtiles_get",
+        "parameters": [
+          {
+            "name": "sede_codigo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Sede Codigo"
+            }
+          },
+          {
+            "name": "Range",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Range"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/migracion/luminarias": {
+      "post": {
+        "tags": [
+          "migracion"
+        ],
+        "summary": "Importar luminarias desde Excel de SAPEF (idempotente)",
+        "operationId": "importar_luminarias_api_v1_migracion_luminarias_post",
+        "parameters": [
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_importar_luminarias_api_v1_migracion_luminarias_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EjecucionMigracionSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/migracion/base": {
+      "post": {
+        "tags": [
+          "migracion"
+        ],
+        "summary": "Importar zonas, barrios y usuarios sin contraseña (IMP-6)",
+        "operationId": "importar_base_api_v1_migracion_base_post",
+        "parameters": [
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_importar_base_api_v1_migracion_base_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EjecucionMigracionSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/migracion/ejecuciones/{ejecucion_id}": {
+      "get": {
+        "tags": [
+          "migracion"
+        ],
+        "summary": "Consultar resultado y conciliación de una ejecución de migración",
+        "operationId": "obtener_ejecucion_api_v1_migracion_ejecuciones__ejecucion_id__get",
+        "parameters": [
+          {
+            "name": "ejecucion_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Ejecucion Id"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EjecucionMigracionSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/sistema/tareas/prueba": {
       "post": {
         "tags": [
@@ -4024,6 +5388,34 @@
         ],
         "title": "BarrioSalida"
       },
+      "Body_importar_base_api_v1_migracion_base_post": {
+        "properties": {
+          "archivo": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Archivo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "archivo"
+        ],
+        "title": "Body_importar_base_api_v1_migracion_base_post"
+      },
+      "Body_importar_luminarias_api_v1_migracion_luminarias_post": {
+        "properties": {
+          "archivo": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Archivo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "archivo"
+        ],
+        "title": "Body_importar_luminarias_api_v1_migracion_luminarias_post"
+      },
       "Body_subir_archivo_api_v1_archivos_post": {
         "properties": {
           "archivo": {
@@ -4240,6 +5632,84 @@
         ],
         "title": "ComercializadorSalida"
       },
+      "EjecucionMigracionSalida": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "ejecucion_id": {
+            "type": "integer",
+            "title": "Ejecucion Id"
+          },
+          "ejecucionId": {
+            "type": "integer",
+            "title": "Ejecucionid"
+          },
+          "tarea_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tarea Id"
+          },
+          "tareaId": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tareaid"
+          },
+          "tipo": {
+            "type": "string",
+            "title": "Tipo"
+          },
+          "estado": {
+            "type": "string",
+            "title": "Estado"
+          },
+          "conciliacion": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Conciliacion"
+          },
+          "errores": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Errores"
+          },
+          "creado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creado En"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "ejecucion_id",
+          "ejecucionId",
+          "tipo",
+          "estado",
+          "conciliacion",
+          "errores",
+          "creado_en"
+        ],
+        "title": "EjecucionMigracionSalida"
+      },
       "EstadoEditarEntrada": {
         "properties": {
           "nombre": {
@@ -4357,6 +5827,101 @@
           "intentos"
         ],
         "title": "EstadoTarea"
+      },
+      "EventoActivoSalida": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "luminaria_id": {
+            "type": "integer",
+            "title": "Luminaria Id"
+          },
+          "tipo": {
+            "type": "string",
+            "title": "Tipo"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha"
+          },
+          "orden_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Orden Id"
+          },
+          "pqrs_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pqrs Id"
+          },
+          "estado_anterior_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estado Anterior Id"
+          },
+          "estado_nuevo_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estado Nuevo Id"
+          },
+          "detalle": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Detalle"
+          },
+          "creado_por": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creado Por"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "luminaria_id",
+          "tipo",
+          "fecha",
+          "orden_id",
+          "pqrs_id",
+          "estado_anterior_id",
+          "estado_nuevo_id",
+          "detalle",
+          "creado_por"
+        ],
+        "title": "EventoActivoSalida"
       },
       "ExcepcionEntrada": {
         "properties": {
@@ -4491,6 +6056,52 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "HistorialLuminariaSalida": {
+        "properties": {
+          "luminaria": {
+            "$ref": "#/components/schemas/LuminariaSalida"
+          },
+          "eventos": {
+            "items": {
+              "$ref": "#/components/schemas/EventoActivoSalida"
+            },
+            "type": "array",
+            "title": "Eventos"
+          },
+          "ubicaciones": {
+            "items": {
+              "$ref": "#/components/schemas/UbicacionHistorialSalida"
+            },
+            "type": "array",
+            "title": "Ubicaciones"
+          },
+          "pqrs": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Pqrs"
+          },
+          "ordenes": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Ordenes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "luminaria",
+          "eventos",
+          "ubicaciones",
+          "pqrs",
+          "ordenes"
+        ],
+        "title": "HistorialLuminariaSalida"
+      },
       "IngresarEntrada": {
         "properties": {
           "usuario": {
@@ -4521,6 +6132,1348 @@
           "clave"
         ],
         "title": "IngresarEntrada"
+      },
+      "LoteCrearEntrada": {
+        "properties": {
+          "consecutivo_inicial": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Consecutivo Inicial"
+          },
+          "consecutivo_final": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Consecutivo Final"
+          },
+          "cantidad": {
+            "type": "integer",
+            "maximum": 5000.0,
+            "minimum": 1.0,
+            "title": "Cantidad"
+          },
+          "tecnologia_id": {
+            "type": "integer",
+            "title": "Tecnologia Id"
+          },
+          "potencia_id": {
+            "type": "integer",
+            "title": "Potencia Id"
+          },
+          "marca_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marca Id"
+          },
+          "es_rural": {
+            "type": "boolean",
+            "title": "Es Rural",
+            "default": false
+          },
+          "orden_compra": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Orden Compra"
+          },
+          "fecha_orden_compra": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Orden Compra"
+          },
+          "entrada_almacen": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entrada Almacen"
+          },
+          "fecha_entrada_almacen": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Entrada Almacen"
+          }
+        },
+        "type": "object",
+        "required": [
+          "consecutivo_inicial",
+          "consecutivo_final",
+          "cantidad",
+          "tecnologia_id",
+          "potencia_id"
+        ],
+        "title": "LoteCrearEntrada"
+      },
+      "LoteSalida": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "sede_id": {
+            "type": "integer",
+            "title": "Sede Id"
+          },
+          "consecutivo_inicial": {
+            "type": "integer",
+            "title": "Consecutivo Inicial"
+          },
+          "consecutivo_final": {
+            "type": "integer",
+            "title": "Consecutivo Final"
+          },
+          "cantidad": {
+            "type": "integer",
+            "title": "Cantidad"
+          },
+          "tecnologia_id": {
+            "type": "integer",
+            "title": "Tecnologia Id"
+          },
+          "potencia_id": {
+            "type": "integer",
+            "title": "Potencia Id"
+          },
+          "marca_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marca Id"
+          },
+          "es_rural": {
+            "type": "boolean",
+            "title": "Es Rural"
+          },
+          "orden_compra": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Orden Compra"
+          },
+          "fecha_orden_compra": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Orden Compra"
+          },
+          "entrada_almacen": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entrada Almacen"
+          },
+          "fecha_entrada_almacen": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Entrada Almacen"
+          },
+          "creado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creado En"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "sede_id",
+          "consecutivo_inicial",
+          "consecutivo_final",
+          "cantidad",
+          "tecnologia_id",
+          "potencia_id",
+          "marca_id",
+          "es_rural",
+          "orden_compra",
+          "fecha_orden_compra",
+          "entrada_almacen",
+          "fecha_entrada_almacen",
+          "creado_en"
+        ],
+        "title": "LoteSalida"
+      },
+      "LuminariaCrearEntrada": {
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Codigo"
+          },
+          "codigo_externo": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Codigo Externo"
+          },
+          "barrio_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barrio Id"
+          },
+          "latitud": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitud"
+          },
+          "longitud": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitud"
+          },
+          "estado_id": {
+            "type": "integer",
+            "title": "Estado Id"
+          },
+          "tecnologia_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tecnologia Id"
+          },
+          "potencia_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Potencia Id"
+          },
+          "marca_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marca Id"
+          },
+          "tipo_intervencion_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipo Intervencion Id"
+          },
+          "accion_operativa_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accion Operativa Id"
+          },
+          "mision_objetivo_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mision Objetivo Id"
+          },
+          "fecha_instalacion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Instalacion"
+          },
+          "fecha_mision": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Mision"
+          },
+          "fecha_baja": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Baja"
+          },
+          "fecha_disposicion_final": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Disposicion Final"
+          },
+          "mac": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mac"
+          },
+          "poste": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Poste"
+          },
+          "longitud_brazo": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitud Brazo"
+          },
+          "es_rural": {
+            "type": "boolean",
+            "title": "Es Rural",
+            "default": false
+          },
+          "subnormal": {
+            "type": "boolean",
+            "title": "Subnormal",
+            "default": false
+          },
+          "tiene_medida": {
+            "type": "boolean",
+            "title": "Tiene Medida",
+            "default": false
+          },
+          "en_transito": {
+            "type": "boolean",
+            "title": "En Transito",
+            "default": false
+          },
+          "validado": {
+            "type": "boolean",
+            "title": "Validado",
+            "default": false
+          },
+          "responsable": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 160
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Responsable"
+          },
+          "observaciones": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observaciones"
+          },
+          "luminaria_reemplazada_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Luminaria Reemplazada Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "codigo",
+          "estado_id"
+        ],
+        "title": "LuminariaCrearEntrada"
+      },
+      "LuminariaEditarEntrada": {
+        "properties": {
+          "codigo_externo": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Codigo Externo"
+          },
+          "barrio_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barrio Id"
+          },
+          "estado_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estado Id"
+          },
+          "tecnologia_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tecnologia Id"
+          },
+          "potencia_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Potencia Id"
+          },
+          "marca_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marca Id"
+          },
+          "tipo_intervencion_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipo Intervencion Id"
+          },
+          "accion_operativa_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accion Operativa Id"
+          },
+          "mision_objetivo_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mision Objetivo Id"
+          },
+          "fecha_instalacion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Instalacion"
+          },
+          "fecha_mision": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Mision"
+          },
+          "fecha_baja": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Baja"
+          },
+          "fecha_disposicion_final": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Disposicion Final"
+          },
+          "mac": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mac"
+          },
+          "poste": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Poste"
+          },
+          "longitud_brazo": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitud Brazo"
+          },
+          "es_rural": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Es Rural"
+          },
+          "subnormal": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subnormal"
+          },
+          "tiene_medida": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tiene Medida"
+          },
+          "en_transito": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "En Transito"
+          },
+          "validado": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Validado"
+          },
+          "responsable": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 160
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Responsable"
+          },
+          "observaciones": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observaciones"
+          }
+        },
+        "type": "object",
+        "title": "LuminariaEditarEntrada"
+      },
+      "LuminariaExportarEntrada": {
+        "properties": {
+          "texto": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Texto"
+          },
+          "estado_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estado Id"
+          },
+          "zona_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zona Id"
+          },
+          "barrio_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barrio Id"
+          },
+          "tecnologia_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tecnologia Id"
+          },
+          "potencia_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Potencia Id"
+          },
+          "marca_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marca Id"
+          }
+        },
+        "type": "object",
+        "title": "LuminariaExportarEntrada"
+      },
+      "LuminariaMoverEntrada": {
+        "properties": {
+          "latitud": {
+            "type": "number",
+            "title": "Latitud"
+          },
+          "longitud": {
+            "type": "number",
+            "title": "Longitud"
+          },
+          "origen": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 2,
+            "title": "Origen",
+            "default": "web"
+          }
+        },
+        "type": "object",
+        "required": [
+          "latitud",
+          "longitud"
+        ],
+        "title": "LuminariaMoverEntrada"
+      },
+      "LuminariaSalida": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "sede_id": {
+            "type": "integer",
+            "title": "Sede Id"
+          },
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "codigo_externo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Codigo Externo"
+          },
+          "barrio_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barrio Id"
+          },
+          "barrio_nombre": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barrio Nombre"
+          },
+          "zona_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zona Id"
+          },
+          "zona_nombre": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zona Nombre"
+          },
+          "latitud": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitud"
+          },
+          "longitud": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitud"
+          },
+          "google_maps_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Google Maps Url"
+          },
+          "estado_id": {
+            "type": "integer",
+            "title": "Estado Id"
+          },
+          "estado_codigo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estado Codigo"
+          },
+          "estado_nombre": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estado Nombre"
+          },
+          "tecnologia_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tecnologia Id"
+          },
+          "tecnologia_codigo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tecnologia Codigo"
+          },
+          "tecnologia_nombre": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tecnologia Nombre"
+          },
+          "potencia_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Potencia Id"
+          },
+          "potencia_codigo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Potencia Codigo"
+          },
+          "potencia_nombre": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Potencia Nombre"
+          },
+          "marca_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marca Id"
+          },
+          "marca_codigo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marca Codigo"
+          },
+          "marca_nombre": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marca Nombre"
+          },
+          "tipo_intervencion_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipo Intervencion Id"
+          },
+          "accion_operativa_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accion Operativa Id"
+          },
+          "mision_objetivo_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mision Objetivo Id"
+          },
+          "lote_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lote Id"
+          },
+          "luminaria_reemplazada_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Luminaria Reemplazada Id"
+          },
+          "fecha_instalacion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Instalacion"
+          },
+          "fecha_mision": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Mision"
+          },
+          "fecha_baja": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Baja"
+          },
+          "fecha_disposicion_final": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Disposicion Final"
+          },
+          "mac": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mac"
+          },
+          "poste": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Poste"
+          },
+          "longitud_brazo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitud Brazo"
+          },
+          "es_rural": {
+            "type": "boolean",
+            "title": "Es Rural"
+          },
+          "subnormal": {
+            "type": "boolean",
+            "title": "Subnormal"
+          },
+          "tiene_medida": {
+            "type": "boolean",
+            "title": "Tiene Medida"
+          },
+          "en_transito": {
+            "type": "boolean",
+            "title": "En Transito"
+          },
+          "validado": {
+            "type": "boolean",
+            "title": "Validado"
+          },
+          "es_comodin": {
+            "type": "boolean",
+            "title": "Es Comodin"
+          },
+          "responsable": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Responsable"
+          },
+          "observaciones": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observaciones"
+          },
+          "creado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creado En"
+          },
+          "modificado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Modificado En"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "sede_id",
+          "codigo",
+          "codigo_externo",
+          "barrio_id",
+          "barrio_nombre",
+          "zona_id",
+          "zona_nombre",
+          "latitud",
+          "longitud",
+          "google_maps_url",
+          "estado_id",
+          "estado_codigo",
+          "estado_nombre",
+          "tecnologia_id",
+          "tecnologia_codigo",
+          "tecnologia_nombre",
+          "potencia_id",
+          "potencia_codigo",
+          "potencia_nombre",
+          "marca_id",
+          "marca_codigo",
+          "marca_nombre",
+          "tipo_intervencion_id",
+          "accion_operativa_id",
+          "mision_objetivo_id",
+          "lote_id",
+          "luminaria_reemplazada_id",
+          "fecha_instalacion",
+          "fecha_mision",
+          "fecha_baja",
+          "fecha_disposicion_final",
+          "mac",
+          "poste",
+          "longitud_brazo",
+          "es_rural",
+          "subnormal",
+          "tiene_medida",
+          "en_transito",
+          "validado",
+          "es_comodin",
+          "responsable",
+          "observaciones",
+          "creado_en",
+          "modificado_en"
+        ],
+        "title": "LuminariaSalida"
       },
       "MaestroClaseSalida": {
         "properties": {
@@ -4741,6 +7694,68 @@
           "size"
         ],
         "title": "Pagina[AuditoriaSalida]"
+      },
+      "Pagina_LoteSalida_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/LoteSalida"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "size": {
+            "type": "integer",
+            "title": "Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "size"
+        ],
+        "title": "Pagina[LoteSalida]"
+      },
+      "Pagina_LuminariaSalida_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/LuminariaSalida"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "size": {
+            "type": "integer",
+            "title": "Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "size"
+        ],
+        "title": "Pagina[LuminariaSalida]"
       },
       "Pagina_RolSalida_": {
         "properties": {
@@ -5085,7 +8100,6 @@
         "properties": {
           "correo": {
             "type": "string",
-            "format": "email",
             "title": "Correo"
           }
         },
@@ -5606,6 +8620,34 @@
         ],
         "title": "TareaEncolada"
       },
+      "TareaExportacionSalida": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "tarea_id": {
+            "type": "integer",
+            "title": "Tarea Id"
+          },
+          "tareaId": {
+            "type": "integer",
+            "title": "Tareaid"
+          },
+          "estado": {
+            "type": "string",
+            "title": "Estado"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tarea_id",
+          "tareaId",
+          "estado"
+        ],
+        "title": "TareaExportacionSalida"
+      },
       "TarifaEntrada": {
         "properties": {
           "tarifa": {
@@ -5790,6 +8832,81 @@
         ],
         "title": "TarifaSalida"
       },
+      "UbicacionHistorialSalida": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "luminaria_id": {
+            "type": "integer",
+            "title": "Luminaria Id"
+          },
+          "latitud_anterior": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitud Anterior"
+          },
+          "longitud_anterior": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitud Anterior"
+          },
+          "latitud_nueva": {
+            "type": "number",
+            "title": "Latitud Nueva"
+          },
+          "longitud_nueva": {
+            "type": "number",
+            "title": "Longitud Nueva"
+          },
+          "origen": {
+            "type": "string",
+            "title": "Origen"
+          },
+          "cambiado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Cambiado En"
+          },
+          "cambiado_por": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cambiado Por"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "luminaria_id",
+          "latitud_anterior",
+          "longitud_anterior",
+          "latitud_nueva",
+          "longitud_nueva",
+          "origen",
+          "cambiado_en",
+          "cambiado_por"
+        ],
+        "title": "UbicacionHistorialSalida"
+      },
       "UsuarioCrearEntrada": {
         "properties": {
           "nombre_usuario": {
@@ -5812,7 +8929,6 @@
           },
           "correo": {
             "type": "string",
-            "format": "email",
             "title": "Correo"
           },
           "clave": {
@@ -5892,8 +9008,7 @@
           "correo": {
             "anyOf": [
               {
-                "type": "string",
-                "format": "email"
+                "type": "string"
               },
               {
                 "type": "null"

@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from app.core.config import obtener_configuracion
 from app.core.db import _fabrica_sesiones, obtener_motor
 from app.main import crear_app
+from app.modulos.activos import servicio as activos_servicio
 from app.modulos.configuracion import servicio as configuracion_servicio
 from app.modulos.configuracion.modelos import Sede
 from app.modulos.seguridad import servicio as seguridad_servicio
@@ -53,6 +54,7 @@ def almacen_temporal(monkeypatch):
 def db(almacen_temporal) -> Iterator[Session]:
     motor = obtener_motor()
     tablas = (
+        "ejecucion_migracion, evento_activo, luminaria_ubicacion, luminaria, lote, "
         "operacion_contable, concepto_comercial, acuerdo_excepcion, acuerdo_tarifa, "
         "acuerdo_vigencia, plantilla_correo, parametro, estado, barrio, zona, maestro_valor, "
         "maestro_clase, sede_comercializador, comercializador, "
@@ -120,9 +122,10 @@ def db(almacen_temporal) -> Iterator[Session]:
 
 @pytest.fixture
 def db_configurado(db: Session) -> Session:
-    """`db` más la semilla real: catálogos de configuración, permisos §4.3 y roles §4.2."""
+    """`db` más la semilla real: catálogos de configuración, permisos §4.3, roles §4.2 y comodín."""
     configuracion_servicio.sembrar_catalogos(db, archivo_max_evidencia_mb=10)
     seguridad_servicio.sincronizar_permisos_y_roles(db)
+    activos_servicio.sembrar_comodines_activos(db)
     db.commit()
     return db
 

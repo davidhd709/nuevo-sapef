@@ -105,7 +105,7 @@ class DbHelper:
         while time.monotonic() < deadline:
             row = self.fetch_one(
                 """
-                SELECT id, queue_name, task_name, status, attempts, args, scheduled_at, started_at
+                SELECT id, queue_name, task_name, status, attempts, args, scheduled_at
                 FROM procrastinate_jobs
                 WHERE id = %s
                 """,
@@ -152,7 +152,7 @@ class DbHelper:
             clauses.append("request_id = %(request_id)s")
             params["request_id"] = request_id
         where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
-        sql = f"SELECT COUNT(*) FROM seguridad.auditoria {where}"
+        sql = f"SELECT COUNT(*) FROM auditoria {where}"
         return int(self.scalar(sql, params) or 0)
 
     def count_nominal_consult_logs(
@@ -170,18 +170,18 @@ class DbHelper:
             clauses.append("sede_id = %(sede_id)s")
             params["sede_id"] = sede_id
         where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
-        sql = f"SELECT COUNT(*) FROM seguridad.auditoria_consulta {where}"
+        sql = f"SELECT COUNT(*) FROM auditoria_consulta {where}"
         return int(self.scalar(sql, params) or 0)
 
     def has_non_negative_stock_constraint(self) -> bool:
-        """Verify PostgreSQL enforces CHECK (existencias >= 0) on inventario.material."""
+        """Verify PostgreSQL enforces CHECK (existencias >= 0) on material."""
         row = self.fetch_one(
             """
             SELECT pg_get_constraintdef(c.oid) AS definition
             FROM pg_constraint c
             JOIN pg_class t ON t.oid = c.conrelid
             JOIN pg_namespace n ON n.oid = t.relnamespace
-            WHERE n.nspname = 'inventario'
+            WHERE n.nspname IN ('public', 'inventario')
               AND t.relname = 'material'
               AND c.contype = 'c'
               AND pg_get_constraintdef(c.oid) ILIKE '%existencias%'

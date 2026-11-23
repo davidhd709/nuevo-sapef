@@ -21,6 +21,7 @@ import sys
 from app.core.config import obtener_configuracion
 from app.core.db import _fabrica_sesiones
 from app.core.logs import configurar_logs
+from app.modulos.activos import servicio as activos
 from app.modulos.configuracion import servicio as configuracion
 from app.modulos.seguridad import servicio as seguridad
 
@@ -34,6 +35,7 @@ def sembrar() -> dict[str, int]:
             db, archivo_max_evidencia_mb=config.archivo_max_evidencia_mb
         )
         conteos |= seguridad.sincronizar_permisos_y_roles(db)
+        conteos |= activos.sembrar_comodines_activos(db)
         db.commit()
     return conteos
 

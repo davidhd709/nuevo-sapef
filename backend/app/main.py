@@ -14,8 +14,10 @@ from app.core.config import obtener_configuracion
 from app.core.errores import registrar_manejadores
 from app.core.logs import configurar_logs, id_peticion, sede_log, usuario_log
 from app.core.tareas import app_tareas
+from app.modulos.activos.router import router as activos_router
 from app.modulos.archivos.router import router as archivos_router
 from app.modulos.configuracion.router import router as configuracion_router
+from app.modulos.migracion.router import router as migracion_router
 from app.modulos.seguridad.router import router as seguridad_router
 
 log = logging.getLogger("sapef.http")
@@ -75,6 +77,8 @@ def crear_app() -> FastAPI:
     app.include_router(seguridad_router, prefix="/api/v1")
     app.include_router(archivos_router, prefix="/api/v1")
     app.include_router(configuracion_router, prefix="/api/v1")
+    app.include_router(activos_router, prefix="/api/v1")
+    app.include_router(migracion_router, prefix="/api/v1")
     if not config.es_produccion:
         app.include_router(sistema.router, prefix="/api/v1")
     return app

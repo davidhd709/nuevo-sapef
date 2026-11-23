@@ -71,6 +71,8 @@ containers = [
     "app.modulos.seguridad",
     "app.modulos.archivos",
     "app.modulos.configuracion",
+    "app.modulos.activos",
+    "app.modulos.migracion",
 ]
 layers = [
     "router | (tareas)",
@@ -136,4 +138,6 @@ source_modules = ["app.modulos.seguridad"]
 forbidden_modules = [
     "app.modulos.archivos",
     "app.modulos.configuracion",
+    "app.modulos.activos",
+    "app.modulos.migracion",
 ]

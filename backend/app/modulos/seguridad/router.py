@@ -165,6 +165,11 @@ def cambiar_clave(
     response_model=PerfilActual,
     summary="Registrar aceptación de términos y condiciones",
 )
+@router.post(
+    "/yo/aceptar-condiciones",
+    response_model=PerfilActual,
+    summary="Registrar aceptación de términos y condiciones",
+)
 def aceptar_condiciones(
     usuario: Annotated[UsuarioAutenticado, Depends(servicio.requerir_usuario_sesion_abierta)],
     db: Annotated[Session, Depends(obtener_sesion)],

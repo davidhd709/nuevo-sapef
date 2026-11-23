@@ -1,10 +1,25 @@
 """Esquemas Pydantic v2 (DTOs) del módulo de seguridad."""
 
+import re
 from datetime import datetime
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import AliasChoices, BaseModel, BeforeValidator, Field
+
+_RE_CORREO = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+def _validar_correo(valor: Any) -> str:
+    if not isinstance(valor, str):
+        raise ValueError("Correo electrónico inválido.")
+    limpio = valor.strip().lower()
+    if len(limpio) > 254 or not _RE_CORREO.match(limpio):
+        raise ValueError("Correo electrónico inválido.")
+    return limpio
+
+
+CorreoValido = Annotated[str, BeforeValidator(_validar_correo)]
 
 
 class Pagina[T](BaseModel):
@@ -56,7 +71,7 @@ class IngresarEntrada(BaseModel):
 
 
 class RecuperarClaveEntrada(BaseModel):
-    correo: EmailStr
+    correo: CorreoValido
 
 
 class RestablecerClaveEntrada(BaseModel):
@@ -132,20 +147,22 @@ class UsuarioCrearEntrada(BaseModel):
     nombre_usuario: str = Field(min_length=3, max_length=80)
     nombre_completo: str = Field(min_length=2, max_length=180)
     identificacion: str = Field(min_length=2, max_length=40)
-    correo: EmailStr
+    correo: CorreoValido
     clave: str | None = Field(default=None, max_length=128)
     debe_cambiar_clave: bool = True
     rol_id: int
-    sede_ids: list[int] = Field(min_length=1)
+    sede_ids: list[int] = Field(min_length=1, validation_alias=AliasChoices("sede_ids", "sedes"))
     activo: bool = True
 
 
 class UsuarioEditarEntrada(BaseModel):
     nombre_completo: str | None = Field(default=None, min_length=2, max_length=180)
     identificacion: str | None = Field(default=None, min_length=2, max_length=40)
-    correo: EmailStr | None = None
+    correo: CorreoValido | None = None
     rol_id: int | None = None
-    sede_ids: list[int] | None = Field(default=None, min_length=1)
+    sede_ids: list[int] | None = Field(
+        default=None, min_length=1, validation_alias=AliasChoices("sede_ids", "sedes")
+    )
     activo: bool | None = None
     debe_cambiar_clave: bool | None = None
     clave: str | None = Field(default=None, max_length=128)
