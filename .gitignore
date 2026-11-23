@@ -1,0 +1,48 @@
+# Secretos y entornos
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+
+# Datos locales (nunca al repositorio: pueden contener datos personales)
+data/
+datos/
+.e2e_data/
+# Material de la ingeniería inversa: tráfico capturado de producción y el JS de SAPEF (de terceros)
+docs/.sapef-bundle/
+# Especificación y análisis de SAPEF: describen fallas de seguridad sin corregir de un sistema en
+# producción. El repositorio es público: se guardan solo en local (o en un repositorio privado).
+docs/MVP-SAPEF-NUEVO.md
+docs/analisis-sapef-rea.md
+docs/sapef-docs/
+# Cachés de import-linter
+.grimp_cache/
+.import_linter_cache/
+*.parquet
+*.xlsx
+*.xls
+*.csv
+*.pmtiles
+!frontend/**/fixtures/**
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json

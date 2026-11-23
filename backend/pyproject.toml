@@ -1,0 +1,139 @@
+[project]
+name = "sapef"
+version = "0.1.0"
+description = "Sistema de gestión de alumbrado público (Montelíbano y Alcalá)"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "sqlalchemy>=2.0.36",
+    "psycopg[binary]>=3.2",
+    "alembic>=1.14",
+    "procrastinate~=3.12.0",
+    "argon2-cffi>=25.1",
+    "email-validator>=2.2",
+    "python-multipart>=0.0.20",
+    "geoalchemy2>=0.15",
+    "duckdb>=1.1",
+    "pyarrow>=18.0",
+    "python-calamine>=0.3",
+    "openpyxl>=3.1",
+    "weasyprint>=63.0",
+    "pywebpush>=2.0",
+    "python-docx>=1.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.25",
+    "ruff>=0.8",
+    "import-linter>=2.1",
+    "httpx2>=2.16.2",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM"]
+ignore = ["S101"]  # assert en pruebas
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S"]
+
+# Fronteras entre capas y módulos.
+[tool.importlinter]
+root_package = "app"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "core no depende de los módulos de negocio"
+type = "forbidden"
+source_modules = ["app.core"]
+forbidden_modules = ["app.modulos"]
+
+[[tool.importlinter.contracts]]
+name = "capas internas por módulo"
+type = "layers"
+containers = [
+    "app.modulos.seguridad",
+    "app.modulos.archivos",
+    "app.modulos.configuracion",
+]
+layers = [
+    "router | (tareas)",
+    "servicio",
+    "dominio | repositorio",
+    "esquemas | modelos | (datos_semilla)",
+]
+exhaustive = true
+exhaustive_ignores = ["__init__"]
+
+[[tool.importlinter.contracts]]
+name = "router no salta la capa de servicio"
+type = "forbidden"
+source_modules = ["app.modulos.*.router"]
+forbidden_modules = [
+    "app.modulos.*.dominio",
+    "app.modulos.*.repositorio",
+    "app.modulos.*.modelos",
+    "app.modulos.*.tareas",
+]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+name = "dominio es puro sin BD, HTTP ni cola"
+type = "forbidden"
+source_modules = ["app.modulos.*.dominio"]
+forbidden_modules = [
+    "fastapi",
+    "starlette",
+    "sqlalchemy",
+    "geoalchemy2",
+    "psycopg",
+    "procrastinate",
+    "app.core.db",
+    "app.core.tareas",
+    "app.modulos.*.router",
+    "app.modulos.*.esquemas",
+    "app.modulos.*.servicio",
+    "app.modulos.*.repositorio",
+    "app.modulos.*.modelos",
+    "app.modulos.*.tareas",
+]
+
+[[tool.importlinter.contracts]]
+name = "frontera entre módulos: solo se importa servicio público"
+type = "forbidden"
+source_modules = ["app.modulos.*"]
+forbidden_modules = [
+    "app.modulos.*.router",
+    "app.modulos.*.esquemas",
+    "app.modulos.*.dominio",
+    "app.modulos.*.repositorio",
+    "app.modulos.*.modelos",
+    "app.modulos.*.tareas",
+    "app.modulos.*.datos_semilla",
+]
+allow_indirect_imports = true
+
+[[tool.importlinter.contracts]]
+name = "seguridad es raíz sin dependencias hacia otros módulos"
+type = "forbidden"
+source_modules = ["app.modulos.seguridad"]
+forbidden_modules = [
+    "app.modulos.archivos",
+    "app.modulos.configuracion",
+]

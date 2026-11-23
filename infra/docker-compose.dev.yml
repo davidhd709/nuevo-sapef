@@ -1,0 +1,62 @@
+# Entorno de desarrollo: PostgreSQL + PostGIS y la API.
+# Uso (desde la raíz):  docker compose -f infra/docker-compose.dev.yml --env-file .env up -d --build
+name: sapef-dev
+
+services:
+  db:
+    image: postgis/postgis:17-3.5
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sapef}
+      POSTGRES_USER: ${POSTGRES_USER:-sapef}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD en .env}
+    ports:
+      # Solo en este equipo; puerto distinto de 5432 para no chocar con otras bases locales.
+      - "127.0.0.1:${POSTGRES_PUERTO_LOCAL:-55432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Aplica las migraciones y la semilla (idempotente) y termina.
+  # La API y el worker arrancan solo si terminó bien.
+  # Primer administrador (una vez):
+  #   docker compose -f infra/docker-compose.dev.yml --env-file .env run --rm -it migraciones \
+  #     python -m app.semillas admin --usuario admin --correo admin@ejemplo.co
+  migraciones:
+    image: sapef-backend:dev
+    build:
+      context: ../backend
+    environment: &entorno_backend
+      SAPEF_ENTORNO: desarrollo
+      SAPEF_LOG_NIVEL: ${SAPEF_LOG_NIVEL:-INFO}
+      SAPEF_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-sapef}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-sapef}
+    command: ["sh", "-c", "alembic upgrade head && python -m app.semillas"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    image: sapef-backend:dev
+    environment: *entorno_backend
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      migraciones:
+        condition: service_completed_successfully
+
+  worker:
+    image: sapef-backend:dev
+    environment: *entorno_backend
+    command: ["python", "-m", "app.worker"]
+    healthcheck:
+      disable: true
+    depends_on:
+      migraciones:
+        condition: service_completed_successfully
+
+volumes:
+  pgdata:

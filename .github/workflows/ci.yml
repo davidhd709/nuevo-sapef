@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      db:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_DB: sapef
+          POSTGRES_USER: sapef
+          POSTGRES_PASSWORD: ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U sapef" --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      SAPEF_DATABASE_URL: postgresql+psycopg://sapef:ci@127.0.0.1:5432/sapef
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - name: Estilo
+        run: uv run ruff check .
+      - name: Fronteras entre módulos
+        run: uv run lint-imports
+      - name: Migraciones (subir, bajar, subir, sin cambios pendientes)
+        run: |
+          uv run alembic upgrade head
+          uv run alembic downgrade base
+          uv run alembic upgrade head
+          uv run alembic check
+      - name: Semilla (dos veces; la segunda no debe fallar ni duplicar)
+        run: |
+          uv run python -m app.semillas
+          uv run python -m app.semillas
+      - name: Pruebas
+        run: uv run pytest
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: frontend
+      - run: uv sync --frozen
+        working-directory: backend
+      - name: El cliente del frontend está al día con la API
+        working-directory: frontend
+        run: |
+          pnpm --filter @sapef/api exec node scripts/generar.mjs
+          git diff --exit-code -- packages/api
+      - run: pnpm typecheck
+        working-directory: frontend
+      - run: pnpm test
+        working-directory: frontend
+      - run: pnpm build
+        working-directory: frontend

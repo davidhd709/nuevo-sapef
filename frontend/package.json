@@ -1,0 +1,12 @@
+{
+  "name": "sapef-frontend",
+  "private": true,
+  "packageManager": "pnpm@11.23.0",
+  "scripts": {
+    "api": "pnpm --filter @sapef/api generar",
+    "dev": "pnpm --filter @sapef/web dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test"
+  }
+}
