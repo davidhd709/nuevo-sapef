@@ -396,12 +396,17 @@ def obtener_historial_luminaria(
         UbicacionHistorialSalida(**u)
         for u in repositorio.listar_ubicaciones_luminaria(db, luminaria_id)
     ]
+    eventos_dict = [e.model_dump() for e in eventos]
     return HistorialLuminariaSalida(
         luminaria=_a_luminaria_salida(fila),
         eventos=eventos,
         ubicaciones=ubicaciones,
-        pqrs=[],
-        ordenes=[],
+        pqrs=dominio.agrupar_eventos_por(
+            eventos_dict, "pqrs_id", ("pqrs_numero", "observacion_solicitante")
+        ),
+        ordenes=dominio.agrupar_eventos_por(
+            eventos_dict, "orden_id", ("orden_numero", "orden_tipo")
+        ),
     )
 
 
@@ -794,3 +799,249 @@ def sembrar_comodines_activos(db: Session) -> dict[str, int]:
             creados += 1
     db.flush()
     return {"comodines_creados": creados}
+
+
+# === Operaciones para otros módulos (atención, trabajos, inventario) ===========================
+# Ninguna hace commit: quien llama controla la transacción (el cierre de una orden es atómico).
+
+ESTADO_OPERACION = "121"
+ESTADO_ACTIVO_PQR = "122"
+ESTADO_BODEGA_BUENA = "124"
+ESTADO_SIN_IDENTIFICAR = "110"
+ESTADOS_BODEGA = ("124", "123", "125", "112", "126")
+ESTADOS_EN_SITIO = ("121", "122")
+
+
+def _id_estado(db: Session, codigo: str) -> int:
+    estado = config_servicio.obtener_estado_por_id_o_codigo(db, "luminaria", codigo=codigo)
+    if estado is None:
+        raise HTTPException(status_code=422, detail=f"El estado de luminaria {codigo} no existe.")
+    return int(estado["id"])
+
+
+def _codigos_estado(db: Session) -> dict[int, str]:
+    return {e.id: e.codigo for e in config_servicio.listar_estados(db, "luminaria")}
+
+
+def resumen_luminarias(db: Session, sede_id: int, ids: list[int]) -> dict[int, dict[str, Any]]:
+    """Datos básicos de las luminarias de la sede (las de otra sede no aparecen)."""
+    codigos = _codigos_estado(db)
+    resultado: dict[int, dict[str, Any]] = {}
+    for luminaria_id in dict.fromkeys(ids):
+        fila = repositorio.obtener_detalle_fila(db, sede_id, luminaria_id)
+        if fila is None:
+            continue
+        resultado[luminaria_id] = {
+            "id": fila["id"],
+            "codigo": fila["codigo"],
+            "estado_id": fila["estado_id"],
+            "estado_codigo": codigos.get(fila["estado_id"]),
+            "es_comodin": bool(fila["es_comodin"]),
+            "barrio_id": fila["barrio_id"],
+            "barrio_nombre": fila["barrio_nombre"],
+            "poste": fila["poste"],
+            "latitud": float(fila["latitud"]) if fila["latitud"] is not None else None,
+            "longitud": float(fila["longitud"]) if fila["longitud"] is not None else None,
+        }
+    return resultado
+
+
+def codigos_luminarias(db: Session, ids: list[int]) -> dict[int, tuple[str, bool]]:
+    """{id: (código, es_comodín)} en una sola consulta (para listados de otros módulos)."""
+    return repositorio.codigos_por_ids(db, list(dict.fromkeys(ids)))
+
+
+def obtener_luminaria_por_codigo(db: Session, sede_id: int, codigo: str) -> dict[str, Any] | None:
+    lum = repositorio.obtener_por_codigo(db, sede_id, codigo)
+    if lum is None:
+        return None
+    return resumen_luminarias(db, sede_id, [lum.id]).get(lum.id)
+
+
+def _evento(
+    db: Session,
+    lum: Luminaria,
+    *,
+    tipo: str,
+    actor_id: int | None,
+    estado_anterior_id: int | None = None,
+    orden_id: int | None = None,
+    pqrs_id: int | None = None,
+    detalle: dict[str, Any] | None = None,
+) -> None:
+    repositorio.crear_evento(
+        db,
+        EventoActivo(
+            luminaria_id=lum.id,
+            tipo=tipo,
+            orden_id=orden_id,
+            pqrs_id=pqrs_id,
+            estado_anterior_id=estado_anterior_id,
+            estado_nuevo_id=lum.estado_id if estado_anterior_id is not None else None,
+            detalle=detalle or {},
+            creado_por=actor_id,
+        ),
+    )
+
+
+def _bloquear(db: Session, sede_id: int, luminaria_id: int) -> Luminaria:
+    lum = repositorio.obtener_para_actualizar(db, sede_id, luminaria_id)
+    if lum is None:
+        raise HTTPException(status_code=404, detail="Luminaria no encontrada.")
+    return lum
+
+
+def cambiar_estado_luminaria(
+    db: Session,
+    *,
+    sede_id: int,
+    luminaria_id: int,
+    estado_codigo: str,
+    tipo_evento: str,
+    actor_id: int | None,
+    origenes_permitidos: tuple[str, ...] | None = None,
+    orden_id: int | None = None,
+    pqrs_id: int | None = None,
+    detalle: dict[str, Any] | None = None,
+) -> str:
+    """Cambia el estado y deja el evento en la hoja de vida. Devuelve el código anterior.
+
+    409 si el estado actual no está entre `origenes_permitidos`.
+    """
+    lum = _bloquear(db, sede_id, luminaria_id)
+    actual = _codigos_estado(db).get(lum.estado_id, "")
+    if origenes_permitidos is not None and actual not in origenes_permitidos:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"La luminaria {lum.codigo} está en estado {actual}; se esperaba "
+                f"{' o '.join(origenes_permitidos)}."
+            ),
+        )
+    anterior_id = lum.estado_id
+    lum.estado_id = _id_estado(db, estado_codigo)
+    lum.modificado_por = actor_id
+    if estado_codigo == "126" and lum.fecha_disposicion_final is None:
+        lum.fecha_disposicion_final = date.today()
+    if estado_codigo == "123" and lum.fecha_baja is None:
+        lum.fecha_baja = date.today()
+    db.flush()
+    _evento(db, lum, tipo=tipo_evento, actor_id=actor_id, estado_anterior_id=anterior_id,
+            orden_id=orden_id, pqrs_id=pqrs_id, detalle=detalle)
+    return actual
+
+
+def registrar_evento_luminaria(
+    db: Session,
+    *,
+    sede_id: int,
+    luminaria_id: int,
+    tipo: str,
+    actor_id: int | None,
+    orden_id: int | None = None,
+    pqrs_id: int | None = None,
+    detalle: dict[str, Any] | None = None,
+) -> None:
+    """Evento en la hoja de vida sin cambio de estado (p. ej., PQRS sobre la comodín)."""
+    lum = repositorio.obtener_por_id(db, sede_id, luminaria_id)
+    if lum is None:
+        raise HTTPException(status_code=404, detail="Luminaria no encontrada.")
+    _evento(db, lum, tipo=tipo, actor_id=actor_id, orden_id=orden_id, pqrs_id=pqrs_id,
+            detalle=detalle)
+
+
+def instalar_luminaria(
+    db: Session,
+    *,
+    sede_id: int,
+    luminaria_id: int,
+    actor_id: int | None,
+    orden_id: int,
+    tipo_evento: str,
+    latitud: float,
+    longitud: float,
+    barrio_id: int | None = None,
+    poste: str | None = None,
+    marca_id: int | None = None,
+    longitud_brazo: Any = None,
+    fecha: date | None = None,
+    tipo_intervencion_codigo: str | None = None,
+    reemplaza_a_id: int | None = None,
+    detalle: dict[str, Any] | None = None,
+) -> None:
+    """Saca una luminaria de bodega buena (124) y la deja en operación (121) en el sitio."""
+    try:
+        coords = dominio.validar_coordenadas(latitud, longitud)
+    except dominio.ErrorDominioActivo as exc:
+        raise _traducir_error(exc) from exc
+    assert coords is not None
+    barrio_ajeno = (
+        barrio_id is not None
+        and config_servicio.resolver_barrio_sede(db, sede_id, barrio_id) is None
+    )
+    if barrio_ajeno:
+        raise HTTPException(status_code=404, detail="El barrio no pertenece a la sede activa.")
+    if marca_id is not None and config_servicio.obtener_valor_maestro(
+        db, "LUMINARIA_MARCA", valor_id=marca_id
+    ) is None:
+        raise HTTPException(status_code=422, detail="La marca indicada no existe.")
+
+    lum = _bloquear(db, sede_id, luminaria_id)
+    actual = _codigos_estado(db).get(lum.estado_id, "")
+    if actual != ESTADO_BODEGA_BUENA:
+        raise HTTPException(
+            status_code=409,
+            detail=f"La luminaria {lum.codigo} no está en bodega buena (124): está en {actual}.",
+        )
+    anterior_id = lum.estado_id
+    ubicacion_anterior = lum.ubicacion
+    nueva = _geom_wkt(coords)
+    lum.estado_id = _id_estado(db, ESTADO_OPERACION)
+    lum.ubicacion = nueva
+    lum.barrio_id = barrio_id if barrio_id is not None else lum.barrio_id
+    lum.poste = poste.strip() if poste else lum.poste
+    lum.marca_id = marca_id if marca_id is not None else lum.marca_id
+    if longitud_brazo is not None:
+        lum.longitud_brazo = longitud_brazo
+    lum.fecha_instalacion = fecha or date.today()
+    if reemplaza_a_id is not None:
+        lum.luminaria_reemplazada_id = reemplaza_a_id
+    if tipo_intervencion_codigo:
+        valor = config_servicio.obtener_valor_maestro(
+            db, "TIPO_INTERVENCION", codigo=tipo_intervencion_codigo
+        )
+        if valor is not None:
+            lum.tipo_intervencion_id = int(valor["id"])
+    lum.modificado_por = actor_id
+    db.flush()
+    repositorio.crear_ubicacion_historial(
+        db,
+        LuminariaUbicacion(
+            luminaria_id=lum.id,
+            ubicacion_anterior=ubicacion_anterior,
+            ubicacion_nueva=nueva,
+            origen="orden",
+            cambiado_por=actor_id,
+        ),
+    )
+    _evento(db, lum, tipo=tipo_evento, actor_id=actor_id, estado_anterior_id=anterior_id,
+            orden_id=orden_id,
+            detalle={**(detalle or {}), "latitud": coords[0], "longitud": coords[1]})
+
+
+def listar_luminarias_bodega(
+    db: Session,
+    sede: SedeResumen,
+    *,
+    page: int = 1,
+    size: int = 20,
+    texto: str | None = None,
+    estado_id: int | None = None,
+) -> Pagina[LuminariaSalida]:
+    filas, total = repositorio.listar_luminarias(
+        db, sede.id, page=page, size=size, texto=texto, estado_id=estado_id,
+        estado_codigos=list(ESTADOS_BODEGA),
+    )
+    return Pagina[LuminariaSalida](
+        items=[_a_luminaria_salida(f) for f in filas], total=total, page=page, size=size
+    )

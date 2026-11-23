@@ -940,6 +940,475 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/materiales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Materiales de la sede */
+        get: operations["listar_materiales_api_v1_materiales_get"];
+        put?: never;
+        /** Crear un material */
+        post: operations["crear_material_api_v1_materiales_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/materiales/{material_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Un material */
+        get: operations["obtener_material_api_v1_materiales__material_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Editar un material (las existencias solo cambian con movimientos) */
+        patch: operations["editar_material_api_v1_materiales__material_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/materiales/{material_id}/movimientos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Kárdex de un material */
+        get: operations["listar_movimientos_api_v1_materiales__material_id__movimientos_get"];
+        put?: never;
+        /** Registrar entrada, salida o ajuste (sin existencias negativas) */
+        post: operations["registrar_movimiento_api_v1_materiales__material_id__movimientos_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bodega/luminarias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Luminarias en bodega (124, 123, 125, 112, 126) */
+        get: operations["listar_bodega_api_v1_bodega_luminarias_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bodega/luminarias/{luminaria_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Cambiar el estado en bodega (126 es terminal) */
+        patch: operations["cambiar_estado_bodega_api_v1_bodega_luminarias__luminaria_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/bodega/cargue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cargar estados de bodega desde Excel (todo o nada, en segundo plano) */
+        post: operations["cargar_bodega_api_v1_bodega_cargue_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bodega/cargue/{cargue_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Resultado de un cargue de bodega */
+        get: operations["obtener_cargue_bodega_api_v1_bodega_cargue__cargue_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ciudadanos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Buscar solicitantes (sin tildes; enmascarados sin permiso de datos personales) */
+        get: operations["buscar_ciudadanos_api_v1_ciudadanos_get"];
+        put?: never;
+        /** Registrar solicitante */
+        post: operations["crear_ciudadano_api_v1_ciudadanos_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ciudadanos/{ciudadano_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Un solicitante */
+        get: operations["obtener_ciudadano_api_v1_ciudadanos__ciudadano_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Editar solicitante */
+        patch: operations["editar_ciudadano_api_v1_ciudadanos__ciudadano_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/pqrs/pendientes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Luminarias con PQRS abierta y su semáforo (umbrales de la sede) */
+        get: operations["listar_pendientes_api_v1_pqrs_pendientes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pqrs/exportar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Exportar PQRS a Excel (segundo plano) */
+        post: operations["exportar_pqrs_api_v1_pqrs_exportar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pqrs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar PQRS (por defecto, 30 días) */
+        get: operations["listar_pqrs_api_v1_pqrs_get"];
+        put?: never;
+        /** Registrar una PQRS (canal obligatorio; una o varias luminarias) */
+        post: operations["crear_pqrs_api_v1_pqrs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pqrs/{pqrs_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Detalle de una PQRS */
+        get: operations["obtener_pqrs_api_v1_pqrs__pqrs_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Editar una PQRS abierta */
+        patch: operations["editar_pqrs_api_v1_pqrs__pqrs_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/pqrs/{pqrs_id}/anular": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Anular una PQRS */
+        post: operations["anular_pqrs_api_v1_pqrs__pqrs_id__anular_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pqrs/{pqrs_id}/luminarias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Agregar una luminaria a la PQRS */
+        post: operations["agregar_luminaria_api_v1_pqrs__pqrs_id__luminarias_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pqrs/{pqrs_id}/luminarias/{luminaria_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Quitar una luminaria no reparada (no la última) */
+        delete: operations["quitar_luminaria_api_v1_pqrs__pqrs_id__luminarias__luminaria_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tecnicos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Técnicos de la sede */
+        get: operations["listar_tecnicos_api_v1_tecnicos_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cuadrillas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cuadrillas de la sede */
+        get: operations["listar_cuadrillas_api_v1_cuadrillas_get"];
+        put?: never;
+        /** Crear una cuadrilla */
+        post: operations["crear_cuadrilla_api_v1_cuadrillas_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cuadrillas/{cuadrilla_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Editar una cuadrilla */
+        patch: operations["editar_cuadrilla_api_v1_cuadrillas__cuadrilla_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/ordenes/plantillas/{tipo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Plantilla Excel del cargue masivo */
+        get: operations["descargar_plantilla_api_v1_ordenes_plantillas__tipo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ordenes/cargue-masivo/{tipo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cargar órdenes ejecutadas desde Excel (todo o nada, en segundo plano) */
+        post: operations["cargar_masivo_api_v1_ordenes_cargue_masivo__tipo__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ordenes/cargue-masivo/{cargue_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Resultado de un cargue masivo (errores por fila) */
+        get: operations["obtener_cargue_api_v1_ordenes_cargue_masivo__cargue_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ordenes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Órdenes de la sede (por defecto, 2 meses; con ver_propias, solo las asignadas) */
+        get: operations["listar_ordenes_api_v1_ordenes_get"];
+        put?: never;
+        /** Crear una orden (desde una PQRS o directa) */
+        post: operations["crear_orden_api_v1_ordenes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ordenes/{orden_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Detalle de una orden */
+        get: operations["obtener_orden_api_v1_ordenes__orden_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Editar una orden abierta */
+        patch: operations["editar_orden_api_v1_ordenes__orden_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/ordenes/{orden_id}/asignar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Asignar a un técnico o cuadrilla de la sede (con aviso push) */
+        post: operations["asignar_orden_api_v1_ordenes__orden_id__asignar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ordenes/{orden_id}/cerrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cerrar la orden: luminarias, materiales y evidencias en una sola transacción */
+        post: operations["cerrar_orden_api_v1_ordenes__orden_id__cerrar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ordenes/{orden_id}/anular": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Anular una orden */
+        post: operations["anular_orden_api_v1_ordenes__orden_id__anular_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sistema/tareas/prueba": {
         parameters: {
             query?: never;
@@ -1257,6 +1726,23 @@ export interface components {
             /** Activo */
             activo: boolean;
         };
+        /** BodegaCambioEntrada */
+        BodegaCambioEntrada: {
+            /** Estado Id */
+            estado_id: number;
+            /** Observacion */
+            observacion?: string | null;
+        };
+        /** Body_cargar_bodega_api_v1_bodega_cargue_post */
+        Body_cargar_bodega_api_v1_bodega_cargue_post: {
+            /** Archivo */
+            archivo: string;
+        };
+        /** Body_cargar_masivo_api_v1_ordenes_cargue_masivo__tipo__post */
+        Body_cargar_masivo_api_v1_ordenes_cargue_masivo__tipo__post: {
+            /** Archivo */
+            archivo: string;
+        };
         /** Body_importar_base_api_v1_migracion_base_post */
         Body_importar_base_api_v1_migracion_base_post: {
             /** Archivo */
@@ -1284,6 +1770,50 @@ export interface components {
             clave_actual: string;
             /** Clave Nueva */
             clave_nueva: string;
+        };
+        /** CargueBodegaSalida */
+        CargueBodegaSalida: {
+            /** Id */
+            id: number;
+            /** Estado */
+            estado: string;
+            /** Filas */
+            filas: number;
+            /** Errores */
+            errores: {
+                [key: string]: unknown;
+            }[];
+            /**
+             * Creado En
+             * Format: date-time
+             */
+            creado_en: string;
+            /** Procesado En */
+            procesado_en: string | null;
+        };
+        /** CargueMasivoSalida */
+        CargueMasivoSalida: {
+            /** Id */
+            id: number;
+            /** Tipo */
+            tipo: string;
+            /** Estado */
+            estado: string;
+            /** Filas */
+            filas: number;
+            /** Ordenes Creadas */
+            ordenes_creadas: number;
+            /** Errores */
+            errores: {
+                [key: string]: unknown;
+            }[];
+            /**
+             * Creado En
+             * Format: date-time
+             */
+            creado_en: string;
+            /** Procesado En */
+            procesado_en: string | null;
         };
         /** CatalogoComercialCrearEntrada */
         CatalogoComercialCrearEntrada: {
@@ -1328,6 +1858,62 @@ export interface components {
             /** Activo */
             activo: boolean;
         };
+        /** CiudadanoCrearEntrada */
+        CiudadanoCrearEntrada: {
+            /** Identificacion */
+            identificacion: string;
+            /** Nombre Completo */
+            nombre_completo: string;
+            /** Barrio Id */
+            barrio_id?: number | null;
+            /** Sector */
+            sector?: string | null;
+            /** Telefono */
+            telefono?: string | null;
+            /** Celular */
+            celular?: string | null;
+            /** Correo */
+            correo?: string | null;
+        };
+        /** CiudadanoEditarEntrada */
+        CiudadanoEditarEntrada: {
+            /** Nombre Completo */
+            nombre_completo?: string | null;
+            /** Barrio Id */
+            barrio_id?: number | null;
+            /** Sector */
+            sector?: string | null;
+            /** Telefono */
+            telefono?: string | null;
+            /** Celular */
+            celular?: string | null;
+            /** Correo */
+            correo?: string | null;
+        };
+        /** CiudadanoSalida */
+        CiudadanoSalida: {
+            /** Id */
+            id: number;
+            /** Identificacion */
+            identificacion: string;
+            /** Nombre Completo */
+            nombre_completo: string;
+            /** Barrio Id */
+            barrio_id: number | null;
+            /** Sector */
+            sector: string | null;
+            /** Telefono */
+            telefono: string | null;
+            /** Celular */
+            celular: string | null;
+            /** Correo */
+            correo: string | null;
+            /**
+             * Enmascarado
+             * @default false
+             */
+            enmascarado: boolean;
+        };
         /** ComercializadorSalida */
         ComercializadorSalida: {
             /** Id */
@@ -1344,6 +1930,38 @@ export interface components {
             periodicidad: string;
             /** Activo */
             activo: boolean;
+        };
+        /** CuadrillaCrearEntrada */
+        CuadrillaCrearEntrada: {
+            /** Nombre */
+            nombre: string;
+            /** Tecnicos Ids */
+            tecnicos_ids?: number[];
+            /**
+             * Activa
+             * @default true
+             */
+            activa: boolean;
+        };
+        /** CuadrillaEditarEntrada */
+        CuadrillaEditarEntrada: {
+            /** Nombre */
+            nombre?: string | null;
+            /** Tecnicos Ids */
+            tecnicos_ids?: number[] | null;
+            /** Activa */
+            activa?: boolean | null;
+        };
+        /** CuadrillaSalida */
+        CuadrillaSalida: {
+            /** Id */
+            id: number;
+            /** Nombre */
+            nombre: string;
+            /** Activa */
+            activa: boolean;
+            /** Tecnicos */
+            tecnicos: components["schemas"]["TecnicoSalida"][];
         };
         /** EjecucionMigracionSalida */
         EjecucionMigracionSalida: {
@@ -1444,6 +2062,34 @@ export interface components {
             /** Creado Por */
             creado_por: number | null;
         };
+        /** EvidenciaEntrada */
+        EvidenciaEntrada: {
+            /**
+             * Archivo Id
+             * Format: uuid
+             */
+            archivo_id: string;
+            /**
+             * Tipo
+             * @enum {string}
+             */
+            tipo: "foto" | "firma" | "firma_tecnico" | "firma_oficial" | "firma_quien_recibe" | "firma_solicitante" | "audio" | "adjunto" | "soporte";
+        };
+        /** EvidenciaOrdenSalida */
+        EvidenciaOrdenSalida: {
+            /**
+             * Archivo Id
+             * Format: uuid
+             */
+            archivo_id: string;
+            /** Tipo */
+            tipo: string;
+            /**
+             * Creado En
+             * Format: date-time
+             */
+            creado_en: string;
+        };
         /** ExcepcionEntrada */
         ExcepcionEntrada: {
             /** Identificador */
@@ -1512,6 +2158,27 @@ export interface components {
              * @enum {string}
              */
             tipo_cliente: "web" | "pwa";
+        };
+        /** InstalacionSalida */
+        InstalacionSalida: {
+            /** Tipo Valor Id */
+            tipo_valor_id: number | null;
+            /** Barrio Id */
+            barrio_id: number | null;
+            /** Marca Id */
+            marca_id: number | null;
+            /** Poste */
+            poste: string | null;
+            /** Longitud Brazo */
+            longitud_brazo: string | null;
+            /** Referencia */
+            referencia: string | null;
+            /** Novedades */
+            novedades: string | null;
+            /** Destino Desmontada */
+            destino_desmontada: string | null;
+            /** Comentario */
+            comentario: string | null;
         };
         /** LoteCrearEntrada */
         LoteCrearEntrada: {
@@ -1876,10 +2543,352 @@ export interface components {
             /** Activo */
             activo: boolean;
         };
+        /** MantenimientoSalida */
+        MantenimientoSalida: {
+            /** Sitio Arreglo */
+            sitio_arreglo: string | null;
+            /** Quien Recibe */
+            quien_recibe: string | null;
+            /** Observacion Tecnica */
+            observacion_tecnica: string | null;
+            /** Requiere Desmonte */
+            requiere_desmonte: boolean;
+            /** Causal Desmonte */
+            causal_desmonte: string | null;
+            /** Luminaria Reemplazo Id */
+            luminaria_reemplazo_id: number | null;
+            /** Destino Desmontada */
+            destino_desmontada: string | null;
+            /** Componentes */
+            componentes: {
+                [key: string]: boolean;
+            };
+        };
+        /** MaterialCrearEntrada */
+        MaterialCrearEntrada: {
+            /** Categoria */
+            categoria: string;
+            /** Codigo */
+            codigo: string;
+            /** Descripcion */
+            descripcion: string;
+            /** Unidad */
+            unidad: string;
+            /**
+             * Existencias
+             * @default 0
+             */
+            existencias: number | string;
+            /**
+             * Existencias Minimas
+             * @default 0
+             */
+            existencias_minimas: number | string;
+            /** Responsable */
+            responsable?: string | null;
+            /**
+             * Activo
+             * @default true
+             */
+            activo: boolean;
+        };
+        /**
+         * MaterialEditarEntrada
+         * @description Las existencias no se editan aquí: solo cambian con un movimiento del kárdex.
+         */
+        MaterialEditarEntrada: {
+            /** Categoria */
+            categoria?: string | null;
+            /** Descripcion */
+            descripcion?: string | null;
+            /** Unidad */
+            unidad?: string | null;
+            /** Existencias Minimas */
+            existencias_minimas?: number | string | null;
+            /** Responsable */
+            responsable?: string | null;
+            /** Activo */
+            activo?: boolean | null;
+        };
+        /** MaterialSalida */
+        MaterialSalida: {
+            /** Id */
+            id: number;
+            /** Sede Id */
+            sede_id: number;
+            /** Categoria */
+            categoria: string;
+            /** Codigo */
+            codigo: string;
+            /** Descripcion */
+            descripcion: string;
+            /** Unidad */
+            unidad: string;
+            /** Existencias */
+            existencias: string;
+            /** Existencias Minimas */
+            existencias_minimas: string;
+            /** Bajo Minimo */
+            bajo_minimo: boolean;
+            /** Responsable */
+            responsable: string | null;
+            /** Activo */
+            activo: boolean;
+            /**
+             * Modificado En
+             * Format: date-time
+             */
+            modificado_en: string;
+        };
+        /** MaterialUsadoSalida */
+        MaterialUsadoSalida: {
+            /** Material Id */
+            material_id: number;
+            /** Material Codigo */
+            material_codigo: string;
+            /** Cantidad */
+            cantidad: string;
+        };
+        /** MaterialUsoEntrada */
+        MaterialUsoEntrada: {
+            /** Material Id */
+            material_id: number;
+            /** Cantidad */
+            cantidad: number | string;
+        };
         /** MensajeSalida */
         MensajeSalida: {
             /** Mensaje */
             mensaje: string;
+        };
+        /** MovimientoEntrada */
+        MovimientoEntrada: {
+            /**
+             * Tipo
+             * @enum {string}
+             */
+            tipo: "entrada" | "salida" | "ajuste";
+            /** Cantidad */
+            cantidad: number | string;
+            /** Descripcion */
+            descripcion?: string | null;
+            /** Uuid Origen */
+            uuid_origen?: string | null;
+            /** Latitud */
+            latitud?: number | null;
+            /** Longitud */
+            longitud?: number | null;
+        };
+        /** MovimientoSalida */
+        MovimientoSalida: {
+            /** Id */
+            id: number;
+            /** Material Id */
+            material_id: number;
+            /** Material Codigo */
+            material_codigo: string;
+            /** Tipo */
+            tipo: string;
+            /** Cantidad */
+            cantidad: string;
+            /** Delta */
+            delta: string;
+            /** Existencias Resultantes */
+            existencias_resultantes: string;
+            /** Origen */
+            origen: string;
+            /** Descripcion */
+            descripcion: string | null;
+            /** Orden Id */
+            orden_id: number | null;
+            /** Uuid Origen */
+            uuid_origen: string | null;
+            /**
+             * Creado En
+             * Format: date-time
+             */
+            creado_en: string;
+            /** Creado Por */
+            creado_por: number | null;
+        };
+        /** OrdenAnularEntrada */
+        OrdenAnularEntrada: {
+            /** Motivo */
+            motivo: string;
+        };
+        /** OrdenAsignarEntrada */
+        OrdenAsignarEntrada: {
+            /** Tecnico Id */
+            tecnico_id?: number | null;
+            /** Cuadrilla Id */
+            cuadrilla_id?: number | null;
+            /** Fecha Programada */
+            fecha_programada?: string | null;
+        };
+        /**
+         * OrdenCerrarEntrada
+         * @description Cierre de cualquier tipo de orden. Se validan los campos que exige el tipo; los demás se
+         *     ignoran (un formulario genérico puede mandar campos de otro tipo).
+         */
+        OrdenCerrarEntrada: {
+            /** Fecha Ejecucion */
+            fecha_ejecucion?: string | null;
+            /** Observaciones */
+            observaciones?: string | null;
+            /** Latitud */
+            latitud?: number | null;
+            /** Longitud */
+            longitud?: number | null;
+            /** Materiales */
+            materiales?: components["schemas"]["MaterialUsoEntrada"][];
+            /** Evidencias */
+            evidencias?: components["schemas"]["EvidenciaEntrada"][];
+            /** Sitio Arreglo */
+            sitio_arreglo?: string | null;
+            /** Quien Recibe */
+            quien_recibe?: string | null;
+            /** Observacion Tecnica */
+            observacion_tecnica?: string | null;
+            /**
+             * Requiere Desmonte
+             * @default false
+             */
+            requiere_desmonte: boolean;
+            /** Causal Desmonte */
+            causal_desmonte?: string | null;
+            /** Luminaria Reemplazo Id */
+            luminaria_reemplazo_id?: number | null;
+            /** Componentes */
+            componentes?: {
+                [key: string]: unknown;
+            } | null;
+            /** Tipo Expansion Id */
+            tipo_expansion_id?: number | null;
+            /** Tipo Modernizacion Id */
+            tipo_modernizacion_id?: number | null;
+            /** Barrio Id */
+            barrio_id?: number | null;
+            /** Marca Id */
+            marca_id?: number | null;
+            /** Poste */
+            poste?: string | null;
+            /** Longitud Brazo */
+            longitud_brazo?: number | string | null;
+            /** Referencia */
+            referencia?: string | null;
+            /** Novedades */
+            novedades?: string | null;
+            /** Comentario */
+            comentario?: string | null;
+            /** Destino Desmontada */
+            destino_desmontada?: string | null;
+        };
+        /** OrdenCrearEntrada */
+        OrdenCrearEntrada: {
+            /**
+             * Tipo
+             * @enum {string}
+             */
+            tipo: "mantenimiento" | "modernizacion" | "expansion" | "reubicacion";
+            /**
+             * Prioridad
+             * @default 2
+             */
+            prioridad: number;
+            /** Pqrs Id */
+            pqrs_id?: number | null;
+            /** Observaciones */
+            observaciones?: string | null;
+            /** Fecha Programada */
+            fecha_programada?: string | null;
+            /** Luminarias */
+            luminarias: components["schemas"]["OrdenLuminariaEntrada"][];
+        };
+        /** OrdenEditarEntrada */
+        OrdenEditarEntrada: {
+            /** Prioridad */
+            prioridad?: number | null;
+            /** Observaciones */
+            observaciones?: string | null;
+            /** Fecha Programada */
+            fecha_programada?: string | null;
+        };
+        /** OrdenLuminariaEntrada */
+        OrdenLuminariaEntrada: {
+            /** Luminaria Id */
+            luminaria_id: number;
+            /**
+             * Rol
+             * @enum {string}
+             */
+            rol: "intervenida" | "instalada" | "desmontada";
+        };
+        /** OrdenLuminariaSalida */
+        OrdenLuminariaSalida: {
+            /** Luminaria Id */
+            luminaria_id: number;
+            /** Luminaria Codigo */
+            luminaria_codigo: string;
+            /** Rol */
+            rol: string;
+        };
+        /** OrdenSalida */
+        OrdenSalida: {
+            /** Id */
+            id: number;
+            /** Sede Id */
+            sede_id: number;
+            /** Numero */
+            numero: number;
+            /** Tipo */
+            tipo: string;
+            /** Estado Id */
+            estado_id: number;
+            /** Estado Codigo */
+            estado_codigo: string;
+            /** Estado Nombre */
+            estado_nombre: string;
+            /** Prioridad */
+            prioridad: number;
+            /** Pqrs Id */
+            pqrs_id: number | null;
+            /** Tecnico Id */
+            tecnico_id: number | null;
+            /** Tecnico Nombre */
+            tecnico_nombre: string | null;
+            /** Cuadrilla Id */
+            cuadrilla_id: number | null;
+            /** Cuadrilla Nombre */
+            cuadrilla_nombre: string | null;
+            /** Fecha Programada */
+            fecha_programada: string | null;
+            /** Asignada En */
+            asignada_en: string | null;
+            /** Fecha Ejecucion */
+            fecha_ejecucion: string | null;
+            /** Latitud */
+            latitud: number | null;
+            /** Longitud */
+            longitud: number | null;
+            /** Observaciones */
+            observaciones: string | null;
+            /** Motivo Anulacion */
+            motivo_anulacion: string | null;
+            /** Origen */
+            origen: string;
+            /** Luminarias */
+            luminarias: components["schemas"]["OrdenLuminariaSalida"][];
+            mantenimiento: components["schemas"]["MantenimientoSalida"] | null;
+            instalacion: components["schemas"]["InstalacionSalida"] | null;
+            /** Materiales */
+            materiales: components["schemas"]["MaterialUsadoSalida"][];
+            /** Evidencias */
+            evidencias: components["schemas"]["EvidenciaOrdenSalida"][];
+            /**
+             * Creado En
+             * Format: date-time
+             */
+            creado_en: string;
         };
         /** Pagina[AuditoriaConsultaSalida] */
         Pagina_AuditoriaConsultaSalida_: {
@@ -1903,6 +2912,17 @@ export interface components {
             /** Size */
             size: number;
         };
+        /** Pagina[CiudadanoSalida] */
+        Pagina_CiudadanoSalida_: {
+            /** Items */
+            items: components["schemas"]["CiudadanoSalida"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+        };
         /** Pagina[LoteSalida] */
         Pagina_LoteSalida_: {
             /** Items */
@@ -1918,6 +2938,61 @@ export interface components {
         Pagina_LuminariaSalida_: {
             /** Items */
             items: components["schemas"]["LuminariaSalida"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+        };
+        /** Pagina[MaterialSalida] */
+        Pagina_MaterialSalida_: {
+            /** Items */
+            items: components["schemas"]["MaterialSalida"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+        };
+        /** Pagina[MovimientoSalida] */
+        Pagina_MovimientoSalida_: {
+            /** Items */
+            items: components["schemas"]["MovimientoSalida"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+        };
+        /** Pagina[OrdenSalida] */
+        Pagina_OrdenSalida_: {
+            /** Items */
+            items: components["schemas"]["OrdenSalida"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+        };
+        /** Pagina[PendienteSalida] */
+        Pagina_PendienteSalida_: {
+            /** Items */
+            items: components["schemas"]["PendienteSalida"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+        };
+        /** Pagina[PqrsSalida] */
+        Pagina_PqrsSalida_: {
+            /** Items */
+            items: components["schemas"]["PqrsSalida"][];
             /** Total */
             total: number;
             /** Page */
@@ -1976,6 +3051,46 @@ export interface components {
              * Format: date-time
              */
             modificado_en: string;
+        };
+        /**
+         * PendienteSalida
+         * @description Una luminaria con PQRS abierta (RF-035).
+         */
+        PendienteSalida: {
+            /** Pqrs Id */
+            pqrs_id: number;
+            /** Pqrs Numero */
+            pqrs_numero: number;
+            /** Luminaria Id */
+            luminaria_id: number;
+            /** Luminaria Codigo */
+            luminaria_codigo: string;
+            /** Barrio Nombre */
+            barrio_nombre: string | null;
+            /** Estado Reportado Codigo */
+            estado_reportado_codigo: string | null;
+            /** Prioridad */
+            prioridad: number;
+            /** Prioridad Nombre */
+            prioridad_nombre: string;
+            /** Solicitante */
+            solicitante: string | null;
+            /**
+             * Fecha Reporte
+             * Format: date
+             */
+            fecha_reporte: string;
+            /** Dias Abierta */
+            dias_abierta: number;
+            /**
+             * Semaforo
+             * @enum {string}
+             */
+            semaforo: "verde" | "amarillo" | "rojo";
+            /** Latitud */
+            latitud: number | null;
+            /** Longitud */
+            longitud: number | null;
         };
         /** PerfilActual */
         PerfilActual: {
@@ -2044,6 +3159,144 @@ export interface components {
              * Format: date-time
              */
             modificado_en: string;
+        };
+        /** PqrsAnularEntrada */
+        PqrsAnularEntrada: {
+            /** Motivo */
+            motivo: string;
+        };
+        /** PqrsCrearEntrada */
+        PqrsCrearEntrada: {
+            /** Canal Id */
+            canal_id: number;
+            /** Ciudadano Id */
+            ciudadano_id?: number | null;
+            /**
+             * Prioridad
+             * @default 2
+             */
+            prioridad: number;
+            /** Fecha Solicitud */
+            fecha_solicitud?: string | null;
+            /** Observacion Solicitante */
+            observacion_solicitante?: string | null;
+            /** Observacion Interna */
+            observacion_interna?: string | null;
+            /**
+             * Notificar Cliente
+             * @default false
+             */
+            notificar_cliente: boolean;
+            /** Luminarias */
+            luminarias: components["schemas"]["PqrsLuminariaEntrada"][];
+        };
+        /** PqrsEditarEntrada */
+        PqrsEditarEntrada: {
+            /** Canal Id */
+            canal_id?: number | null;
+            /** Ciudadano Id */
+            ciudadano_id?: number | null;
+            /** Prioridad */
+            prioridad?: number | null;
+            /** Observacion Interna */
+            observacion_interna?: string | null;
+            /** Calidad Servicio */
+            calidad_servicio?: string | null;
+            /** Notificar Cliente */
+            notificar_cliente?: boolean | null;
+        };
+        /** PqrsExportarEntrada */
+        PqrsExportarEntrada: {
+            /** Estado Id */
+            estado_id?: number | null;
+            /** Prioridad */
+            prioridad?: number | null;
+            /** Desde */
+            desde?: string | null;
+            /** Hasta */
+            hasta?: string | null;
+        };
+        /** PqrsLuminariaEntrada */
+        PqrsLuminariaEntrada: {
+            /** Luminaria Id */
+            luminaria_id: number;
+            /** Observacion Solicitante */
+            observacion_solicitante?: string | null;
+        };
+        /** PqrsLuminariaSalida */
+        PqrsLuminariaSalida: {
+            /** Id */
+            id: number;
+            /** Luminaria Id */
+            luminaria_id: number;
+            /** Luminaria Codigo */
+            luminaria_codigo: string;
+            /** Es Comodin */
+            es_comodin: boolean;
+            /** Estado Reportado Codigo */
+            estado_reportado_codigo: string | null;
+            /** Observacion Solicitante */
+            observacion_solicitante: string | null;
+            /** Observacion Tecnico */
+            observacion_tecnico: string | null;
+            /** Reparada */
+            reparada: boolean;
+            /** Fecha Reparacion */
+            fecha_reparacion: string | null;
+            /** Orden Id */
+            orden_id: number | null;
+        };
+        /** PqrsSalida */
+        PqrsSalida: {
+            /** Id */
+            id: number;
+            /** Sede Id */
+            sede_id: number;
+            /** Numero */
+            numero: number;
+            /** Canal Id */
+            canal_id: number;
+            /** Canal Nombre */
+            canal_nombre: string | null;
+            /**
+             * Fecha Solicitud
+             * Format: date-time
+             */
+            fecha_solicitud: string;
+            ciudadano: components["schemas"]["CiudadanoSalida"] | null;
+            /** Observacion Solicitante */
+            observacion_solicitante: string | null;
+            /** Observacion Interna */
+            observacion_interna: string | null;
+            /** Prioridad */
+            prioridad: number;
+            /** Prioridad Nombre */
+            prioridad_nombre: string;
+            /** Estado Id */
+            estado_id: number;
+            /** Estado Codigo */
+            estado_codigo: string;
+            /** Estado Nombre */
+            estado_nombre: string;
+            /** Calidad Servicio */
+            calidad_servicio: string | null;
+            /** Fecha Cierre */
+            fecha_cierre: string | null;
+            /** Notificar Cliente */
+            notificar_cliente: boolean;
+            /** Motivo Anulacion */
+            motivo_anulacion: string | null;
+            /** Luminarias */
+            luminarias: components["schemas"]["PqrsLuminariaSalida"][];
+            /** Total Luminarias */
+            total_luminarias: number;
+            /** Reparadas */
+            reparadas: number;
+            /**
+             * Creado En
+             * Format: date-time
+             */
+            creado_en: string;
         };
         /** RecuperarClaveEntrada */
         RecuperarClaveEntrada: {
@@ -2217,11 +3470,6 @@ export interface components {
              */
             modificado_en: string;
         };
-        /** TareaEncolada */
-        TareaEncolada: {
-            /** Id */
-            id: number;
-        };
         /** TareaExportacionSalida */
         TareaExportacionSalida: {
             /** Id */
@@ -2268,6 +3516,17 @@ export interface components {
             valor_rural: string | null;
             /** Valor Minimo */
             valor_minimo: string | null;
+        };
+        /** TecnicoSalida */
+        TecnicoSalida: {
+            /** Id */
+            id: number;
+            /** Nombre Usuario */
+            nombre_usuario: string;
+            /** Nombre Completo */
+            nombre_completo: string;
+            /** Activo */
+            activo: boolean;
         };
         /** UbicacionHistorialSalida */
         UbicacionHistorialSalida: {
@@ -2413,6 +3672,28 @@ export interface components {
             activa: boolean;
             /** Total Barrios */
             total_barrios: number;
+        };
+        /**
+         * TareaEncolada
+         * @description Respuesta 202 de un trabajo en segundo plano (`tareaId` es el id del job de la cola).
+         */
+        app__core__paginacion__TareaEncolada: {
+            /** Id */
+            id: number;
+            /** Tareaid */
+            tareaId: number;
+            /**
+             * Estado
+             * @default encolada
+             */
+            estado: string;
+            /** Cargueid */
+            cargueId?: number | null;
+        };
+        /** TareaEncolada */
+        app__core__sistema__TareaEncolada: {
+            /** Id */
+            id: number;
         };
     };
     responses: never;
@@ -4720,6 +6001,1334 @@ export interface operations {
             };
         };
     };
+    listar_materiales_api_v1_materiales_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+                buscar?: string | null;
+                categoria?: string | null;
+                bajo_minimo?: boolean | null;
+                activo?: boolean | null;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_MaterialSalida_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    crear_material_api_v1_materiales_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MaterialCrearEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MaterialSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    obtener_material_api_v1_materiales__material_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                material_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MaterialSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    editar_material_api_v1_materiales__material_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                material_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MaterialEditarEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MaterialSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_movimientos_api_v1_materiales__material_id__movimientos_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+                desde?: string | null;
+                hasta?: string | null;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                material_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_MovimientoSalida_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    registrar_movimiento_api_v1_materiales__material_id__movimientos_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                material_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MovimientoEntrada"];
+            };
+        };
+        responses: {
+            /** @description Ya aplicado (mismo uuid_origen) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MovimientoSalida"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MovimientoSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_bodega_api_v1_bodega_luminarias_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+                texto?: string | null;
+                estado_id?: number | null;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_LuminariaSalida_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cambiar_estado_bodega_api_v1_bodega_luminarias__luminaria_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                luminaria_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BodegaCambioEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LuminariaSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cargar_bodega_api_v1_bodega_cargue_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_cargar_bodega_api_v1_bodega_cargue_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__core__paginacion__TareaEncolada"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    obtener_cargue_bodega_api_v1_bodega_cargue__cargue_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                cargue_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CargueBodegaSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    buscar_ciudadanos_api_v1_ciudadanos_get: {
+        parameters: {
+            query?: {
+                buscar?: string | null;
+                page?: number;
+                size?: number;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_CiudadanoSalida_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    crear_ciudadano_api_v1_ciudadanos_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CiudadanoCrearEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CiudadanoSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    obtener_ciudadano_api_v1_ciudadanos__ciudadano_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                ciudadano_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CiudadanoSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    editar_ciudadano_api_v1_ciudadanos__ciudadano_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                ciudadano_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CiudadanoEditarEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CiudadanoSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_pendientes_api_v1_pqrs_pendientes_get: {
+        parameters: {
+            query?: {
+                semaforo?: ("verde" | "amarillo" | "rojo") | null;
+                barrio_id?: number | null;
+                prioridad?: number | null;
+                page?: number;
+                size?: number;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_PendienteSalida_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    exportar_pqrs_api_v1_pqrs_exportar_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PqrsExportarEntrada"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__core__paginacion__TareaEncolada"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_pqrs_api_v1_pqrs_get: {
+        parameters: {
+            query?: {
+                desde?: string | null;
+                hasta?: string | null;
+                estado_id?: number | null;
+                prioridad?: number | null;
+                barrio_id?: number | null;
+                numero?: number | null;
+                ciudadano_id?: number | null;
+                page?: number;
+                size?: number;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_PqrsSalida_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    crear_pqrs_api_v1_pqrs_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PqrsCrearEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PqrsSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    obtener_pqrs_api_v1_pqrs__pqrs_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                pqrs_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PqrsSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    editar_pqrs_api_v1_pqrs__pqrs_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                pqrs_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PqrsEditarEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PqrsSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    anular_pqrs_api_v1_pqrs__pqrs_id__anular_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                pqrs_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PqrsAnularEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PqrsSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    agregar_luminaria_api_v1_pqrs__pqrs_id__luminarias_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                pqrs_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PqrsLuminariaEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PqrsSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    quitar_luminaria_api_v1_pqrs__pqrs_id__luminarias__luminaria_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                pqrs_id: number;
+                luminaria_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_tecnicos_api_v1_tecnicos_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TecnicoSalida"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_cuadrillas_api_v1_cuadrillas_get: {
+        parameters: {
+            query?: {
+                activa?: boolean | null;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CuadrillaSalida"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    crear_cuadrilla_api_v1_cuadrillas_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CuadrillaCrearEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CuadrillaSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    editar_cuadrilla_api_v1_cuadrillas__cuadrilla_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                cuadrilla_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CuadrillaEditarEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CuadrillaSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    descargar_plantilla_api_v1_ordenes_plantillas__tipo__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                tipo: "expansion" | "modernizacion" | "reubicacion";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cargar_masivo_api_v1_ordenes_cargue_masivo__tipo__post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                tipo: "expansion" | "modernizacion" | "reubicacion";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_cargar_masivo_api_v1_ordenes_cargue_masivo__tipo__post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__core__paginacion__TareaEncolada"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    obtener_cargue_api_v1_ordenes_cargue_masivo__cargue_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                cargue_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CargueMasivoSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_ordenes_api_v1_ordenes_get: {
+        parameters: {
+            query?: {
+                tipo?: ("mantenimiento" | "modernizacion" | "expansion" | "reubicacion") | null;
+                estado_id?: number | null;
+                tecnico_id?: number | null;
+                pqrs_id?: number | null;
+                luminaria_id?: number | null;
+                desde?: string | null;
+                hasta?: string | null;
+                page?: number;
+                size?: number;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_OrdenSalida_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    crear_orden_api_v1_ordenes_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrdenCrearEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrdenSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    obtener_orden_api_v1_ordenes__orden_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                orden_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrdenSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    editar_orden_api_v1_ordenes__orden_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                orden_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrdenEditarEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrdenSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    asignar_orden_api_v1_ordenes__orden_id__asignar_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                orden_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrdenAsignarEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrdenSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cerrar_orden_api_v1_ordenes__orden_id__cerrar_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                orden_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrdenCerrarEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrdenSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    anular_orden_api_v1_ordenes__orden_id__anular_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                orden_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrdenAnularEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrdenSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     encolar_prueba_api_v1_sistema_tareas_prueba_post: {
         parameters: {
             query?: never;
@@ -4735,7 +7344,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TareaEncolada"];
+                    "application/json": components["schemas"]["app__core__sistema__TareaEncolada"];
                 };
             };
         };

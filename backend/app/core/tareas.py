@@ -44,3 +44,18 @@ app_tareas = App(
     connector=PsycopgConnector(conninfo=_conninfo(), kwargs={"connect_timeout": 10}),
     import_paths=_rutas_tareas(),
 )
+
+
+async def encolar(nombre: str, **argumentos: int | str | bool | None) -> int:
+    """Encola la tarea `nombre` con argumentos primitivos (ids). Devuelve el id del job.
+
+    Llamarla después del commit: si la transacción falla, no debe quedar un job huérfano.
+    """
+    from procrastinate.exceptions import AppNotOpen
+
+    deferrer = app_tareas.configure_task(name=nombre)
+    try:
+        return await deferrer.defer_async(**argumentos)
+    except AppNotOpen:
+        async with app_tareas.open_async():
+            return await deferrer.defer_async(**argumentos)

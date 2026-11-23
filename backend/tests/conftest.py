@@ -54,6 +54,9 @@ def almacen_temporal(monkeypatch):
 def db(almacen_temporal) -> Iterator[Session]:
     motor = obtener_motor()
     tablas = (
+        "orden_mantenimiento, orden_instalacion, orden_luminaria, orden_trabajo, cargue_masivo, "
+        "cuadrilla_tecnico, cuadrilla, pqrs_luminaria, pqrs, ciudadano, "
+        "movimiento_material, material, cargue_bodega, "
         "ejecucion_migracion, evento_activo, luminaria_ubicacion, luminaria, lote, "
         "operacion_contable, concepto_comercial, acuerdo_excepcion, acuerdo_tarifa, "
         "acuerdo_vigencia, plantilla_correo, parametro, estado, barrio, zona, maestro_valor, "

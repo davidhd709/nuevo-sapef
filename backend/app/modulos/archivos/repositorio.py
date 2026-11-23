@@ -85,6 +85,22 @@ def crear_archivo(db: Session, archivo: Archivo) -> Archivo:
     return archivo
 
 
+def listar_evidencias(
+    db: Session, sede_id: int, entidad: str, entidad_id: str
+) -> list[Evidencia]:
+    return list(
+        db.execute(
+            select(Evidencia)
+            .where(
+                Evidencia.sede_id == sede_id,
+                Evidencia.entidad == entidad,
+                Evidencia.entidad_id == entidad_id,
+            )
+            .order_by(Evidencia.id)
+        ).scalars()
+    )
+
+
 def crear_evidencia(db: Session, evidencia: Evidencia) -> Evidencia:
     db.add(evidencia)
     db.flush()

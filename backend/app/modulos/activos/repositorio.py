@@ -20,6 +20,24 @@ def obtener_por_id(db: Session, sede_id: int, luminaria_id: int) -> Luminaria | 
     ).scalar_one_or_none()
 
 
+def obtener_para_actualizar(db: Session, sede_id: int, luminaria_id: int) -> Luminaria | None:
+    """Bloquea la fila (FOR UPDATE): dos órdenes no pueden mover la misma luminaria a la vez."""
+    return db.execute(
+        select(Luminaria)
+        .where(Luminaria.id == luminaria_id, Luminaria.sede_id == sede_id)
+        .with_for_update()
+    ).scalar_one_or_none()
+
+
+def codigos_por_ids(db: Session, ids: list[int]) -> dict[int, tuple[str, bool]]:
+    if not ids:
+        return {}
+    filas = db.execute(
+        select(Luminaria.id, Luminaria.codigo, Luminaria.es_comodin).where(Luminaria.id.in_(ids))
+    ).all()
+    return {i: (c, bool(e)) for i, c, e in filas}
+
+
 def obtener_por_codigo(db: Session, sede_id: int, codigo: str) -> Luminaria | None:
     return db.execute(
         select(Luminaria).where(
@@ -79,9 +97,13 @@ def _construir_filtros(
     validado: bool | None = None,
     fecha_instalacion_desde: date | None = None,
     fecha_instalacion_hasta: date | None = None,
+    estado_codigos: list[str] | None = None,
 ) -> tuple[str, dict[str, Any]]:
     condiciones = ["l.sede_id = :sede_id"]
     params: dict[str, Any] = {"sede_id": sede_id}
+    if estado_codigos:
+        params["estado_codigos"] = list(estado_codigos)
+        condiciones.append("e.codigo = ANY(:estado_codigos)")
 
     if texto and texto.strip():
         params["patron"] = f"%{texto.strip()}%"
@@ -154,6 +176,7 @@ def listar_luminarias(
     validado: bool | None = None,
     fecha_instalacion_desde: date | None = None,
     fecha_instalacion_hasta: date | None = None,
+    estado_codigos: list[str] | None = None,
 ) -> tuple[list[dict[str, Any]], int]:
     where_sql, params = _construir_filtros(
         sede_id,
@@ -170,6 +193,7 @@ def listar_luminarias(
         validado=validado,
         fecha_instalacion_desde=fecha_instalacion_desde,
         fecha_instalacion_hasta=fecha_instalacion_hasta,
+        estado_codigos=estado_codigos,
     )
     joins = """
         FROM luminaria l

@@ -73,6 +73,9 @@ containers = [
     "app.modulos.configuracion",
     "app.modulos.activos",
     "app.modulos.migracion",
+    "app.modulos.inventario",
+    "app.modulos.atencion",
+    "app.modulos.trabajos",
 ]
 layers = [
     "router | (tareas)",
@@ -140,4 +143,19 @@ forbidden_modules = [
     "app.modulos.configuracion",
     "app.modulos.activos",
     "app.modulos.migracion",
+    "app.modulos.inventario",
+    "app.modulos.atencion",
+    "app.modulos.trabajos",
 ]
+
+[[tool.importlinter.contracts]]
+name = "activos, inventario y atencion no dependen de trabajos"
+type = "forbidden"
+source_modules = ["app.modulos.activos", "app.modulos.inventario", "app.modulos.atencion"]
+forbidden_modules = ["app.modulos.trabajos"]
+
+[[tool.importlinter.contracts]]
+name = "activos e inventario no dependen de atención"
+type = "forbidden"
+source_modules = ["app.modulos.activos", "app.modulos.inventario"]
+forbidden_modules = ["app.modulos.atencion"]

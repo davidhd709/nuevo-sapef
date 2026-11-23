@@ -13,12 +13,15 @@ import {
 import { useCallback, useEffect, useState } from "react";
 
 import { PantallaLuminarias } from "./activos/PantallaLuminarias";
+import { PantallaAtencion } from "./atencion/PantallaAtencion";
 import { PantallaMapa } from "./activos/PantallaMapa";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { PantallaIngresar } from "./auth/PantallaIngresar";
 import { PantallaConfiguracion } from "./configuracion/PantallaConfiguracion";
+import { PantallaInventario } from "./inventario/PantallaInventario";
 import { PantallaSeguridad } from "./seguridad/PantallaSeguridad";
 import { EstadoSistema } from "./sistema/EstadoSistema";
+import { PantallaOrdenes } from "./trabajos/PantallaOrdenes";
 
 function ContenidoApp() {
   const { usuario, cargando, sedeActiva, cambiarSede, salir, tienePermiso } = useAuth();
@@ -71,6 +74,12 @@ function ContenidoApp() {
     contenido = <PantallaMapa />;
   } else if (ruta.startsWith("/activos")) {
     contenido = <PantallaLuminarias />;
+  } else if (ruta.startsWith("/atencion")) {
+    contenido = <PantallaAtencion ruta={ruta} navegar={navegar} />;
+  } else if (ruta.startsWith("/trabajos")) {
+    contenido = <PantallaOrdenes />;
+  } else if (ruta.startsWith("/inventario")) {
+    contenido = <PantallaInventario />;
   } else if (ruta.startsWith("/seguridad")) {
     contenido = <PantallaSeguridad />;
   } else if (ruta.startsWith("/configuracion")) {
@@ -135,6 +144,27 @@ function ContenidoApp() {
               label="Luminarias"
               active={ruta.startsWith("/activos")}
               onClick={() => navegar("/activos/luminarias")}
+            />
+          )}
+          {tienePermiso("atencion.pqrs.ver") && (
+            <NavLink
+              label="Atención (PQRS)"
+              active={ruta.startsWith("/atencion")}
+              onClick={() => navegar("/atencion/pendientes")}
+            />
+          )}
+          {(tienePermiso("trabajos.orden.ver") || tienePermiso("trabajos.orden.ver_propias")) && (
+            <NavLink
+              label="Órdenes de trabajo"
+              active={ruta.startsWith("/trabajos")}
+              onClick={() => navegar("/trabajos/ordenes")}
+            />
+          )}
+          {(tienePermiso("inventario.material.ver") || tienePermiso("inventario.bodega.ver")) && (
+            <NavLink
+              label="Inventario"
+              active={ruta.startsWith("/inventario")}
+              onClick={() => navegar("/inventario")}
             />
           )}
           <NavLink

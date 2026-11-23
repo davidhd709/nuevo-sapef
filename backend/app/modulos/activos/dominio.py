@@ -3,6 +3,7 @@
 import re
 import struct
 from dataclasses import dataclass
+from typing import Any
 
 _RE_RANGE = re.compile(r"^bytes=(\d*)-(\d*)$")
 
@@ -11,6 +12,31 @@ _RE_RANGE = re.compile(r"^bytes=(\d*)-(\d*)$")
 class ErrorDominioActivo(Exception):
     status_code: int
     detail: str
+
+
+def agrupar_eventos_por(
+    eventos: list[dict[str, Any]], clave: str, campos_detalle: tuple[str, ...]
+) -> list[dict[str, Any]]:
+    """Resume los eventos por PQRS u orden (hoja de vida, RF-023).
+
+    `activos` no depende de atención ni de trabajos: lo que la ficha muestra de cada PQRS u
+    orden viaja en el `detalle` del evento que ellos registran.
+    """
+    grupos: dict[Any, dict[str, Any]] = {}
+    for ev in sorted(eventos, key=lambda e: e["fecha"]):
+        ident = ev.get(clave)
+        if ident is None:
+            continue
+        grupo = grupos.setdefault(
+            ident, {"id": ident, "desde": ev["fecha"], "hasta": ev["fecha"], "eventos": []}
+        )
+        grupo["hasta"] = ev["fecha"]
+        grupo["eventos"].append(ev["tipo"])
+        detalle = ev.get("detalle") or {}
+        for campo in campos_detalle:
+            if detalle.get(campo) is not None:
+                grupo[campo] = detalle[campo]
+    return list(grupos.values())
 
 
 def normalizar_codigo_luminaria(codigo: str) -> str:

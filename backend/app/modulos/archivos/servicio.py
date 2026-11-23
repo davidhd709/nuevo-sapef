@@ -170,6 +170,20 @@ def obtener_archivo_verificado(
     return _a_archivo_salida(archivo), contenido
 
 
+def listar_evidencias(
+    db: Session, sede_id: int, entidad: str, entidad_id: str
+) -> list[EvidenciaSalida]:
+    """Evidencias de una entidad (orden, pqrs…) de la sede, sin coordenadas."""
+    return [
+        EvidenciaSalida(
+            id=e.id, sede_id=e.sede_id, entidad=e.entidad, entidad_id=e.entidad_id, tipo=e.tipo,
+            archivo_id=e.archivo_id, latitud=None, longitud=None, capturada_en=e.capturada_en,
+            creado_en=e.creado_en,
+        )
+        for e in repositorio.listar_evidencias(db, sede_id, entidad, str(entidad_id))
+    ]
+
+
 def construir_cabeceras_descarga(meta: ArchivoSalida, descargar: bool) -> dict[str, str]:
     return {
         "X-Content-Type-Options": "nosniff",
@@ -193,7 +207,10 @@ def registrar_evidencia(
     latitud: float | None = None,
     longitud: float | None = None,
     capturada_en: datetime | None = None,
+    confirmar: bool = True,
 ) -> EvidenciaSalida:
+    """Asocia un archivo de la sede a una entidad. Con `confirmar=False` no hace commit (lo hace
+    quien llama, p. ej., el cierre atómico de una orden)."""
     archivo = repositorio.obtener_por_id(db, archivo_id)
     if archivo is None:
         raise HTTPException(status_code=404, detail="Archivo de evidencia no encontrado.")
@@ -223,8 +240,11 @@ def registrar_evidencia(
         creado_por=creado_por,
     )
     repositorio.crear_evidencia(db, evidencia)
-    db.commit()
-    db.refresh(evidencia)
+    if confirmar:
+        db.commit()
+        db.refresh(evidencia)
+    else:
+        db.flush()
     return EvidenciaSalida(
         id=evidencia.id,
         sede_id=evidencia.sede_id,

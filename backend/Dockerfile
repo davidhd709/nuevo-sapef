@@ -18,8 +18,11 @@ COPY app ./app
 COPY alembic.ini ./
 COPY migrations ./migrations
 
-# Usuario sin privilegios.
-RUN useradd --system --uid 10001 sapef && chown -R sapef /app
+# Usuario sin privilegios. /data/archivos es el almacén de archivos (un volumen en Compose):
+# existe en la imagen con el dueño correcto para que el volumen nazca escribible.
+RUN useradd --system --uid 10001 sapef \
+    && mkdir -p /data/archivos \
+    && chown -R sapef /app /data
 USER sapef
 
 ENV PATH="/app/.venv/bin:$PATH"

@@ -323,7 +323,7 @@ def test_crew_technician_management_and_ot_assignment_web_push_job(
         """
         SELECT id, task_name, args
         FROM procrastinate_jobs
-        WHERE task_name ILIKE '%push%'
+        WHERE task_name ILIKE '%%push%%'
           AND (args::text LIKE %s)
         ORDER BY id DESC
         LIMIT 1
@@ -820,6 +820,6 @@ def test_warehouse_luminaires_list_transition_and_bulk_upload(
         },
     )
     assert cargue_resp.status_code == 202, cargue_resp.text
-    job_id = _extract_id(cargue_resp.json(), "cargueId", "cargue_id", "tareaId", "tarea_id")
+    job_id = _extract_id(cargue_resp.json(), "tareaId", "tarea_id")
     if isinstance(job_id, int):
         db_helper.wait_for_procrastinate_job(job_id, timeout=e2e_config.timeout_seconds)
