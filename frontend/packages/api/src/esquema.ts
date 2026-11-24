@@ -1495,6 +1495,723 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/comercial/cargues/{cargue_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Detalle de un cargue */
+        get: operations["obtener_cargue_general_api_v1_comercial_cargues__cargue_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/cargues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cargues recientes del comercializador en la sede */
+        get: operations["listar_cargues_api_v1_comercial__comercializador__cargues_get"];
+        put?: never;
+        /** Cargar los archivos de un corte (se procesan en segundo plano) */
+        post: operations["cargar_api_v1_comercial__comercializador__cargues_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/cargues/{cargue_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Detalle de un cargue (avance, avisos y errores) */
+        get: operations["obtener_cargue_api_v1_comercial__comercializador__cargues__cargue_id__get"];
+        put?: never;
+        post?: never;
+        /** Eliminar un cargue (y su corte si está publicado) */
+        delete: operations["eliminar_cargue_api_v1_comercial__comercializador__cargues__cargue_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/cortes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cortes publicados (uno por periodo) */
+        get: operations["listar_cortes_api_v1_comercial__comercializador__cortes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/cortes/{periodo}/datos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Filas normalizadas de una familia del corte (nominal, se audita) */
+        get: operations["datos_corte_api_v1_comercial__comercializador__cortes__periodo__datos_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/cortes/{periodo}/sabana": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sábana completa de una familia (CSV o Excel, en segundo plano) */
+        post: operations["sabana_api_v1_comercial__comercializador__cortes__periodo__sabana_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/catalogo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Catálogo de los 29 análisis con su disponibilidad */
+        get: operations["catalogo_api_v1_comercial__comercializador__catalogo_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/indicadores/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Indicadores del corte frente al comparable */
+        get: operations["indicadores_api_v1_comercial__comercializador__analisis_indicadores__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/serie": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Facturación y recaudo por periodo */
+        get: operations["serie_api_v1_comercial__comercializador__analisis_serie_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/eficiencia/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Eficiencia de recaudo */
+        get: operations["eficiencia_api_v1_comercial__comercializador__analisis_eficiencia__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/detalle/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Usuarios detrás de un indicador (nominal, se audita) */
+        get: operations["detalle_api_v1_comercial__comercializador__analisis_detalle__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/facturacion/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Facturación del corte */
+        get: operations["facturacion_api_v1_comercial__comercializador__analisis_facturacion__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/recaudo/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Recaudo corriente y de cartera */
+        get: operations["recaudo_api_v1_comercial__comercializador__analisis_recaudo__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/cartera/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cartera del corte */
+        get: operations["cartera_api_v1_comercial__comercializador__analisis_cartera__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/cartera-edades/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cartera por edades */
+        get: operations["cartera_edades_api_v1_comercial__comercializador__analisis_cartera_edades__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/concentracion/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Concentración de la cartera (top 10, 21, 100 y 1.000) */
+        get: operations["concentracion_api_v1_comercial__comercializador__analisis_concentracion__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/movimientos/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Nuevos, reintegrados y dejados de facturar */
+        get: operations["movimientos_api_v1_comercial__comercializador__analisis_movimientos__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/ausencias/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Usuarios con periodos esperados sin facturarse */
+        get: operations["ausencias_api_v1_comercial__comercializador__analisis_ausencias__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/disminuciones/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Usuarios que explican las caídas frente al corte anterior */
+        get: operations["disminuciones_api_v1_comercial__comercializador__analisis_disminuciones__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/periodicidad/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Usuarios por periodicidad (ciclo deducido) */
+        get: operations["periodicidad_api_v1_comercial__comercializador__analisis_periodicidad__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/control-tarifario/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Control tarifario del impuesto (nominal, se audita) */
+        get: operations["control_tarifario_api_v1_comercial__comercializador__analisis_control_tarifario__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/facturas-revision/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Facturas irregulares (5 categorías) */
+        get: operations["facturas_revision_api_v1_comercial__comercializador__analisis_facturas_revision__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/consolidado-anual": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consolidado del año con cobertura de meses */
+        get: operations["consolidado_anual_api_v1_comercial__comercializador__analisis_consolidado_anual_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/historico-facturacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Histórico de facturación */
+        get: operations["historico_facturacion_api_v1_comercial__comercializador__analisis_historico_facturacion_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/historico-cartera": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Histórico de cartera */
+        get: operations["historico_cartera_api_v1_comercial__comercializador__analisis_historico_cartera_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/historico-comerciales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Histórico de los usuarios comerciales */
+        get: operations["historico_comerciales_api_v1_comercial__comercializador__analisis_historico_comerciales_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/comportamiento-pago": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Paga siempre, a veces o nunca (nominal, se audita) */
+        get: operations["comportamiento_pago_api_v1_comercial__comercializador__analisis_comportamiento_pago_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/maduracion/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Maduración del recaudo y curva de cohortes */
+        get: operations["maduracion_api_v1_comercial__comercializador__analisis_maduracion__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/convenios/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Convenios del corte */
+        get: operations["convenios_api_v1_comercial__comercializador__analisis_convenios__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/convenios-ajustes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cohortes de convenios y ajustes negativos del recaudo */
+        get: operations["convenios_ajustes_api_v1_comercial__comercializador__analisis_convenios_ajustes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/rutas-campo/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Rutas de cobro y controles de campo (nominal, se audita) */
+        get: operations["rutas_campo_api_v1_comercial__comercializador__analisis_rutas_campo__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/segmentacion/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Reparto por segmento */
+        get: operations["segmentacion_api_v1_comercial__comercializador__analisis_segmentacion__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/comparativo-segmentos/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cambio de cada segmento frente al corte anterior */
+        get: operations["comparativo_segmentos_api_v1_comercial__comercializador__analisis_comparativo_segmentos__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/barrios/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Reparto por barrio */
+        get: operations["barrios_api_v1_comercial__comercializador__analisis_barrios__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/tabla-dinamica/{periodo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tabla dinámica del corte (Afinia: 12 tarifas + total, 45 columnas) */
+        get: operations["tabla_dinamica_api_v1_comercial__comercializador__analisis_tabla_dinamica__periodo__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/analisis/trazabilidad/{identificador}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Historia completa de un usuario (nominal, se audita) */
+        get: operations["trazabilidad_api_v1_comercial__comercializador__analisis_trazabilidad__identificador__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/hallazgos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Bitácora de hallazgos (nominal) */
+        get: operations["listar_hallazgos_api_v1_comercial__comercializador__hallazgos_get"];
+        put?: never;
+        /** Registrar un hallazgo (responsable y decisión obligatorios) */
+        post: operations["crear_hallazgo_api_v1_comercial__comercializador__hallazgos_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/hallazgos/{hallazgo_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Actualizar el estado o la decisión de un hallazgo */
+        patch: operations["editar_hallazgo_api_v1_comercial__comercializador__hallazgos__hallazgo_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/entregables/{tipo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Requerimiento (Word/PDF/HTML), análisis (HTML/PDF), anexo nominal (Excel) o informe gerencial (PDF) */
+        post: operations["entregable_api_v1_comercial__comercializador__entregables__tipo__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/exportaciones/cartera": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cartera en ZIP: resumen y detalle por cuenta (Celsia) */
+        post: operations["exportar_cartera_api_v1_comercial__comercializador__exportaciones_cartera_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comercial/{comercializador}/exportaciones/promedios-ids": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Promedios de consumo por lista de IDs (.txt UTF-8, ≤ 1 MiB y 50.000 IDs) */
+        post: operations["promedios_ids_api_v1_comercial__comercializador__exportaciones_promedios_ids_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/migracion/comercial/opainn": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Importar periodos del almacén de OPainn (Parquet + manifiesto) */
+        post: operations["importar_opainn_api_v1_migracion_comercial_opainn_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sistema/tareas/prueba": {
         parameters: {
             query?: never;
@@ -1542,7 +2259,10 @@ export interface components {
             acepto: boolean;
         };
         /** AcuerdoAprobarEntrada */
-        AcuerdoAprobarEntrada: Record<string, never>;
+        AcuerdoAprobarEntrada: {
+            /** Observacion */
+            observacion?: string | null;
+        };
         /** AcuerdoCopiarEntrada */
         AcuerdoCopiarEntrada: {
             /** Anio Destino */
@@ -1701,6 +2421,28 @@ export interface components {
              */
             modificado_en: string;
         };
+        /** AnalisisCatalogo */
+        AnalisisCatalogo: {
+            /** Id */
+            id: string;
+            /** Grupo */
+            grupo: string;
+            /** Nombre */
+            nombre: string;
+            /** Pregunta */
+            pregunta: string;
+            /** Ruta */
+            ruta: string;
+            /** Por Periodo */
+            por_periodo: boolean;
+            /**
+             * Estado
+             * @enum {string}
+             */
+            estado: "disponible" | "parcial" | "pendiente" | "no_aplica";
+            /** Nota */
+            nota: string | null;
+        };
         /** ArchivoSalida */
         ArchivoSalida: {
             /**
@@ -1830,6 +2572,19 @@ export interface components {
             /** Observacion */
             observacion?: string | null;
         };
+        /** Body_cargar_api_v1_comercial__comercializador__cargues_post */
+        Body_cargar_api_v1_comercial__comercializador__cargues_post: {
+            /**
+             * Files
+             * @description Archivos del corte
+             */
+            files: string[];
+            /**
+             * Periodo
+             * @description Periodo AAAAMM
+             */
+            periodo: string;
+        };
         /** Body_cargar_bodega_api_v1_bodega_cargue_post */
         Body_cargar_bodega_api_v1_bodega_cargue_post: {
             /** Archivo */
@@ -1847,6 +2602,11 @@ export interface components {
         };
         /** Body_importar_luminarias_api_v1_migracion_luminarias_post */
         Body_importar_luminarias_api_v1_migracion_luminarias_post: {
+            /** Archivo */
+            archivo: string;
+        };
+        /** Body_promedios_ids_api_v1_comercial__comercializador__exportaciones_promedios_ids_post */
+        Body_promedios_ids_api_v1_comercial__comercializador__exportaciones_promedios_ids_post: {
             /** Archivo */
             archivo: string;
         };
@@ -1888,6 +2648,24 @@ export interface components {
             /** Procesado En */
             procesado_en: string | null;
         };
+        /**
+         * CargueEncolado
+         * @description 202 de un cargue: `id`/`cargueId`/`cargue_id` = cargue; `tareaId`/`tarea_id` = trabajo.
+         */
+        CargueEncolado: {
+            /** Id */
+            id: number;
+            /** Cargue Id */
+            cargue_id: number;
+            /** Cargueid */
+            cargueId: number;
+            /** Tarea Id */
+            tarea_id: number | null;
+            /** Tareaid */
+            tareaId: number | null;
+            /** Estado */
+            estado: string;
+        };
         /** CargueMasivoSalida */
         CargueMasivoSalida: {
             /** Id */
@@ -1904,6 +2682,48 @@ export interface components {
             errores: {
                 [key: string]: unknown;
             }[];
+            /**
+             * Creado En
+             * Format: date-time
+             */
+            creado_en: string;
+            /** Procesado En */
+            procesado_en: string | null;
+        };
+        /** CargueSalida */
+        CargueSalida: {
+            /** Id */
+            id: number;
+            /** Cargue Id */
+            cargue_id: number;
+            /** Sede Id */
+            sede_id: number;
+            /** Comercializador */
+            comercializador: string;
+            /** Periodo */
+            periodo: string;
+            /** Estado */
+            estado: string;
+            /** Origen */
+            origen: string;
+            /** Completo */
+            completo: boolean;
+            /** Publicable */
+            publicable: boolean;
+            /** Version Adaptador */
+            version_adaptador: string | null;
+            /** Archivos */
+            archivos: {
+                [key: string]: unknown;
+            }[];
+            /** Familias */
+            familias: {
+                [key: string]: unknown;
+            };
+            /** Advertencias */
+            advertencias: string[];
+            /** Errores */
+            errores: string[];
             /**
              * Creado En
              * Format: date-time
@@ -2059,6 +2879,27 @@ export interface components {
             /** Activo */
             activo: boolean;
         };
+        /** CorteSalida */
+        CorteSalida: {
+            /** Periodo */
+            periodo: string;
+            /** Cargue Id */
+            cargue_id: number;
+            /** Completo */
+            completo: boolean;
+            /** Publicable */
+            publicable: boolean;
+            /** Familias */
+            familias: {
+                [key: string]: number;
+            };
+            /** Advertencias */
+            advertencias: string[];
+            /** Version Adaptador */
+            version_adaptador: string | null;
+            /** Publicado En */
+            publicado_en: string | null;
+        };
         /** CuadrillaCrearEntrada */
         CuadrillaCrearEntrada: {
             /** Nombre */
@@ -2127,6 +2968,15 @@ export interface components {
              * Format: date-time
              */
             creado_en: string;
+        };
+        /** EntregableEntrada */
+        EntregableEntrada: {
+            /** Periodo */
+            periodo: string;
+            /** Formato */
+            formato?: ("docx" | "pdf" | "html" | "xlsx") | null;
+            /** Max Filas */
+            max_filas?: number | null;
         };
         /** EstadoEditarEntrada */
         EstadoEditarEntrada: {
@@ -2265,6 +3115,74 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** HallazgoEditarEntrada */
+        HallazgoEditarEntrada: {
+            /** Estado */
+            estado?: ("ABIERTO" | "EN_REVISION" | "RESUELTO") | null;
+            /** Responsable */
+            responsable?: string | null;
+            /** Decision */
+            decision?: string | null;
+            /** Referencia */
+            referencia?: string | null;
+        };
+        /** HallazgoEntrada */
+        HallazgoEntrada: {
+            /**
+             * Tipo
+             * @enum {string}
+             */
+            tipo: "RUTA" | "ANOMALIA" | "MOVIMIENTO";
+            /**
+             * Estado
+             * @default ABIERTO
+             * @enum {string}
+             */
+            estado: "ABIERTO" | "EN_REVISION" | "RESUELTO";
+            /** Responsable */
+            responsable: string;
+            /** Decision */
+            decision: string;
+            /** Identificador */
+            identificador?: string | null;
+            /** Referencia */
+            referencia?: string | null;
+            /** Periodo */
+            periodo?: string | null;
+        };
+        /** HallazgoSalida */
+        HallazgoSalida: {
+            /** Id */
+            id: number;
+            /** Comercializador */
+            comercializador: string;
+            /** Tipo */
+            tipo: string;
+            /** Estado */
+            estado: string;
+            /** Responsable */
+            responsable: string;
+            /** Decision */
+            decision: string;
+            /** Identificador */
+            identificador: string | null;
+            /** Nic */
+            nic: string | null;
+            /** Referencia */
+            referencia: string | null;
+            /** Periodo */
+            periodo: string | null;
+            /**
+             * Creado En
+             * Format: date-time
+             */
+            creado_en: string;
+            /**
+             * Modificado En
+             * Format: date-time
+             */
+            modificado_en: string;
+        };
         /** HistorialLuminariaSalida */
         HistorialLuminariaSalida: {
             luminaria: components["schemas"]["LuminariaSalida"];
@@ -2280,6 +3198,18 @@ export interface components {
             ordenes: {
                 [key: string]: unknown;
             }[];
+        };
+        /** ImportacionOpainnEntrada */
+        ImportacionOpainnEntrada: {
+            /** Ruta Almacen */
+            ruta_almacen: string;
+            /**
+             * Comercializador Codigo
+             * @enum {string}
+             */
+            comercializador_codigo: "afinia" | "celsia" | "vatia";
+            /** Periodos */
+            periodos?: string[];
         };
         /** IngresarEntrada */
         IngresarEntrada: {
@@ -3192,6 +4122,23 @@ export interface components {
              */
             creado_en: string;
         };
+        /** PaginaDatos */
+        PaginaDatos: {
+            /** Familia */
+            familia: string;
+            /** Columnas */
+            columnas: string[];
+            /** Items */
+            items: {
+                [key: string]: unknown;
+            }[];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+        };
         /** Pagina[AuditoriaConsultaSalida] */
         Pagina_AuditoriaConsultaSalida_: {
             /** Items */
@@ -3457,6 +4404,11 @@ export interface components {
             permisos: string[];
             /** Sedes */
             sedes: components["schemas"]["SedeResumen"][];
+        };
+        /** PeriodoEntrada */
+        PeriodoEntrada: {
+            /** Periodo */
+            periodo: string;
         };
         /** PermisoSalida */
         PermisoSalida: {
@@ -3730,6 +4682,17 @@ export interface components {
              */
             modificado_en: string;
         };
+        /** SabanaEntrada */
+        SabanaEntrada: {
+            /** Familia */
+            familia: string;
+            /**
+             * Formato
+             * @default xlsx
+             * @enum {string}
+             */
+            formato: "csv" | "xlsx";
+        };
         /** Salud */
         Salud: {
             /** Estado */
@@ -3875,6 +4838,20 @@ export interface components {
              */
             creado_en: string;
         };
+        /** TareaExportacion */
+        TareaExportacion: {
+            /** Id */
+            id: number;
+            /** Tarea Id */
+            tarea_id: number;
+            /** Tareaid */
+            tareaId: number;
+            /**
+             * Estado
+             * @default encolada
+             */
+            estado: string;
+        };
         /** TareaExportacionSalida */
         TareaExportacionSalida: {
             /** Id */
@@ -3886,10 +4863,16 @@ export interface components {
             /** Estado */
             estado: string;
         };
-        /** TarifaEntrada */
+        /**
+         * TarifaEntrada
+         * @description Acepta también los nombres cortos de OPainn (`codigo`, `factor_uvt`, `porcentaje_variable`,
+         *     `urbano`, `rural`); `nombre` es descriptivo y no se guarda.
+         */
         TarifaEntrada: {
             /** Tarifa */
             tarifa: string;
+            /** Nombre */
+            nombre?: string | null;
             /** Tipo Regla */
             tipo_regla?: string | null;
             /** Factor Uvt Minimo */
@@ -7936,6 +8919,1656 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Pagina_OperacionCampoSalida_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    obtener_cargue_general_api_v1_comercial_cargues__cargue_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                cargue_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CargueSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_cargues_api_v1_comercial__comercializador__cargues_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CargueSalida"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cargar_api_v1_comercial__comercializador__cargues_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_cargar_api_v1_comercial__comercializador__cargues_post"];
+            };
+        };
+        responses: {
+            /** @description Reintento con el mismo Idempotency-Key */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CargueEncolado"];
+                };
+            };
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CargueEncolado"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    obtener_cargue_api_v1_comercial__comercializador__cargues__cargue_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                cargue_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CargueSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    eliminar_cargue_api_v1_comercial__comercializador__cargues__cargue_id__delete: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                cargue_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_cortes_api_v1_comercial__comercializador__cortes_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorteSalida"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    datos_corte_api_v1_comercial__comercializador__cortes__periodo__datos_get: {
+        parameters: {
+            query: {
+                familia: string;
+                buscar?: string | null;
+                page?: number;
+                size?: number;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginaDatos"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sabana_api_v1_comercial__comercializador__cortes__periodo__sabana_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SabanaEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TareaExportacion"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    catalogo_api_v1_comercial__comercializador__catalogo_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalisisCatalogo"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    indicadores_api_v1_comercial__comercializador__analisis_indicadores__periodo__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    serie_api_v1_comercial__comercializador__analisis_serie_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    eficiencia_api_v1_comercial__comercializador__analisis_eficiencia__periodo__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    detalle_api_v1_comercial__comercializador__analisis_detalle__periodo__get: {
+        parameters: {
+            query?: {
+                indicador?: string;
+                limite?: number;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    facturacion_api_v1_comercial__comercializador__analisis_facturacion__periodo__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    recaudo_api_v1_comercial__comercializador__analisis_recaudo__periodo__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cartera_api_v1_comercial__comercializador__analisis_cartera__periodo__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cartera_edades_api_v1_comercial__comercializador__analisis_cartera_edades__periodo__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    concentracion_api_v1_comercial__comercializador__analisis_concentracion__periodo__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    movimientos_api_v1_comercial__comercializador__analisis_movimientos__periodo__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ausencias_api_v1_comercial__comercializador__analisis_ausencias__periodo__get: {
+        parameters: {
+            query?: {
+                limite?: number;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    disminuciones_api_v1_comercial__comercializador__analisis_disminuciones__periodo__get: {
+        parameters: {
+            query?: {
+                variable?: string;
+                minimo_pct?: number | string | null;
+                maximo_pct?: number | string | null;
+                segmento?: string | null;
+                barrio?: string | null;
+                solo_comerciales?: boolean;
+                limite?: number;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    periodicidad_api_v1_comercial__comercializador__analisis_periodicidad__periodo__get: {
+        parameters: {
+            query?: {
+                limite?: number;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    control_tarifario_api_v1_comercial__comercializador__analisis_control_tarifario__periodo__get: {
+        parameters: {
+            query?: {
+                grupo_consumo?: "todos" | "minima" | "variable" | "especial" | "revision";
+                estado?: ("CORRECTO" | "POR_ENCIMA" | "POR_DEBAJO" | "NO_VALIDABLE" | "REQUIERE_REVISION") | null;
+                buscar?: string | null;
+                page?: number;
+                size?: number;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    facturas_revision_api_v1_comercial__comercializador__analisis_facturas_revision__periodo__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    consolidado_anual_api_v1_comercial__comercializador__analisis_consolidado_anual_get: {
+        parameters: {
+            query?: {
+                anio?: number | null;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    historico_facturacion_api_v1_comercial__comercializador__analisis_historico_facturacion_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    historico_cartera_api_v1_comercial__comercializador__analisis_historico_cartera_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    historico_comerciales_api_v1_comercial__comercializador__analisis_historico_comerciales_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    comportamiento_pago_api_v1_comercial__comercializador__analisis_comportamiento_pago_get: {
+        parameters: {
+            query?: {
+                limite?: number;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    maduracion_api_v1_comercial__comercializador__analisis_maduracion__periodo__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    convenios_api_v1_comercial__comercializador__analisis_convenios__periodo__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    convenios_ajustes_api_v1_comercial__comercializador__analisis_convenios_ajustes_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rutas_campo_api_v1_comercial__comercializador__analisis_rutas_campo__periodo__get: {
+        parameters: {
+            query?: {
+                grupo?: "NUNCA_PAGA" | "INTERMITENTE" | "PAGA_SIEMPRE";
+                limite?: number;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    segmentacion_api_v1_comercial__comercializador__analisis_segmentacion__periodo__get: {
+        parameters: {
+            query?: {
+                por?: "segmento" | "estrato" | "tarifa";
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    comparativo_segmentos_api_v1_comercial__comercializador__analisis_comparativo_segmentos__periodo__get: {
+        parameters: {
+            query?: {
+                por?: "segmento" | "estrato" | "tarifa";
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    barrios_api_v1_comercial__comercializador__analisis_barrios__periodo__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tabla_dinamica_api_v1_comercial__comercializador__analisis_tabla_dinamica__periodo__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                periodo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trazabilidad_api_v1_comercial__comercializador__analisis_trazabilidad__identificador__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                identificador: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_hallazgos_api_v1_comercial__comercializador__hallazgos_get: {
+        parameters: {
+            query?: {
+                estado?: ("ABIERTO" | "EN_REVISION" | "RESUELTO") | null;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HallazgoSalida"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    crear_hallazgo_api_v1_comercial__comercializador__hallazgos_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HallazgoEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HallazgoSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    editar_hallazgo_api_v1_comercial__comercializador__hallazgos__hallazgo_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                hallazgo_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HallazgoEditarEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HallazgoSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    entregable_api_v1_comercial__comercializador__entregables__tipo__post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+                tipo: "requerimiento" | "analisis" | "anexo-nominal" | "informe-gerencial";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntregableEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    exportar_cartera_api_v1_comercial__comercializador__exportaciones_cartera_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PeriodoEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    promedios_ids_api_v1_comercial__comercializador__exportaciones_promedios_ids_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                comercializador: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_promedios_ids_api_v1_comercial__comercializador__exportaciones_promedios_ids_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    importar_opainn_api_v1_migracion_comercial_opainn_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportacionOpainnEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation Error */

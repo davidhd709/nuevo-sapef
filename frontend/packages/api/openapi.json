@@ -2858,7 +2858,7 @@
                     "type": "null"
                   }
                 ],
-                "title": " Entrada"
+                "title": "Entrada"
               }
             }
           }
@@ -7589,6 +7589,3411 @@
         }
       }
     },
+    "/api/v1/comercial/cargues/{cargue_id}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Detalle de un cargue",
+        "operationId": "obtener_cargue_general_api_v1_comercial_cargues__cargue_id__get",
+        "parameters": [
+          {
+            "name": "cargue_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Cargue Id"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CargueSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/cargues": {
+      "post": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Cargar los archivos de un corte (se procesan en segundo plano)",
+        "operationId": "cargar_api_v1_comercial__comercializador__cargues_post",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_cargar_api_v1_comercial__comercializador__cargues_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CargueEncolado"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Reintento con el mismo Idempotency-Key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CargueEncolado"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Cargues recientes del comercializador en la sede",
+        "operationId": "listar_cargues_api_v1_comercial__comercializador__cargues_get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CargueSalida"
+                  },
+                  "title": "Response Listar Cargues Api V1 Comercial  Comercializador  Cargues Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/cargues/{cargue_id}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Detalle de un cargue (avance, avisos y errores)",
+        "operationId": "obtener_cargue_api_v1_comercial__comercializador__cargues__cargue_id__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "cargue_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Cargue Id"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CargueSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Eliminar un cargue (y su corte si está publicado)",
+        "operationId": "eliminar_cargue_api_v1_comercial__comercializador__cargues__cargue_id__delete",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "cargue_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Cargue Id"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/cortes": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Cortes publicados (uno por periodo)",
+        "operationId": "listar_cortes_api_v1_comercial__comercializador__cortes_get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CorteSalida"
+                  },
+                  "title": "Response Listar Cortes Api V1 Comercial  Comercializador  Cortes Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/cortes/{periodo}/datos": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Filas normalizadas de una familia del corte (nominal, se audita)",
+        "operationId": "datos_corte_api_v1_comercial__comercializador__cortes__periodo__datos_get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "familia",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 30,
+              "title": "Familia"
+            }
+          },
+          {
+            "name": "buscar",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Buscar"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "default": 50,
+              "title": "Size"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaDatos"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/cortes/{periodo}/sabana": {
+      "post": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Sábana completa de una familia (CSV o Excel, en segundo plano)",
+        "operationId": "sabana_api_v1_comercial__comercializador__cortes__periodo__sabana_post",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SabanaEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TareaExportacion"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/catalogo": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Catálogo de los 29 análisis con su disponibilidad",
+        "operationId": "catalogo_api_v1_comercial__comercializador__catalogo_get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnalisisCatalogo"
+                  },
+                  "title": "Response Catalogo Api V1 Comercial  Comercializador  Catalogo Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/indicadores/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Indicadores del corte frente al comparable",
+        "operationId": "indicadores_api_v1_comercial__comercializador__analisis_indicadores__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Indicadores Api V1 Comercial  Comercializador  Analisis Indicadores  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/serie": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Facturación y recaudo por periodo",
+        "operationId": "serie_api_v1_comercial__comercializador__analisis_serie_get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Serie Api V1 Comercial  Comercializador  Analisis Serie Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/eficiencia/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Eficiencia de recaudo",
+        "operationId": "eficiencia_api_v1_comercial__comercializador__analisis_eficiencia__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Eficiencia Api V1 Comercial  Comercializador  Analisis Eficiencia  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/detalle/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Usuarios detrás de un indicador (nominal, se audita)",
+        "operationId": "detalle_api_v1_comercial__comercializador__analisis_detalle__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "indicador",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 60,
+              "default": "facturacion",
+              "title": "Indicador"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50000,
+              "minimum": 1,
+              "default": 500,
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Detalle Api V1 Comercial  Comercializador  Analisis Detalle  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/facturacion/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Facturación del corte",
+        "operationId": "facturacion_api_v1_comercial__comercializador__analisis_facturacion__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Facturacion Api V1 Comercial  Comercializador  Analisis Facturacion  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/recaudo/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Recaudo corriente y de cartera",
+        "operationId": "recaudo_api_v1_comercial__comercializador__analisis_recaudo__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Recaudo Api V1 Comercial  Comercializador  Analisis Recaudo  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/cartera/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Cartera del corte",
+        "operationId": "cartera_api_v1_comercial__comercializador__analisis_cartera__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Cartera Api V1 Comercial  Comercializador  Analisis Cartera  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/cartera-edades/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Cartera por edades",
+        "operationId": "cartera_edades_api_v1_comercial__comercializador__analisis_cartera_edades__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Cartera Edades Api V1 Comercial  Comercializador  Analisis Cartera Edades  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/concentracion/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Concentración de la cartera (top 10, 21, 100 y 1.000)",
+        "operationId": "concentracion_api_v1_comercial__comercializador__analisis_concentracion__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Concentracion Api V1 Comercial  Comercializador  Analisis Concentracion  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/movimientos/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Nuevos, reintegrados y dejados de facturar",
+        "operationId": "movimientos_api_v1_comercial__comercializador__analisis_movimientos__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Movimientos Api V1 Comercial  Comercializador  Analisis Movimientos  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/ausencias/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Usuarios con periodos esperados sin facturarse",
+        "operationId": "ausencias_api_v1_comercial__comercializador__analisis_ausencias__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50000,
+              "minimum": 1,
+              "default": 1000,
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Ausencias Api V1 Comercial  Comercializador  Analisis Ausencias  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/disminuciones/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Usuarios que explican las caídas frente al corte anterior",
+        "operationId": "disminuciones_api_v1_comercial__comercializador__analisis_disminuciones__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "variable",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "facturado",
+              "title": "Variable"
+            }
+          },
+          {
+            "name": "minimo_pct",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Minimo Pct"
+            }
+          },
+          {
+            "name": "maximo_pct",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Maximo Pct"
+            }
+          },
+          {
+            "name": "segmento",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Segmento"
+            }
+          },
+          {
+            "name": "barrio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Barrio"
+            }
+          },
+          {
+            "name": "solo_comerciales",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Solo Comerciales"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "default": 200,
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Disminuciones Api V1 Comercial  Comercializador  Analisis Disminuciones  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/periodicidad/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Usuarios por periodicidad (ciclo deducido)",
+        "operationId": "periodicidad_api_v1_comercial__comercializador__analisis_periodicidad__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50000,
+              "minimum": 1,
+              "default": 1000,
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Periodicidad Api V1 Comercial  Comercializador  Analisis Periodicidad  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/control-tarifario/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Control tarifario del impuesto (nominal, se audita)",
+        "operationId": "control_tarifario_api_v1_comercial__comercializador__analisis_control_tarifario__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "grupo_consumo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "todos",
+                "minima",
+                "variable",
+                "especial",
+                "revision"
+              ],
+              "type": "string",
+              "default": "todos",
+              "title": "Grupo Consumo"
+            }
+          },
+          {
+            "name": "estado",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "CORRECTO",
+                    "POR_ENCIMA",
+                    "POR_DEBAJO",
+                    "NO_VALIDABLE",
+                    "REQUIERE_REVISION"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Estado"
+            }
+          },
+          {
+            "name": "buscar",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Buscar"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "default": 100,
+              "title": "Size"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Control Tarifario Api V1 Comercial  Comercializador  Analisis Control Tarifario  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/facturas-revision/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Facturas irregulares (5 categorías)",
+        "operationId": "facturas_revision_api_v1_comercial__comercializador__analisis_facturas_revision__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Facturas Revision Api V1 Comercial  Comercializador  Analisis Facturas Revision  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/consolidado-anual": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Consolidado del año con cobertura de meses",
+        "operationId": "consolidado_anual_api_v1_comercial__comercializador__analisis_consolidado_anual_get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "anio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2200,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Anio"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Consolidado Anual Api V1 Comercial  Comercializador  Analisis Consolidado Anual Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/historico-facturacion": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Histórico de facturación",
+        "operationId": "historico_facturacion_api_v1_comercial__comercializador__analisis_historico_facturacion_get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Historico Facturacion Api V1 Comercial  Comercializador  Analisis Historico Facturacion Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/historico-cartera": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Histórico de cartera",
+        "operationId": "historico_cartera_api_v1_comercial__comercializador__analisis_historico_cartera_get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Historico Cartera Api V1 Comercial  Comercializador  Analisis Historico Cartera Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/historico-comerciales": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Histórico de los usuarios comerciales",
+        "operationId": "historico_comerciales_api_v1_comercial__comercializador__analisis_historico_comerciales_get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Historico Comerciales Api V1 Comercial  Comercializador  Analisis Historico Comerciales Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/comportamiento-pago": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Paga siempre, a veces o nunca (nominal, se audita)",
+        "operationId": "comportamiento_pago_api_v1_comercial__comercializador__analisis_comportamiento_pago_get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50000,
+              "minimum": 1,
+              "default": 1000,
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Comportamiento Pago Api V1 Comercial  Comercializador  Analisis Comportamiento Pago Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/maduracion/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Maduración del recaudo y curva de cohortes",
+        "operationId": "maduracion_api_v1_comercial__comercializador__analisis_maduracion__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Maduracion Api V1 Comercial  Comercializador  Analisis Maduracion  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/convenios/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Convenios del corte",
+        "operationId": "convenios_api_v1_comercial__comercializador__analisis_convenios__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Convenios Api V1 Comercial  Comercializador  Analisis Convenios  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/convenios-ajustes": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Cohortes de convenios y ajustes negativos del recaudo",
+        "operationId": "convenios_ajustes_api_v1_comercial__comercializador__analisis_convenios_ajustes_get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Convenios Ajustes Api V1 Comercial  Comercializador  Analisis Convenios Ajustes Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/rutas-campo/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Rutas de cobro y controles de campo (nominal, se audita)",
+        "operationId": "rutas_campo_api_v1_comercial__comercializador__analisis_rutas_campo__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "grupo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "NUNCA_PAGA",
+                "INTERMITENTE",
+                "PAGA_SIEMPRE"
+              ],
+              "type": "string",
+              "default": "NUNCA_PAGA",
+              "title": "Grupo"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50000,
+              "minimum": 1,
+              "default": 1000,
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Rutas Campo Api V1 Comercial  Comercializador  Analisis Rutas Campo  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/segmentacion/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Reparto por segmento",
+        "operationId": "segmentacion_api_v1_comercial__comercializador__analisis_segmentacion__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "por",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "segmento",
+                "estrato",
+                "tarifa"
+              ],
+              "type": "string",
+              "default": "segmento",
+              "title": "Por"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Segmentacion Api V1 Comercial  Comercializador  Analisis Segmentacion  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/comparativo-segmentos/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Cambio de cada segmento frente al corte anterior",
+        "operationId": "comparativo_segmentos_api_v1_comercial__comercializador__analisis_comparativo_segmentos__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "por",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "segmento",
+                "estrato",
+                "tarifa"
+              ],
+              "type": "string",
+              "default": "segmento",
+              "title": "Por"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Comparativo Segmentos Api V1 Comercial  Comercializador  Analisis Comparativo Segmentos  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/barrios/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Reparto por barrio",
+        "operationId": "barrios_api_v1_comercial__comercializador__analisis_barrios__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Barrios Api V1 Comercial  Comercializador  Analisis Barrios  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/tabla-dinamica/{periodo}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Tabla dinámica del corte (Afinia: 12 tarifas + total, 45 columnas)",
+        "operationId": "tabla_dinamica_api_v1_comercial__comercializador__analisis_tabla_dinamica__periodo__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "periodo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Tabla Dinamica Api V1 Comercial  Comercializador  Analisis Tabla Dinamica  Periodo  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/analisis/trazabilidad/{identificador}": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Historia completa de un usuario (nominal, se audita)",
+        "operationId": "trazabilidad_api_v1_comercial__comercializador__analisis_trazabilidad__identificador__get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "identificador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Identificador"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Trazabilidad Api V1 Comercial  Comercializador  Analisis Trazabilidad  Identificador  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/hallazgos": {
+      "get": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Bitácora de hallazgos (nominal)",
+        "operationId": "listar_hallazgos_api_v1_comercial__comercializador__hallazgos_get",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "estado",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "ABIERTO",
+                    "EN_REVISION",
+                    "RESUELTO"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Estado"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HallazgoSalida"
+                  },
+                  "title": "Response Listar Hallazgos Api V1 Comercial  Comercializador  Hallazgos Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Registrar un hallazgo (responsable y decisión obligatorios)",
+        "operationId": "crear_hallazgo_api_v1_comercial__comercializador__hallazgos_post",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HallazgoEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HallazgoSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/hallazgos/{hallazgo_id}": {
+      "patch": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Actualizar el estado o la decisión de un hallazgo",
+        "operationId": "editar_hallazgo_api_v1_comercial__comercializador__hallazgos__hallazgo_id__patch",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "hallazgo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Hallazgo Id"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HallazgoEditarEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HallazgoSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/entregables/{tipo}": {
+      "post": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Requerimiento (Word/PDF/HTML), análisis (HTML/PDF), anexo nominal (Excel) o informe gerencial (PDF)",
+        "operationId": "entregable_api_v1_comercial__comercializador__entregables__tipo__post",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "tipo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "requerimiento",
+                "analisis",
+                "anexo-nominal",
+                "informe-gerencial"
+              ],
+              "type": "string",
+              "title": "Tipo"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntregableEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/octet-stream": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/exportaciones/cartera": {
+      "post": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Cartera en ZIP: resumen y detalle por cuenta (Celsia)",
+        "operationId": "exportar_cartera_api_v1_comercial__comercializador__exportaciones_cartera_post",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PeriodoEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/octet-stream": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comercial/{comercializador}/exportaciones/promedios-ids": {
+      "post": {
+        "tags": [
+          "comercial"
+        ],
+        "summary": "Promedios de consumo por lista de IDs (.txt UTF-8, ≤ 1 MiB y 50.000 IDs)",
+        "operationId": "promedios_ids_api_v1_comercial__comercializador__exportaciones_promedios_ids_post",
+        "parameters": [
+          {
+            "name": "comercializador",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comercializador"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_promedios_ids_api_v1_comercial__comercializador__exportaciones_promedios_ids_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/octet-stream": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/migracion/comercial/opainn": {
+      "post": {
+        "tags": [
+          "migracion"
+        ],
+        "summary": "Importar periodos del almacén de OPainn (Parquet + manifiesto)",
+        "operationId": "importar_opainn_api_v1_migracion_comercial_opainn_post",
+        "parameters": [
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportacionOpainnEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Importar Opainn Api V1 Migracion Comercial Opainn Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/sistema/tareas/prueba": {
       "post": {
         "tags": [
@@ -7667,7 +11072,20 @@
         "title": "AceptarCondicionesEntrada"
       },
       "AcuerdoAprobarEntrada": {
-        "properties": {},
+        "properties": {
+          "observacion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observacion"
+          }
+        },
         "additionalProperties": false,
         "type": "object",
         "title": "AcuerdoAprobarEntrada"
@@ -8266,6 +11684,67 @@
         ],
         "title": "AcuerdoResumen"
       },
+      "AnalisisCatalogo": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "grupo": {
+            "type": "string",
+            "title": "Grupo"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "pregunta": {
+            "type": "string",
+            "title": "Pregunta"
+          },
+          "ruta": {
+            "type": "string",
+            "title": "Ruta"
+          },
+          "por_periodo": {
+            "type": "boolean",
+            "title": "Por Periodo"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "disponible",
+              "parcial",
+              "pendiente",
+              "no_aplica"
+            ],
+            "title": "Estado"
+          },
+          "nota": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nota"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "grupo",
+          "nombre",
+          "pregunta",
+          "ruta",
+          "por_periodo",
+          "estado",
+          "nota"
+        ],
+        "title": "AnalisisCatalogo"
+      },
       "ArchivoSalida": {
         "properties": {
           "id": {
@@ -8626,6 +12105,30 @@
         ],
         "title": "BodegaCambioEntrada"
       },
+      "Body_cargar_api_v1_comercial__comercializador__cargues_post": {
+        "properties": {
+          "files": {
+            "items": {
+              "type": "string",
+              "contentMediaType": "application/octet-stream"
+            },
+            "type": "array",
+            "title": "Files",
+            "description": "Archivos del corte"
+          },
+          "periodo": {
+            "type": "string",
+            "title": "Periodo",
+            "description": "Periodo AAAAMM"
+          }
+        },
+        "type": "object",
+        "required": [
+          "files",
+          "periodo"
+        ],
+        "title": "Body_cargar_api_v1_comercial__comercializador__cargues_post"
+      },
       "Body_cargar_bodega_api_v1_bodega_cargue_post": {
         "properties": {
           "archivo": {
@@ -8681,6 +12184,20 @@
           "archivo"
         ],
         "title": "Body_importar_luminarias_api_v1_migracion_luminarias_post"
+      },
+      "Body_promedios_ids_api_v1_comercial__comercializador__exportaciones_promedios_ids_post": {
+        "properties": {
+          "archivo": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Archivo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "archivo"
+        ],
+        "title": "Body_promedios_ids_api_v1_comercial__comercializador__exportaciones_promedios_ids_post"
       },
       "Body_subir_archivo_api_v1_archivos_post": {
         "properties": {
@@ -8779,6 +12296,59 @@
         ],
         "title": "CargueBodegaSalida"
       },
+      "CargueEncolado": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "cargue_id": {
+            "type": "integer",
+            "title": "Cargue Id"
+          },
+          "cargueId": {
+            "type": "integer",
+            "title": "Cargueid"
+          },
+          "tarea_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tarea Id"
+          },
+          "tareaId": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tareaid"
+          },
+          "estado": {
+            "type": "string",
+            "title": "Estado"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "cargue_id",
+          "cargueId",
+          "tarea_id",
+          "tareaId",
+          "estado"
+        ],
+        "title": "CargueEncolado",
+        "description": "202 de un cargue: `id`/`cargueId`/`cargue_id` = cargue; `tareaId`/`tarea_id` = trabajo."
+      },
       "CargueMasivoSalida": {
         "properties": {
           "id": {
@@ -8839,6 +12409,121 @@
           "procesado_en"
         ],
         "title": "CargueMasivoSalida"
+      },
+      "CargueSalida": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "cargue_id": {
+            "type": "integer",
+            "title": "Cargue Id"
+          },
+          "sede_id": {
+            "type": "integer",
+            "title": "Sede Id"
+          },
+          "comercializador": {
+            "type": "string",
+            "title": "Comercializador"
+          },
+          "periodo": {
+            "type": "string",
+            "title": "Periodo"
+          },
+          "estado": {
+            "type": "string",
+            "title": "Estado"
+          },
+          "origen": {
+            "type": "string",
+            "title": "Origen"
+          },
+          "completo": {
+            "type": "boolean",
+            "title": "Completo"
+          },
+          "publicable": {
+            "type": "boolean",
+            "title": "Publicable"
+          },
+          "version_adaptador": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version Adaptador"
+          },
+          "archivos": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Archivos"
+          },
+          "familias": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Familias"
+          },
+          "advertencias": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Advertencias"
+          },
+          "errores": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Errores"
+          },
+          "creado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creado En"
+          },
+          "procesado_en": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Procesado En"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "cargue_id",
+          "sede_id",
+          "comercializador",
+          "periodo",
+          "estado",
+          "origen",
+          "completo",
+          "publicable",
+          "version_adaptador",
+          "archivos",
+          "familias",
+          "advertencias",
+          "errores",
+          "creado_en",
+          "procesado_en"
+        ],
+        "title": "CargueSalida"
       },
       "CatalogoComercialCrearEntrada": {
         "properties": {
@@ -9371,6 +13056,75 @@
         ],
         "title": "ComercializadorSalida"
       },
+      "CorteSalida": {
+        "properties": {
+          "periodo": {
+            "type": "string",
+            "title": "Periodo"
+          },
+          "cargue_id": {
+            "type": "integer",
+            "title": "Cargue Id"
+          },
+          "completo": {
+            "type": "boolean",
+            "title": "Completo"
+          },
+          "publicable": {
+            "type": "boolean",
+            "title": "Publicable"
+          },
+          "familias": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Familias"
+          },
+          "advertencias": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Advertencias"
+          },
+          "version_adaptador": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version Adaptador"
+          },
+          "publicado_en": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publicado En"
+          }
+        },
+        "type": "object",
+        "required": [
+          "periodo",
+          "cargue_id",
+          "completo",
+          "publicable",
+          "familias",
+          "advertencias",
+          "version_adaptador",
+          "publicado_en"
+        ],
+        "title": "CorteSalida"
+      },
       "CuadrillaCrearEntrada": {
         "properties": {
           "nombre": {
@@ -9572,6 +13326,51 @@
           "creado_en"
         ],
         "title": "EjecucionMigracionSalida"
+      },
+      "EntregableEntrada": {
+        "properties": {
+          "periodo": {
+            "type": "string",
+            "pattern": "^\\d{4}(0[1-9]|1[0-2])$",
+            "title": "Periodo"
+          },
+          "formato": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "docx",
+                  "pdf",
+                  "html",
+                  "xlsx"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Formato"
+          },
+          "max_filas": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Filas"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "periodo"
+        ],
+        "title": "EntregableEntrada"
       },
       "EstadoEditarEntrada": {
         "properties": {
@@ -9975,6 +13774,244 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "HallazgoEditarEntrada": {
+        "properties": {
+          "estado": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "ABIERTO",
+                  "EN_REVISION",
+                  "RESUELTO"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estado"
+          },
+          "responsable": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 160,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Responsable"
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4000,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision"
+          },
+          "referencia": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Referencia"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "HallazgoEditarEntrada"
+      },
+      "HallazgoEntrada": {
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "RUTA",
+              "ANOMALIA",
+              "MOVIMIENTO"
+            ],
+            "title": "Tipo"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "ABIERTO",
+              "EN_REVISION",
+              "RESUELTO"
+            ],
+            "title": "Estado",
+            "default": "ABIERTO"
+          },
+          "responsable": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 2,
+            "title": "Responsable"
+          },
+          "decision": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 2,
+            "title": "Decision"
+          },
+          "identificador": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identificador"
+          },
+          "referencia": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Referencia"
+          },
+          "periodo": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{4}(0[1-9]|1[0-2])$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Periodo"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tipo",
+          "responsable",
+          "decision"
+        ],
+        "title": "HallazgoEntrada"
+      },
+      "HallazgoSalida": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "comercializador": {
+            "type": "string",
+            "title": "Comercializador"
+          },
+          "tipo": {
+            "type": "string",
+            "title": "Tipo"
+          },
+          "estado": {
+            "type": "string",
+            "title": "Estado"
+          },
+          "responsable": {
+            "type": "string",
+            "title": "Responsable"
+          },
+          "decision": {
+            "type": "string",
+            "title": "Decision"
+          },
+          "identificador": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identificador"
+          },
+          "nic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nic"
+          },
+          "referencia": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Referencia"
+          },
+          "periodo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Periodo"
+          },
+          "creado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creado En"
+          },
+          "modificado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Modificado En"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "comercializador",
+          "tipo",
+          "estado",
+          "responsable",
+          "decision",
+          "identificador",
+          "nic",
+          "referencia",
+          "periodo",
+          "creado_en",
+          "modificado_en"
+        ],
+        "title": "HallazgoSalida"
+      },
       "HistorialLuminariaSalida": {
         "properties": {
           "luminaria": {
@@ -10020,6 +14057,40 @@
           "ordenes"
         ],
         "title": "HistorialLuminariaSalida"
+      },
+      "ImportacionOpainnEntrada": {
+        "properties": {
+          "ruta_almacen": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Ruta Almacen"
+          },
+          "comercializador_codigo": {
+            "type": "string",
+            "enum": [
+              "afinia",
+              "celsia",
+              "vatia"
+            ],
+            "title": "Comercializador Codigo"
+          },
+          "periodos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 240,
+            "title": "Periodos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ruta_almacen",
+          "comercializador_codigo"
+        ],
+        "title": "ImportacionOpainnEntrada"
       },
       "IngresarEntrada": {
         "properties": {
@@ -13513,6 +17584,51 @@
         ],
         "title": "OrdenSalida"
       },
+      "PaginaDatos": {
+        "properties": {
+          "familia": {
+            "type": "string",
+            "title": "Familia"
+          },
+          "columnas": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Columnas"
+          },
+          "items": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "size": {
+            "type": "integer",
+            "title": "Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "familia",
+          "columnas",
+          "items",
+          "total",
+          "page",
+          "size"
+        ],
+        "title": "PaginaDatos"
+      },
       "Pagina_AuditoriaConsultaSalida_": {
         "properties": {
           "items": {
@@ -14264,6 +18380,21 @@
           "sedes"
         ],
         "title": "PerfilActual"
+      },
+      "PeriodoEntrada": {
+        "properties": {
+          "periodo": {
+            "type": "string",
+            "pattern": "^\\d{4}(0[1-9]|1[0-2])$",
+            "title": "Periodo"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "periodo"
+        ],
+        "title": "PeriodoEntrada"
       },
       "PermisoSalida": {
         "properties": {
@@ -15184,6 +19315,31 @@
         ],
         "title": "RolSalida"
       },
+      "SabanaEntrada": {
+        "properties": {
+          "familia": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Familia"
+          },
+          "formato": {
+            "type": "string",
+            "enum": [
+              "csv",
+              "xlsx"
+            ],
+            "title": "Formato",
+            "default": "xlsx"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "familia"
+        ],
+        "title": "SabanaEntrada"
+      },
       "Salud": {
         "properties": {
           "estado": {
@@ -15586,6 +19742,34 @@
         ],
         "title": "SuscripcionSalida"
       },
+      "TareaExportacion": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "tarea_id": {
+            "type": "integer",
+            "title": "Tarea Id"
+          },
+          "tareaId": {
+            "type": "integer",
+            "title": "Tareaid"
+          },
+          "estado": {
+            "type": "string",
+            "title": "Estado",
+            "default": "encolada"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tarea_id",
+          "tareaId"
+        ],
+        "title": "TareaExportacion"
+      },
       "TareaExportacionSalida": {
         "properties": {
           "id": {
@@ -15621,6 +19805,18 @@
             "maxLength": 80,
             "minLength": 1,
             "title": "Tarifa"
+          },
+          "nombre": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nombre"
           },
           "tipo_regla": {
             "anyOf": [
@@ -15701,7 +19897,8 @@
         "required": [
           "tarifa"
         ],
-        "title": "TarifaEntrada"
+        "title": "TarifaEntrada",
+        "description": "Acepta también los nombres cortos de OPainn (`codigo`, `factor_uvt`, `porcentaje_variable`,\n`urbano`, `rural`); `nombre` es descriptivo y no se guarda."
       },
       "TarifaSalida": {
         "properties": {

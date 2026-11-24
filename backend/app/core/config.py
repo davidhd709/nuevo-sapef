@@ -54,6 +54,16 @@ class Configuracion(BaseSettings):
     smtp_remitente: str = "noreply@sapef.local"
     smtp_tls: bool = True
 
+    # Módulo comercial: almacén Parquet y límites de los cargues (§6.9, iguales a OPainn).
+    comercial_dir: Path = Path("/data/comercial")
+    comercial_importacion_dir: Path = Path("/data/importacion")
+    # Ruta con la que el cliente ve ese mismo directorio (p. ej., una carpeta compartida montada
+    # en otro equipo); si una ruta pedida empieza por ella, se traduce al directorio del servidor.
+    comercial_importacion_alias: str | None = None
+    comercial_max_archivos: int = Field(default=64, ge=1)
+    comercial_max_archivo_mb: int = Field(default=256, ge=1)
+    comercial_max_total_mb: int = Field(default=1024, ge=1)
+
     # Web Push (app de campo). Clave privada VAPID en base64url (python -m app.semillas vapid).
     vapid_clave_privada: SecretStr | None = None
     vapid_sujeto: str = "mailto:soporte@sapef.local"

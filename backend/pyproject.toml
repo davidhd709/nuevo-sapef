@@ -23,6 +23,7 @@ dependencies = [
     "weasyprint>=63.0",
     "pywebpush>=2.0",
     "python-docx>=1.1",
+    "fpdf2>=2.8",
 ]
 
 [dependency-groups]
@@ -78,6 +79,7 @@ containers = [
     "app.modulos.trabajos",
     "app.modulos.notificaciones",
     "app.modulos.sincronizacion",
+    "app.modulos.comercial",
 ]
 layers = [
     "router | (tareas)",
@@ -150,6 +152,7 @@ forbidden_modules = [
     "app.modulos.trabajos",
     "app.modulos.notificaciones",
     "app.modulos.sincronizacion",
+    "app.modulos.comercial",
 ]
 
 [[tool.importlinter.contracts]]
@@ -194,3 +197,17 @@ source_modules = [
     "app.modulos.notificaciones",
 ]
 forbidden_modules = ["app.modulos.sincronizacion"]
+
+[[tool.importlinter.contracts]]
+name = "comercial solo depende de seguridad, configuracion y archivos"
+type = "forbidden"
+source_modules = ["app.modulos.comercial"]
+forbidden_modules = [
+    "app.modulos.activos",
+    "app.modulos.migracion",
+    "app.modulos.inventario",
+    "app.modulos.atencion",
+    "app.modulos.trabajos",
+    "app.modulos.notificaciones",
+    "app.modulos.sincronizacion",
+]

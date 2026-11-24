@@ -131,7 +131,7 @@ def test_sedes_y_comercializadores(admin: TestClient, db_configurado: Session) -
         text("SELECT (SELECT count(*) FROM parametro WHERE sede_id = :s) + "
              "(SELECT count(*) FROM plantilla_correo WHERE sede_id = :s)"), {"s": sede_id}
     ).scalar_one()
-    assert por_defecto == 5
+    assert por_defecto == 6  # 2 parámetros + 4 plantillas
     assert admin.post(
         "/api/v1/sedes",
         json={"codigo": "sahagun", "nombre": "x", "municipio": "x", "departamento": "x"},

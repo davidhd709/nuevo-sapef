@@ -14,6 +14,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { PantallaLuminarias } from "./activos/PantallaLuminarias";
 import { PantallaAtencion } from "./atencion/PantallaAtencion";
+import { PantallaComercial } from "./comercial/PantallaComercial";
 import { PantallaMapa } from "./activos/PantallaMapa";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { PantallaIngresar } from "./auth/PantallaIngresar";
@@ -80,6 +81,8 @@ function ContenidoApp() {
     contenido = <PantallaOrdenes />;
   } else if (ruta.startsWith("/inventario")) {
     contenido = <PantallaInventario />;
+  } else if (ruta.startsWith("/comercial")) {
+    contenido = <PantallaComercial />;
   } else if (ruta.startsWith("/seguridad")) {
     contenido = <PantallaSeguridad />;
   } else if (ruta.startsWith("/configuracion")) {
@@ -165,6 +168,13 @@ function ContenidoApp() {
               label="Inventario"
               active={ruta.startsWith("/inventario")}
               onClick={() => navegar("/inventario")}
+            />
+          )}
+          {(tienePermiso("comercial.analisis.ver") || tienePermiso("comercial.cargue.crear")) && (
+            <NavLink
+              label="Comercial"
+              active={ruta.startsWith("/comercial")}
+              onClick={() => navegar("/comercial")}
             />
           )}
           <NavLink

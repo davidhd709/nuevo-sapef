@@ -913,7 +913,11 @@ def copiar_acuerdo(
 
 
 def aprobar_acuerdo(
-    db: Session, actor: UsuarioAutenticado, sede: SedeResumen, acuerdo_id: int
+    db: Session,
+    actor: UsuarioAutenticado,
+    sede: SedeResumen,
+    acuerdo_id: int,
+    observacion: str | None = None,
 ) -> AcuerdoDetalle:
     """Borrador -> aprobado. Si ya había una vigencia aprobada del mismo año, queda reemplazada."""
     acuerdo = _obtener_acuerdo(db, sede, acuerdo_id, bloquear=True)
@@ -938,7 +942,8 @@ def aprobar_acuerdo(
     db.flush()
     db.refresh(acuerdo)
     _auditar(db, actor, accion="aprobar", entidad="acuerdo_vigencia", entidad_id=acuerdo.id,
-             sede_id=sede.id, antes={"estado": "borrador"}, despues=_snapshot_acuerdo(acuerdo))
+             sede_id=sede.id, antes={"estado": "borrador"},
+             despues={**_snapshot_acuerdo(acuerdo), "observacion": observacion})
     _confirmar(db, "Otra aprobación del mismo año se registró al mismo tiempo; recargue.")
     return _a_acuerdo_detalle(acuerdo)
 

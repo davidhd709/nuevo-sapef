@@ -21,7 +21,7 @@ COPY migrations ./migrations
 # Usuario sin privilegios. /data/archivos es el almacén de archivos (un volumen en Compose):
 # existe en la imagen con el dueño correcto para que el volumen nazca escribible.
 RUN useradd --system --uid 10001 sapef \
-    && mkdir -p /data/archivos \
+    && mkdir -p /data/archivos /data/comercial /data/importacion \
     && chown -R sapef /app /data
 USER sapef
 

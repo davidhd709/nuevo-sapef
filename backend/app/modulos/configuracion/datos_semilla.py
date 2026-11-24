@@ -366,6 +366,12 @@ PARAMETROS_POR_SEDE: dict[str, tuple[str, object, bool]] = {
         {"verde_max_dias": 3, "amarillo_max_dias": 7},
         True,
     ),
+    # §11.12: si un anexo nominal pasa de este tope, la descarga se detiene (no se recorta).
+    "comercial_anexo_max_filas": (
+        "Máximo de filas por hoja del anexo nominal comercial",
+        50000,
+        True,
+    ),
 }
 
 # Parámetros globales informativos: su valor lo fija la configuración del servidor

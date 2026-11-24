@@ -388,9 +388,10 @@ def aprobar_acuerdo(
     sede: SedeActiva,
     actor: ApruebaAcuerdos,
     db: Db,
-    _entrada: AcuerdoAprobarEntrada | None = None,
+    entrada: AcuerdoAprobarEntrada | None = None,
 ) -> AcuerdoDetalle:
-    return servicio.aprobar_acuerdo(db, actor, sede, acuerdo_id)
+    observacion = entrada.observacion if entrada else None
+    return servicio.aprobar_acuerdo(db, actor, sede, acuerdo_id, observacion)
 
 
 # --- Catálogos comerciales (conceptos CI y operaciones OC) -----------------------------------

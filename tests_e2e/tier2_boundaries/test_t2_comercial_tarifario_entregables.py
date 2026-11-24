@@ -691,7 +691,7 @@ def test_celsia_tariff_control_no_validable_and_revision_reason_codes(
 
     # Verify incomplete / contradictory Celsia agreement rules cannot silently pass approval
     bad_agreement = alc.post(
-        "/api/v1/configuracion/acuerdos",
+        "/api/v1/acuerdos",
         sede="alcala",
         json_body={
             "comercializador_codigo": "celsia",
@@ -714,7 +714,7 @@ def test_celsia_tariff_control_no_validable_and_revision_reason_codes(
         assert bad_agreement.status_code == 201, bad_agreement.text
         bad_id = bad_agreement.json()["id"]
         approve_bad = alc.post(
-            f"/api/v1/configuracion/acuerdos/{bad_id}/aprobar",
+            f"/api/v1/acuerdos/{bad_id}/aprobar",
             sede="alcala",
             json_body={},
         )

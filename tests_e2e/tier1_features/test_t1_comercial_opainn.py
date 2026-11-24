@@ -121,7 +121,7 @@ def _ensure_afinia_2026_agreement_with_exceptions(
 ) -> None:
     """Ensure active 2026 Afinia agreement includes the 39 UVT exception NICs."""
     ac_resp = client.get(
-        "/api/v1/configuracion/acuerdos",
+        "/api/v1/acuerdos",
         sede="montelibano",
         params={"comercializador": "afinia", "anio": 2026},
     )
@@ -145,7 +145,7 @@ def _ensure_afinia_2026_agreement_with_exceptions(
     if items:
         latest = items[0]
         detail = client.get(
-            f"/api/v1/configuracion/acuerdos/{latest['id']}",
+            f"/api/v1/acuerdos/{latest['id']}",
             sede="montelibano",
         ).json()
         existing_nics = {
@@ -155,7 +155,7 @@ def _ensure_afinia_2026_agreement_with_exceptions(
             return
 
     create_resp = client.post(
-        "/api/v1/configuracion/acuerdos",
+        "/api/v1/acuerdos",
         sede="montelibano",
         json_body={
             "comercializador_codigo": "afinia",
@@ -172,7 +172,7 @@ def _ensure_afinia_2026_agreement_with_exceptions(
     assert create_resp.status_code == 201, create_resp.text
     ac_id = create_resp.json()["id"]
     approve = client.post(
-        f"/api/v1/configuracion/acuerdos/{ac_id}/aprobar",
+        f"/api/v1/acuerdos/{ac_id}/aprobar",
         sede="montelibano",
         json_body={"observacion": "Aprobación E2E Tier 1"},
     )

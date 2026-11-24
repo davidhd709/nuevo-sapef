@@ -36,6 +36,8 @@ services:
       SAPEF_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-sapef}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-sapef}
       # Web Push (opcional): sin clave no se envían avisos.
       SAPEF_VAPID_CLAVE_PRIVADA: ${SAPEF_VAPID_CLAVE_PRIVADA:-}
+      # Importación del almacén de OPainn (HU-080): ruta del cliente que equivale a /data/importacion.
+      SAPEF_COMERCIAL_IMPORTACION_ALIAS: ${SAPEF_COMERCIAL_IMPORTACION_ALIAS:-}
     command: ["sh", "-c", "alembic upgrade head && python -m app.semillas"]
     depends_on:
       db:
@@ -47,6 +49,10 @@ services:
     volumes:
       # La API recibe los archivos (evidencias, cargues) y el worker los procesa: almacén común.
       - archivos:/data/archivos
+      # Almacén Parquet del módulo comercial: el worker publica y la API lee.
+      - comercial:/data/comercial
+      # Paquetes de OPainn para importar (solo lectura).
+      - ${SAPEF_IMPORTACION_HOST_DIR:-../importacion}:/data/importacion:ro
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
@@ -59,6 +65,9 @@ services:
     command: ["python", "-m", "app.worker"]
     volumes:
       - archivos:/data/archivos
+      - comercial:/data/comercial
+      # Paquetes de OPainn para importar (solo lectura).
+      - ${SAPEF_IMPORTACION_HOST_DIR:-../importacion}:/data/importacion:ro
     healthcheck:
       disable: true
     depends_on:
@@ -68,3 +77,4 @@ services:
 volumes:
   pgdata:
   archivos:
+  comercial:

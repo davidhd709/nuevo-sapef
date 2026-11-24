@@ -17,6 +17,8 @@ from app.core.tareas import app_tareas
 from app.modulos.activos.router import router as activos_router
 from app.modulos.archivos.router import router as archivos_router
 from app.modulos.atencion.router import router as atencion_router
+from app.modulos.comercial.router import router as comercial_router
+from app.modulos.comercial.router import router_migracion as comercial_migracion_router
 from app.modulos.configuracion.router import router as configuracion_router
 from app.modulos.inventario.router import router as inventario_router
 from app.modulos.migracion.router import router as migracion_router
@@ -89,6 +91,8 @@ def crear_app() -> FastAPI:
     app.include_router(trabajos_router, prefix="/api/v1")
     app.include_router(notificaciones_router, prefix="/api/v1")
     app.include_router(sincronizacion_router, prefix="/api/v1")
+    app.include_router(comercial_router, prefix="/api/v1")
+    app.include_router(comercial_migracion_router, prefix="/api/v1")
     if not config.es_produccion:
         app.include_router(sistema.router, prefix="/api/v1")
     return app

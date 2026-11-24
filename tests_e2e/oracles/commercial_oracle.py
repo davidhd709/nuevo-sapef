@@ -107,9 +107,12 @@ def _shift_months(day: dt.date, delta_months: int) -> dt.date:
     return dt.date(year, rem + 1, 1)
 
 
-def classify_recaudo_tipo_afinia(fecha_fact_lect: dt.date | None, periodo: str) -> str:
+def classify_recaudo_tipo_afinia(fecha_fact_lect: dt.date | str | None, periodo: str) -> str:
     if fecha_fact_lect is None:
         return "NO_CLASIFICADO"
+    if isinstance(fecha_fact_lect, str):
+        # Filas leídas de la API llegan con la fecha en ISO 8601.
+        fecha_fact_lect = dt.date.fromisoformat(fecha_fact_lect[:10])
     cutoff = _shift_months(_first_day_of_period(periodo), -1)
     return "CORRIENTE" if fecha_fact_lect >= cutoff else "CARTERA"
 
@@ -1136,8 +1139,12 @@ def detect_irregular_invoices(
         elif total_tax == _ZERO:
             categories["TOTAL_EN_CERO"].append(uid)
 
+        # Ambiguo = dos líneas del impuesto (CI400 en Afinia) con la misma tarifa; el CI401 es
+        # un ajuste de esa línea, no otra línea de impuesto (§11.9).
         tariff_counts: dict[str, int] = defaultdict(int)
         for r in tax_rows:
+            if op == "afinia" and str(r.get("concepto")) != "CI400":
+                continue
             tariff_counts[str(r.get("tarifa") or "")] += 1
         if any(cnt >= 2 for cnt in tariff_counts.values()):
             categories["IMPUESTO_AMBIGUO"].append(uid)

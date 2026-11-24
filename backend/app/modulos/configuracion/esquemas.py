@@ -8,7 +8,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
 Proceso = Literal["luminaria", "pqrs", "orden", "solicitud"]
 EstadoAcuerdo = Literal["borrador", "aprobado", "reemplazado"]
@@ -208,12 +208,29 @@ class PlantillaCorreoEditarEntrada(_Entrada):
 
 
 class TarifaEntrada(_Entrada):
-    tarifa: str = Field(min_length=1, max_length=80)
+    """Acepta también los nombres cortos de OPainn (`codigo`, `factor_uvt`, `porcentaje_variable`,
+    `urbano`, `rural`); `nombre` es descriptivo y no se guarda."""
+
+    tarifa: str = Field(
+        min_length=1, max_length=80, validation_alias=AliasChoices("tarifa", "codigo")
+    )
+    nombre: str | None = Field(default=None, max_length=120)
     tipo_regla: str | None = Field(default=None, max_length=40)
-    factor_uvt_minimo: NoNegativo | None = None
-    porcentaje_costo_variable: Fraccion | None = None
-    valor_urbano: NoNegativo | None = None
-    valor_rural: NoNegativo | None = None
+    factor_uvt_minimo: NoNegativo | None = Field(
+        default=None, validation_alias=AliasChoices("factor_uvt_minimo", "factor_uvt")
+    )
+    porcentaje_costo_variable: Fraccion | None = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            "porcentaje_costo_variable", "porcentaje_variable", "porcentaje"
+        ),
+    )
+    valor_urbano: NoNegativo | None = Field(
+        default=None, validation_alias=AliasChoices("valor_urbano", "urbano")
+    )
+    valor_rural: NoNegativo | None = Field(
+        default=None, validation_alias=AliasChoices("valor_rural", "rural")
+    )
 
 
 class TarifaSalida(BaseModel):
@@ -277,7 +294,7 @@ class AcuerdoCopiarEntrada(_Entrada):
 
 
 class AcuerdoAprobarEntrada(_Entrada):
-    pass
+    observacion: str | None = Field(default=None, max_length=500)
 
 
 class AcuerdoResumen(BaseModel):
