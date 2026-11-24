@@ -1,7 +1,6 @@
 """Reglas puras de dominio del módulo de activos y mapa (sin BD, HTTP ni cola)."""
 
 import re
-import struct
 from dataclasses import dataclass
 from typing import Any
 
@@ -117,42 +116,3 @@ def parsear_rango_bytes(cabecera: str, total: int) -> tuple[int, int]:
         raise ErrorDominioActivo(416, "Rango de bytes invertido.")
     fin = min(fin, total - 1)
     return inicio, fin
-
-
-def construir_pmtiles_base_sede(sede_codigo: str) -> bytes:
-    """Genera un archivo PMTiles v3 válido y determinista para el mapa base offline de la sede."""
-    bboxes: dict[str, tuple[float, float, float, float]] = {
-        "montelibano": (-75.46, 7.94, -75.38, 8.02),
-        "alcala": (-75.81, 4.65, -75.76, 4.70),
-    }
-    min_lon, min_lat, max_lon, max_lat = bboxes[sede_codigo]
-    cabecera = bytearray(127)
-    cabecera[0:8] = b"PMTiles\x03"
-    # Root dir offset=127, length=1; metadata offset=128, length=2; leaf=0, data=130
-    struct.pack_into("<QQQQQQQQ", cabecera, 8, 127, 1, 128, 2, 0, 0, 130, 0)
-    # 1 byte tile type (1=MVT), 1 byte min_zoom=6, 1 byte max_zoom=16
-    cabecera[97] = 1  # internal compression: none
-    cabecera[98] = 1  # tile compression: none
-    cabecera[99] = 1  # tile type: MVT
-    cabecera[100] = 6
-    cabecera[101] = 16
-    struct.pack_into(
-        "<iiii",
-        cabecera,
-        102,
-        int(min_lon * 1e7),
-        int(min_lat * 1e7),
-        int(max_lon * 1e7),
-        int(max_lat * 1e7),
-    )
-    cabecera[118] = 12
-    struct.pack_into(
-        "<ii",
-        cabecera,
-        119,
-        int((min_lon + max_lon) / 2 * 1e7),
-        int((min_lat + max_lat) / 2 * 1e7),
-    )
-    # Root dir (0 entries = 1 byte 0x00) + empty JSON "{}" (2 bytes) + padding hasta 4096 bytes
-    cuerpo = bytes(cabecera) + b"\x00{}"
-    return cuerpo.ljust(4096, b"\x00")

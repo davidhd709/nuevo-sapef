@@ -51,7 +51,11 @@ function Cabecera({
 }) {
   const enLinea = useEnLinea();
   const sync = useEstadoSincronizacion();
-  const pendientes = useConsulta(() => db.outbox.count(), [], 0);
+  const pendientes = useConsulta(
+    () => db.outbox.where("usuarioId").equals(perfil.id).filter((p) => p.sede === sede).count(),
+    [perfil.id, sede],
+    0,
+  );
   return (
     <Box
       px="md"
@@ -179,6 +183,7 @@ function Trabajo({
               </Tabs.List>
               <Tabs.Panel value="ordenes" pt="sm">
                 <PantallaBandeja
+                  sesion={sesion}
                   onAbrir={(id) => abrir(id)}
                   mensaje={mensaje}
                   onCerrarMensaje={() => setMensaje(null)}
@@ -190,7 +195,7 @@ function Trabajo({
                 </Suspense>
               </Tabs.Panel>
               <Tabs.Panel value="envios" pt="sm">
-                <PantallaEnvios />
+                <PantallaEnvios sesion={sesion} />
               </Tabs.Panel>
             </Tabs>
           </Stack>
@@ -271,12 +276,12 @@ export function App() {
     }
     await api.POST("/api/v1/auth/salir").catch(() => undefined);
     fijarSesion(null);
+    await limpiarDescargas();
     setFase({ tipo: "ingreso" });
   };
 
   const cambiarSede = async (codigo: string) => {
     if (fase.tipo !== "listo") return;
-    await guardarMeta("sede", codigo);
     await limpiarDescargas();
     await guardarMeta("perfil", fase.perfil);
     await guardarMeta("sede", codigo);

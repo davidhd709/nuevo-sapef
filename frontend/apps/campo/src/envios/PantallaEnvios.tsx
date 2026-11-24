@@ -6,7 +6,7 @@ import { fechaHora, NOMBRE_TIPO, tamanoLegible } from "../comun/captura";
 import { useConsulta, useEnLinea, useEstadoSincronizacion } from "../comun/ganchos";
 import { db } from "../datos/db";
 import { activarPush, desactivarPush, estadoPush, type EstadoPush } from "../datos/push";
-import { descartarConflicto, reintentarConflicto, sincronizar } from "../datos/sincronizacion";
+import { descartarConflicto, reintentarConflicto, sincronizar, type Sesion } from "../datos/sincronizacion";
 
 const TEXTO_PUSH: Record<EstadoPush, string> = {
   no_soportado:
@@ -53,13 +53,22 @@ function AvisosPush() {
   );
 }
 
-export function PantallaEnvios() {
+export function PantallaEnvios({ sesion }: { sesion: Sesion }) {
   const enLinea = useEnLinea();
   const sync = useEstadoSincronizacion();
-  const pendientes = useConsulta(() => db.outbox.orderBy("creadaEn").toArray(), [], []);
-  const conflictos = useConsulta(() => db.conflictos.toArray(), [], []);
+  const pendientes = useConsulta(
+    () => db.outbox.where("usuarioId").equals(sesion.usuarioId).filter((p) => p.sede === sesion.sede).sortBy("creadaEn"),
+    [sesion.usuarioId, sesion.sede],
+    [],
+  );
+  const conflictos = useConsulta(
+    () => db.conflictos.toArray().then((filas) => filas.filter((c) => c.usuarioId === sesion.usuarioId && c.sede === sesion.sede)),
+    [sesion.usuarioId, sesion.sede],
+    [],
+  );
   const archivos = useConsulta(() => db.archivos.toArray(), [], []);
-  const porSubir = archivos.filter((a) => !a.archivoId);
+  const operacionesVisibles = new Set([...pendientes, ...conflictos].map((op) => op.uuid));
+  const porSubir = archivos.filter((a) => operacionesVisibles.has(a.opUuid) && !a.archivoId);
   const bytes = porSubir.reduce((t, a) => t + a.datos.size, 0);
 
   return (

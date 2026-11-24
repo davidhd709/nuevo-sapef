@@ -39,6 +39,7 @@ docs/sapef-docs/
 *.xls
 *.csv
 *.pmtiles
+!backend/app/mapas/*.pmtiles
 !frontend/**/fixtures/**
 
 # Sistema / editores

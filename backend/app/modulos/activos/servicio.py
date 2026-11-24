@@ -2,6 +2,7 @@
 
 import io
 from datetime import date, datetime
+from pathlib import Path
 from typing import Any
 
 from fastapi import HTTPException
@@ -673,16 +674,16 @@ def obtener_pmtiles_sede(
         raise HTTPException(status_code=403, detail="No tiene acceso a la sede solicitada.")
 
     ruta_disco = obtener_configuracion().archivos_dir / "mapa" / f"{codigo}.pmtiles"
-    if ruta_disco.is_file():
-        datos = ruta_disco.read_bytes()
-    elif codigo in {"montelibano", "alcala"}:
-        datos = dominio.construir_pmtiles_base_sede(codigo)
-    else:
+    if not ruta_disco.is_file():
+        ruta_disco = Path(__file__).resolve().parents[2] / "mapas" / f"{codigo}.pmtiles"
+    if not ruta_disco.is_file():
         raise HTTPException(
             status_code=404, detail="Mapa base PMTiles aún no disponible para esta sede."
         )
 
-    total = len(datos)
+    total = ruta_disco.stat().st_size
+    if total == 0:
+        raise HTTPException(status_code=404, detail="Mapa base PMTiles vacío.")
     if range_header:
         try:
             inicio, fin = dominio.parsear_rango_bytes(range_header, total)
@@ -692,8 +693,10 @@ def obtener_pmtiles_sede(
                 detail=exc.detail,
                 headers={"Content-Range": f"bytes */{total}"},
             ) from exc
-        return datos[inicio : fin + 1], 206, inicio, fin, total
-    return datos, 200, 0, total - 1, total
+        with ruta_disco.open("rb") as archivo:
+            archivo.seek(inicio)
+            return archivo.read(fin - inicio + 1), 206, inicio, fin, total
+    return ruta_disco.read_bytes(), 200, 0, total - 1, total
 
 
 # === Helpers públicos para otros módulos (migración, atención, trabajos, tablero) ==============

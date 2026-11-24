@@ -71,7 +71,7 @@ it("lista por prioridad, aparta lo guardado sin enviar y muestra los conflictos"
 
   render(
     <MantineProvider>
-      <PantallaBandeja onAbrir={() => undefined} mensaje={null} onCerrarMensaje={() => undefined} />
+      <PantallaBandeja sesion={{ usuarioId: 7, sede: "montelibano" }} onAbrir={() => undefined} mensaje={null} onCerrarMensaje={() => undefined} />
     </MantineProvider>,
   );
 
@@ -81,4 +81,29 @@ it("lista por prioridad, aparta lo guardado sin enviar y muestra los conflictos"
   expect(screen.getByText(/Guardadas, por enviar \(1\)/)).toBeInTheDocument();
   expect(screen.getByText(/Conflicto en 1 trabajo/)).toBeInTheDocument();
   expect(screen.getByText(/fue anulada en la oficina/)).toBeInTheDocument();
+});
+
+it("oculta los envíos y conflictos guardados de otra cuenta", async () => {
+  await db.ordenes.add(orden(1, 1, 1));
+  await db.outbox.add({
+    uuid: "otra-cuenta", tipo: "mantenimiento", ordenId: 1, ordenNumero: 1,
+    creadaEn: "2026-11-24T08:00:00Z", payload: {}, evidencias: [],
+    sede: "montelibano", usuarioId: 8, intentos: 0,
+  });
+  await db.conflictos.add({
+    uuid: "otro-conflicto", tipo: "mantenimiento", ordenId: 2, ordenNumero: 2,
+    creadaEn: "2026-11-24T08:00:00Z", payload: {}, evidencias: [],
+    sede: "montelibano", usuarioId: 8, intentos: 0,
+    estado: "conflicto", motivo: "Secreto de otra cuenta", recibidoEn: "2026-11-24T09:00:00Z",
+  });
+
+  render(
+    <MantineProvider>
+      <PantallaBandeja sesion={{ usuarioId: 7, sede: "montelibano" }} onAbrir={() => undefined} mensaje={null} onCerrarMensaje={() => undefined} />
+    </MantineProvider>,
+  );
+
+  await waitFor(() => expect(screen.getAllByTestId("orden-item")).toHaveLength(1));
+  expect(screen.queryByText(/Guardadas, por enviar/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/Secreto de otra cuenta/)).not.toBeInTheDocument();
 });

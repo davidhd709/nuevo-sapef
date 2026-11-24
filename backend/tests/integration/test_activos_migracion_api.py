@@ -148,6 +148,7 @@ def test_crud_luminarias_ubicacion_lote_mvt_pmtiles_y_aislamiento(cliente, db_co
     assert pm.status_code == 206
     assert pm.content[:7] == b"PMTiles"
     assert len(pm.content) == 512
+    assert int(pm.headers["content-range"].split("/")[1]) > 100_000
 
     # Lote por consecutivos + solapamiento 409
     lote = cliente.post(

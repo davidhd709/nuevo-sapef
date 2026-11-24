@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { enlaceGoogleMaps } from "../comun/captura";
 import { useConsulta } from "../comun/ganchos";
 import { db, leerMeta, type LuminariaCampo } from "../datos/db";
-import { CACHE_MAPA } from "../datos/sincronizacion";
+import { CACHE_MAPA, despuesDeSincronizar } from "../datos/sincronizacion";
 
 const COLOR_ESTADO: [string, string][] = [
   ["121", "#2f9e44"], // en operación
@@ -96,21 +96,37 @@ export default function PantallaMapa() {
   const [sinBase, setSinBase] = useState(false);
   const [seleccion, setSeleccion] = useState<LuminariaCampo | null>(null);
   const [listo, setListo] = useState(false);
+  const [versionBase, setVersionBase] = useState(0);
   const centrado = useRef(false);
   const luminarias = useConsulta(() => db.luminarias.toArray(), [], [] as LuminariaCampo[]);
   const ordenes = useConsulta(() => db.ordenes.toArray(), [], []);
+
+  useEffect(() => {
+    if (!sinBase) return;
+    let activo = true;
+    return despuesDeSincronizar(() => {
+      void (async () => {
+        const url = await leerMeta<string>("mapaUrl");
+        if (activo && url && typeof caches !== "undefined" && (await (await caches.open(CACHE_MAPA)).match(url))) {
+          setListo(false);
+          setVersionBase((v) => v + 1);
+        }
+      })();
+    });
+  }, [sinBase]);
 
   useEffect(() => {
     let cancelado = false;
     void (async () => {
       try {
         const base = await fuenteBase();
+        const sede = await leerMeta<string>("sede");
         if (cancelado || !contenedor.current) return;
         setSinBase(!base);
         const m = new maplibregl.Map({
           container: contenedor.current,
           style: estilo(base),
-          center: [-75.42, 7.98],
+          center: sede === "alcala" ? [-75.785, 4.675] : [-75.42, 7.98],
           zoom: 14,
           attributionControl: { compact: true, customAttribution: "© OpenStreetMap" },
         });
@@ -153,7 +169,7 @@ export default function PantallaMapa() {
       mapa.current?.remove();
       mapa.current = null;
     };
-  }, []);
+  }, [versionBase]);
 
   // Luminarias: se redibujan cuando cambia la base local.
   useEffect(() => {

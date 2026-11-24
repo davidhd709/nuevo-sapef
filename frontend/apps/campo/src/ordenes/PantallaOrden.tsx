@@ -76,8 +76,8 @@ export function PantallaOrden({
     null,
   );
   const pendiente = useConsulta(
-    () => db.outbox.where("ordenId").equals(ordenId).first(),
-    [ordenId],
+    () => db.outbox.where("ordenId").equals(ordenId).filter((p) => p.usuarioId === sesion.usuarioId && p.sede === sesion.sede).first(),
+    [ordenId, sesion.usuarioId, sesion.sede],
     undefined,
   );
   const catalogos = useConsulta(

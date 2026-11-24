@@ -5,6 +5,7 @@ import { Alert, Badge, Button, Card, Group, Stack, Text, UnstyledButton } from "
 import { fechaHora, NOMBRE_TIPO, PRIORIDAD } from "../comun/captura";
 import { useConsulta } from "../comun/ganchos";
 import { db, type OrdenCampo } from "../datos/db";
+import type { Sesion } from "../datos/sincronizacion";
 
 function TarjetaOrden({ orden, onAbrir }: { orden: OrdenCampo; onAbrir: () => void }) {
   const prioridad = PRIORIDAD[orden.prioridad] ?? { texto: String(orden.prioridad), color: "gray" };
@@ -42,17 +43,27 @@ function TarjetaOrden({ orden, onAbrir }: { orden: OrdenCampo; onAbrir: () => vo
 }
 
 export function PantallaBandeja({
+  sesion,
   onAbrir,
   mensaje,
   onCerrarMensaje,
 }: {
+  sesion: Sesion;
   onAbrir: (id: number) => void;
   mensaje: string | null;
   onCerrarMensaje: () => void;
 }) {
   const ordenes = useConsulta(() => db.ordenes.toArray(), [], [] as OrdenCampo[]);
-  const pendientes = useConsulta(() => db.outbox.toArray(), [], []);
-  const conflictos = useConsulta(() => db.conflictos.toArray(), [], []);
+  const pendientes = useConsulta(
+    () => db.outbox.where("usuarioId").equals(sesion.usuarioId).filter((p) => p.sede === sesion.sede).toArray(),
+    [sesion.usuarioId, sesion.sede],
+    [],
+  );
+  const conflictos = useConsulta(
+    () => db.conflictos.toArray().then((filas) => filas.filter((c) => c.usuarioId === sesion.usuarioId && c.sede === sesion.sede)),
+    [sesion.usuarioId, sesion.sede],
+    [],
+  );
   const avisos = useConsulta(() => db.avisos.toArray(), [], []);
   const ultimaDescarga = useConsulta(() => db.meta.get("ultimaDescarga"), [], undefined);
 

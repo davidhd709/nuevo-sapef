@@ -40,12 +40,9 @@ def test_rango_pmtiles_y_teselas() -> None:
     with pytest.raises(activos_dom.ErrorDominioActivo):
         activos_dom.validar_coordenadas_tesela(10, 9999, 0)
 
-    pm = activos_dom.construir_pmtiles_base_sede("montelibano")
-    assert pm.startswith(b"PMTiles\x03")
-    assert len(pm) == 4096
-    assert activos_dom.parsear_rango_bytes("bytes=0-511", len(pm)) == (0, 511)
+    assert activos_dom.parsear_rango_bytes("bytes=0-511", 4096) == (0, 511)
     with pytest.raises(activos_dom.ErrorDominioActivo):
-        activos_dom.parsear_rango_bytes("bytes=999999-", len(pm))
+        activos_dom.parsear_rango_bytes("bytes=999999-", 4096)
 
 
 def test_normalizacion_migracion() -> None:
