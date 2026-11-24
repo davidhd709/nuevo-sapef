@@ -573,7 +573,7 @@ def test_campo_pwa_full_offline_workday_sync_conflict_idempotency_and_push(
             """
             SELECT id, task_name, args
             FROM procrastinate_jobs
-            WHERE task_name ILIKE '%push%'
+            WHERE task_name ILIKE '%%push%%'
               AND args::text LIKE %s
             ORDER BY id DESC
             LIMIT 1

@@ -144,6 +144,7 @@ export function PantallaOrdenes() {
       {data && data.total > data.size && (
         <Pagination value={page} onChange={setPage} total={Math.ceil(data.total / data.size)} />
       )}
+      {tienePermiso("trabajos.orden.ver") && <ConflictosCampo onAbrir={setSeleccionada} />}
       {tienePermiso("trabajos.cargue_masivo.crear") && <CargueMasivo onMensaje={setMensaje} />}
       <NuevaOrden
         abierta={nueva}
@@ -152,6 +153,59 @@ export function PantallaOrdenes() {
       />
       <DetalleOrden id={seleccionada} onCerrar={() => setSeleccionada(null)} onMensaje={setMensaje} />
     </Stack>
+  );
+}
+
+// --- Conflictos de la app de campo (§9.7) -------------------------------------------------------
+
+/** Trabajos hechos en campo que no se aplicaron: la orden se anuló o reasignó mientras el técnico
+ * estaba sin señal, o faltó material. El técnico también los ve en su teléfono. */
+function ConflictosCampo({ onAbrir }: { onAbrir: (id: number) => void }) {
+  const { sedeActiva } = useAuth();
+  const { data } = useQuery({
+    queryKey: ["campo-conflictos", sedeActiva],
+    enabled: Boolean(sedeActiva),
+    refetchInterval: 60_000,
+    queryFn: async () => {
+      const { data, error } = await api.GET("/api/v1/campo/operaciones", {
+        headers: { "X-Sede": sedeActiva ?? "" },
+        params: { query: { estado: "conflicto", size: 20 } },
+      });
+      return exigir(data, error, "No se pudieron cargar los conflictos de campo.");
+    },
+  });
+  if (!data || data.total === 0) return null;
+  return (
+    <Alert color="orange" title={`Conflictos de la app de campo (${data.total})`}>
+      <Table>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Orden</Table.Th>
+            <Table.Th>Técnico</Table.Th>
+            <Table.Th>Motivo</Table.Th>
+            <Table.Th>Registrado en campo</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {data.items.map((c) => (
+            <Table.Tr key={c.uuid}>
+              <Table.Td>
+                {c.orden_id ? (
+                  <Anchor component="button" onClick={() => onAbrir(c.orden_id as number)}>
+                    {c.orden_numero ?? c.orden_id}
+                  </Anchor>
+                ) : (
+                  "—"
+                )}
+              </Table.Td>
+              <Table.Td>{c.usuario_nombre}</Table.Td>
+              <Table.Td>{c.motivo}</Table.Td>
+              <Table.Td>{fecha(c.creada_en)}</Table.Td>
+            </Table.Tr>
+          ))}
+        </Table.Tbody>
+      </Table>
+    </Alert>
   );
 }
 

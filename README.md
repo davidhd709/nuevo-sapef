@@ -9,7 +9,7 @@ La especificación (requerimientos, arquitectura v2.0, plan del MVP y documento 
 ```
 sapef-nuevo/
 ├─ backend/     # Python 3.12 · FastAPI · SQLAlchemy · PostgreSQL + PostGIS (gestor: uv)
-├─ frontend/    # React + TypeScript (web de oficina y PWA de campo) — Fase 0, TASK-005
+├─ frontend/    # React + TypeScript: apps/web (oficina) y apps/campo (PWA sin conexión)
 ├─ infra/       # Docker Compose de desarrollo y, más adelante, de producción
 └─ docs/        # decisiones (ADR) y guías
 ```
@@ -37,6 +37,9 @@ curl -X POST http://127.0.0.1:8000/api/v1/sistema/tareas/prueba   # encola una t
 
 # 4. Web de oficina (http://localhost:5173; /api se reenvía a la API)
 cd frontend && pnpm install && pnpm dev
+
+# 5. App de campo (PWA, http://127.0.0.1:5174), en otra consola
+cd frontend && pnpm dev:campo
 ```
 
 Servicios de Docker: `db` (PostgreSQL 17 + PostGIS), `migraciones` (aplica Alembic y la semilla, y termina), `api` y `worker` (la misma imagen).
@@ -69,8 +72,17 @@ uv run pytest && uv run ruff check . && uv run lint-imports
 cd frontend
 pnpm api          # regenera openapi.json y los tipos del cliente desde el backend (tras cambiar la API)
 pnpm dev          # web en http://localhost:5173
+pnpm dev:campo    # app de campo en http://127.0.0.1:5174 (con Service Worker también en desarrollo)
 pnpm typecheck && pnpm test && pnpm build
 ```
+
+### App de campo (`frontend/apps/campo`)
+
+PWA para los técnicos: funciona **sin señal**. Al ingresar descarga sus órdenes asignadas, las luminarias de la sede, la bodega, los materiales, los catálogos y el mapa base PMTiles de la sede (`GET /api/v1/campo/paquete`; después, solo los cambios desde el cursor). Lo que el técnico ejecuta (checklist, materiales, fotos comprimidas, firmas, nota de voz y GPS) queda en una **bandeja de salida** en IndexedDB con un UUID generado en el teléfono, y se envía al volver la señal: primero los archivos (`POST /api/v1/archivos` con `Idempotency-Key`), después el lote (`POST /api/v1/campo/sincronizar`). Cada operación se aplica una sola vez; si la orden se anuló o reasignó mientras tanto, queda como **conflicto** y lo ven el técnico y la oficina.
+
+- El Service Worker (Workbox) **no se actualiza mientras haya trabajo sin enviar**.
+- iOS no sincroniza en segundo plano: la app sincroniza al abrir, al volver la señal, al volver a primer plano y cada minuto con señal. En iPhone debe instalarse en la pantalla de inicio.
+- **Avisos push** de órdenes asignadas: generar la clave con `cd backend && uv run python -m app.semillas vapid` y poner `SAPEF_VAPID_CLAVE_PRIVADA` en `.env`. Sin clave, la API acepta suscripciones pero no envía avisos.
 
 La integración continua (`.github/workflows/ci.yml`) falla si el cliente generado no coincide con la API, si las migraciones no suben y bajan limpias, o si un módulo rompe las fronteras.
 

@@ -548,3 +548,19 @@ def procesar_cargue_bodega(db: Session, cargue_id: int) -> str:
     cargue.estado = "completado"
     db.commit()
     return "completado"
+
+
+def materiales_para_campo(db: Session, sede_id: int) -> list[dict[str, Any]]:
+    """Materiales activos de la sede con sus existencias, para registrar consumos sin señal.
+    Las existencias son orientativas: el kárdex valida al sincronizar (RN-017)."""
+    return [
+        {
+            "id": m.id,
+            "codigo": m.codigo,
+            "descripcion": m.descripcion,
+            "categoria": m.categoria,
+            "unidad": m.unidad,
+            "existencias": m.existencias,
+        }
+        for m in repositorio.materiales_activos(db, sede_id)
+    ]

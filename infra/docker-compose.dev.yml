@@ -34,6 +34,8 @@ services:
       SAPEF_ENTORNO: desarrollo
       SAPEF_LOG_NIVEL: ${SAPEF_LOG_NIVEL:-INFO}
       SAPEF_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-sapef}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-sapef}
+      # Web Push (opcional): sin clave no se envían avisos.
+      SAPEF_VAPID_CLAVE_PRIVADA: ${SAPEF_VAPID_CLAVE_PRIVADA:-}
     command: ["sh", "-c", "alembic upgrade head && python -m app.semillas"]
     depends_on:
       db:

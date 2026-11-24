@@ -20,6 +20,6 @@ def tarea_procesar_cargue_masivo(cargue_id: int) -> str:
 @app_tareas.task(name=servicio.TAREA_PUSH, queue="trabajos", retry=3)
 def tarea_push_orden_asignada(orden_id: int) -> int:
     with Session(obtener_motor()) as db:
-        destinatarios = servicio.procesar_push_asignacion(db, orden_id)
-    log.info("aviso de orden asignada: %s destinatario(s)", destinatarios)
-    return destinatarios
+        entregados = servicio.procesar_push_asignacion(db, orden_id)
+    log.info("aviso de orden asignada: %s dispositivo(s)", entregados)
+    return entregados

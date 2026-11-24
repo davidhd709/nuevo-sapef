@@ -1,5 +1,6 @@
 """Repositorio SQLAlchemy del módulo de trabajos."""
 
+import uuid
 from datetime import datetime
 from typing import Any
 
@@ -10,6 +11,7 @@ from app.modulos.trabajos.modelos import (
     CargueMasivo,
     Cuadrilla,
     CuadrillaTecnico,
+    OrdenAsignacion,
     OrdenLuminaria,
     OrdenTrabajo,
 )
@@ -143,6 +145,72 @@ def coordenadas_orden(db: Session, orden_id: int) -> tuple[float | None, float |
     if fila is None or fila[0] is None:
         return None, None
     return float(fila[0]), float(fila[1])
+
+
+# --- App de campo -------------------------------------------------------------------------------
+
+
+def _de_usuario(usuario_id: int) -> Any:
+    """Órdenes asignadas a la persona o a una cuadrilla suya."""
+    return or_(
+        OrdenTrabajo.tecnico_id == usuario_id,
+        OrdenTrabajo.cuadrilla_id.in_(
+            select(CuadrillaTecnico.cuadrilla_id).where(CuadrillaTecnico.usuario_id == usuario_id)
+        ),
+    )
+
+
+def ordenes_abiertas_de_usuario(
+    db: Session, sede_id: int, usuario_id: int, estado_ids: list[int]
+) -> list[OrdenTrabajo]:
+    return list(
+        db.execute(
+            select(OrdenTrabajo)
+            .where(
+                OrdenTrabajo.sede_id == sede_id,
+                OrdenTrabajo.estado_id.in_(estado_ids),
+                _de_usuario(usuario_id),
+            )
+            .order_by(OrdenTrabajo.prioridad, OrdenTrabajo.id)
+        ).scalars()
+    )
+
+
+def ordenes_retiradas_desde(
+    db: Session, sede_id: int, usuario_id: int, desde: datetime, excluir_ids: list[int]
+) -> list[OrdenTrabajo]:
+    """Órdenes que alguna vez fueron de la persona, cambiaron desde `desde` y ya no están en su
+    bandeja (anuladas, cerradas o reasignadas)."""
+    historial = select(OrdenAsignacion.orden_id).where(
+        or_(
+            OrdenAsignacion.tecnico_id == usuario_id,
+            OrdenAsignacion.cuadrilla_id.in_(
+                select(CuadrillaTecnico.cuadrilla_id).where(
+                    CuadrillaTecnico.usuario_id == usuario_id
+                )
+            ),
+        )
+    )
+    stmt = select(OrdenTrabajo).where(
+        OrdenTrabajo.sede_id == sede_id,
+        OrdenTrabajo.modificado_en > desde,
+        OrdenTrabajo.id.in_(historial),
+    )
+    if excluir_ids:
+        stmt = stmt.where(OrdenTrabajo.id.not_in(excluir_ids))
+    return list(db.execute(stmt.order_by(OrdenTrabajo.id)).scalars())
+
+
+def orden_por_uuid_origen(db: Session, sede_id: int, uuid_origen: uuid.UUID) -> int | None:
+    return db.execute(
+        select(OrdenTrabajo.id).where(
+            OrdenTrabajo.sede_id == sede_id, OrdenTrabajo.uuid_origen == uuid_origen
+        )
+    ).scalar_one_or_none()
+
+
+def registrar_asignacion(db: Session, asignacion: OrdenAsignacion) -> None:
+    db.add(asignacion)
 
 
 # --- Cargue masivo ------------------------------------------------------------------------------

@@ -145,6 +145,33 @@ class OrdenTrabajo(Base):
     )
 
 
+class OrdenAsignacion(Base):
+    """Historial de asignaciones: permite avisar a la app de campo qué órdenes se le retiraron
+    a un técnico (anuladas o reasignadas) mientras estaba sin señal."""
+
+    __tablename__ = "orden_asignacion"
+    __table_args__ = (
+        Index("ix_orden_asignacion_orden", "orden_id"),
+        Index("ix_orden_asignacion_tecnico", "tecnico_id"),
+        Index("ix_orden_asignacion_cuadrilla", "cuadrilla_id"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    orden_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("orden_trabajo.id", ondelete="CASCADE"), nullable=False
+    )
+    tecnico_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("usuario.id", ondelete="CASCADE"), nullable=True
+    )
+    cuadrilla_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("cuadrilla.id", ondelete="CASCADE"), nullable=True
+    )
+    asignada_en: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    asignada_por: Mapped[int | None] = _usuario_fk()
+
+
 class OrdenLuminaria(Base):
     __tablename__ = "orden_luminaria"
     __table_args__ = (

@@ -5,6 +5,7 @@
   "scripts": {
     "api": "pnpm --filter @sapef/api generar",
     "dev": "pnpm --filter @sapef/web dev",
+    "dev:campo": "pnpm --filter @sapef/campo dev",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test"

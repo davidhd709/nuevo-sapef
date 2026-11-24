@@ -10,6 +10,11 @@ La contraseña del administrador se toma de SAPEF_ADMIN_CLAVE o se pide por cons
 pasa como argumento (quedaría en el historial y en la lista de procesos). Por defecto el
 administrador debe cambiarla en el primer ingreso; `--sin-cambio-obligatorio` lo evita
 (solo para desarrollo y pruebas E2E).
+
+    python -m app.semillas vapid                # genera un par de claves VAPID (Web Push)
+
+`vapid` imprime la clave privada para `SAPEF_VAPID_CLAVE_PRIVADA` (va en el .env del servidor,
+nunca al repositorio) y la pública que la app de campo recibirá de la API.
 """
 
 import argparse
@@ -23,6 +28,7 @@ from app.core.db import _fabrica_sesiones
 from app.core.logs import configurar_logs
 from app.modulos.activos import servicio as activos
 from app.modulos.configuracion import servicio as configuracion
+from app.modulos.notificaciones import servicio as notificaciones
 from app.modulos.seguridad import servicio as seguridad
 
 log = logging.getLogger("sapef.semillas")
@@ -76,7 +82,14 @@ def main(argv: list[str] | None = None) -> int:
     admin.add_argument("--nombre", default="Administrador")
     admin.add_argument("--identificacion", default="0")
     admin.add_argument("--sin-cambio-obligatorio", action="store_true")
+    sub.add_parser("vapid", help="generar claves VAPID para Web Push (no toca la base)")
     args = parser.parse_args(argv)
+
+    if args.comando == "vapid":
+        privada, publica = notificaciones.generar_claves_vapid()
+        print(f"SAPEF_VAPID_CLAVE_PRIVADA={privada}")  # noqa: T201
+        print(f"# clave pública (applicationServerKey): {publica}")  # noqa: T201
+        return 0
 
     conteos = sembrar()
     log.info("semilla aplicada; registros creados: %s", conteos)

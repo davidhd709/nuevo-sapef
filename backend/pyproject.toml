@@ -76,6 +76,8 @@ containers = [
     "app.modulos.inventario",
     "app.modulos.atencion",
     "app.modulos.trabajos",
+    "app.modulos.notificaciones",
+    "app.modulos.sincronizacion",
 ]
 layers = [
     "router | (tareas)",
@@ -146,6 +148,8 @@ forbidden_modules = [
     "app.modulos.inventario",
     "app.modulos.atencion",
     "app.modulos.trabajos",
+    "app.modulos.notificaciones",
+    "app.modulos.sincronizacion",
 ]
 
 [[tool.importlinter.contracts]]
@@ -159,3 +163,34 @@ name = "activos e inventario no dependen de atención"
 type = "forbidden"
 source_modules = ["app.modulos.activos", "app.modulos.inventario"]
 forbidden_modules = ["app.modulos.atencion"]
+
+[[tool.importlinter.contracts]]
+name = "notificaciones solo depende de seguridad"
+type = "forbidden"
+source_modules = ["app.modulos.notificaciones"]
+forbidden_modules = [
+    "app.modulos.archivos",
+    "app.modulos.configuracion",
+    "app.modulos.activos",
+    "app.modulos.migracion",
+    "app.modulos.inventario",
+    "app.modulos.atencion",
+    "app.modulos.trabajos",
+    "app.modulos.sincronizacion",
+]
+
+[[tool.importlinter.contracts]]
+name = "nadie depende de sincronizacion (es la capa de la app de campo)"
+type = "forbidden"
+source_modules = [
+    "app.modulos.seguridad",
+    "app.modulos.archivos",
+    "app.modulos.configuracion",
+    "app.modulos.activos",
+    "app.modulos.migracion",
+    "app.modulos.inventario",
+    "app.modulos.atencion",
+    "app.modulos.trabajos",
+    "app.modulos.notificaciones",
+]
+forbidden_modules = ["app.modulos.sincronizacion"]

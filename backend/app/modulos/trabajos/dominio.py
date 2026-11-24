@@ -42,6 +42,35 @@ COMPONENTES = (
     "conectores_perforacion",
 )
 
+# Evidencias que la app de campo puede adjuntar (RF-101).
+TIPOS_EVIDENCIA_CAMPO = (
+    "foto",
+    "firma_tecnico",
+    "firma_oficial",
+    "firma_quien_recibe",
+    "audio",
+    "adjunto",
+)
+
+NOMBRE_TIPO = {
+    "mantenimiento": "Mantenimiento",
+    "modernizacion": "Modernización",
+    "expansion": "Expansión",
+    "reubicacion": "Reubicación",
+}
+
+
+def mensaje_orden_asignada(orden_id: int, numero: int, tipo: str) -> dict[str, str]:
+    """Aviso push de una orden asignada (RF-105). Sin datos personales ni direcciones: el
+    teléfono puede mostrarlo con la pantalla bloqueada."""
+    return {
+        "titulo": "Nueva orden asignada",
+        "cuerpo": f"Orden N.º {numero} · {NOMBRE_TIPO.get(tipo, tipo)}",
+        "url": f"/?orden={orden_id}",
+        "etiqueta": f"orden-{orden_id}",
+    }
+
+
 # Tipo de intervención que queda en la luminaria instalada.
 INTERVENCION_POR_TIPO = {
     "expansion": "EXPANSION",

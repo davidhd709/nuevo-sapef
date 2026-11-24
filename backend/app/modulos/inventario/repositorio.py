@@ -118,3 +118,13 @@ def obtener_cargue(db: Session, sede_id: int, cargue_id: int) -> CargueBodega | 
 
 def obtener_cargue_por_id(db: Session, cargue_id: int) -> CargueBodega | None:
     return db.get(CargueBodega, cargue_id)
+
+
+def materiales_activos(db: Session, sede_id: int) -> list[Material]:
+    return list(
+        db.execute(
+            select(Material)
+            .where(Material.sede_id == sede_id, Material.activo.is_(True))
+            .order_by(Material.categoria, Material.descripcion)
+        ).scalars()
+    )

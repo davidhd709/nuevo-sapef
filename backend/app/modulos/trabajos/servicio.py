@@ -8,8 +8,10 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from typing import Any
+from uuid import UUID
 
 from fastapi import HTTPException, UploadFile
+from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
@@ -21,6 +23,7 @@ from app.modulos.archivos import servicio as archivos
 from app.modulos.atencion import servicio as atencion
 from app.modulos.configuracion import servicio as configuracion
 from app.modulos.inventario import servicio as inventario
+from app.modulos.notificaciones import servicio as notificaciones
 from app.modulos.seguridad import servicio as seguridad
 from app.modulos.seguridad.servicio import SedeResumen, UsuarioAutenticado
 from app.modulos.trabajos import dominio, repositorio
@@ -46,6 +49,7 @@ from app.modulos.trabajos.modelos import (
     CargueMasivo,
     Cuadrilla,
     CuadrillaTecnico,
+    OrdenAsignacion,
     OrdenInstalacion,
     OrdenLuminaria,
     OrdenMantenimiento,
@@ -462,6 +466,16 @@ def _asignar(
     if est.codigo(orden.estado_id) == dominio.CREADA:
         orden.estado_id = est.id(dominio.ASIGNADA)
     orden.modificado_por = actor.id
+    orden.modificado_en = datetime.now(UTC)
+    repositorio.registrar_asignacion(
+        db,
+        OrdenAsignacion(
+            orden_id=orden.id,
+            tecnico_id=orden.tecnico_id,
+            cuadrilla_id=orden.cuadrilla_id,
+            asignada_por=actor.id,
+        ),
+    )
     if orden.pqrs_id is not None:
         atencion.avanzar_por_orden(db, sede.id, orden.pqrs_id, "orden_asignada", actor.id)
     seguridad.registrar_auditoria(
@@ -717,6 +731,8 @@ def _cerrar(
     sede: SedeResumen,
     orden_id: int,
     entrada: OrdenCerrarEntrada,
+    *,
+    uuid_origen: UUID | None = None,
 ) -> tuple[OrdenSalida, bool]:
     est = _Estados(db)
     orden = _obtener(db, sede.id, orden_id, bloquear=True)
@@ -804,6 +820,10 @@ def _cerrar(
             orden.observaciones = entrada.observaciones
         if entrada.latitud is not None and entrada.longitud is not None:
             orden.ubicacion = f"SRID=4326;POINT({entrada.longitud} {entrada.latitud})"
+        if uuid_origen is not None:
+            # Idempotencia de la app de campo: el índice único (sede, uuid_origen) impide que la
+            # misma operación cierre dos veces aunque lleguen dos lotes a la vez.
+            orden.uuid_origen = uuid_origen
         orden.modificado_por = actor.id
         seguridad.registrar_auditoria(
             db,
@@ -839,16 +859,146 @@ async def cerrar_orden(
 
 
 def procesar_push_asignacion(db: Session, orden_id: int) -> int:
-    """Tarea del worker. Las suscripciones Web Push llegan con la app de campo (Fase 3, HU-064);
-    mientras tanto solo resuelve a quién avisar. Devuelve cuántos destinatarios hay."""
+    """Tarea del worker (RF-105, HU-064): avisa por Web Push al técnico y a su cuadrilla. El
+    mensaje lleva el número y el tipo de la orden, nunca datos personales. Devuelve cuántos
+    avisos aceptó el servicio push."""
     orden = db.get(OrdenTrabajo, orden_id)
     if orden is None:
         return 0
+    if _Estados(db).codigo(orden.estado_id) not in dominio.ABIERTOS:
+        return 0  # se anuló o se cerró antes de que el worker la tomara
     destinatarios = {orden.tecnico_id} if orden.tecnico_id else set()
     if orden.cuadrilla_id is not None:
         cuadrilla = db.get(Cuadrilla, orden.cuadrilla_id)
         destinatarios |= {t.usuario_id for t in cuadrilla.tecnicos} if cuadrilla else set()
-    return len(destinatarios)
+    if not destinatarios:
+        return 0
+    mensaje = dominio.mensaje_orden_asignada(orden.id, orden.numero, orden.tipo)
+    return notificaciones.enviar_a_usuarios(db, sorted(destinatarios), mensaje)
+
+
+# === App de campo (Fase 3, EP-07) ==============================================================
+
+
+def _resumen_validacion(exc: ValidationError) -> str:
+    partes = []
+    for error in exc.errors()[:5]:
+        campo = ".".join(str(p) for p in error["loc"]) or "payload"
+        partes.append(f"{campo}: {error['msg']}")
+    return "Datos inválidos: " + "; ".join(partes)
+
+
+def ordenes_para_campo(db: Session, sede_id: int, usuario_id: int) -> list[dict[str, Any]]:
+    """Órdenes abiertas asignadas a la persona (o a su cuadrilla), con lo que el técnico
+    necesita para trabajar sin señal: luminarias con estado, barrio, poste y coordenadas."""
+    est = _Estados(db)
+    ordenes = repositorio.ordenes_abiertas_de_usuario(
+        db, sede_id, usuario_id, [est.id(c) for c in dominio.ABIERTOS]
+    )
+    resumen = activos.resumen_luminarias(
+        db, sede_id, [ol.luminaria_id for o in ordenes for ol in o.luminarias]
+    )
+    salida = []
+    for o in ordenes:
+        estado = est.por_id[o.estado_id]
+        luminarias = []
+        for ol in o.luminarias:
+            datos = resumen.get(ol.luminaria_id, {})
+            luminarias.append(
+                {
+                    "luminaria_id": ol.luminaria_id,
+                    "codigo": datos.get("codigo", "?"),
+                    "rol": ol.rol,
+                    "estado_codigo": datos.get("estado_codigo"),
+                    "barrio_id": datos.get("barrio_id"),
+                    "barrio_nombre": datos.get("barrio_nombre"),
+                    "poste": datos.get("poste"),
+                    "latitud": datos.get("latitud"),
+                    "longitud": datos.get("longitud"),
+                }
+            )
+        salida.append(
+            {
+                "id": o.id,
+                "numero": o.numero,
+                "tipo": o.tipo,
+                "estado_codigo": estado.codigo,
+                "estado_nombre": estado.nombre,
+                "prioridad": o.prioridad,
+                "pqrs_id": o.pqrs_id,
+                "fecha_programada": o.fecha_programada,
+                "asignada_en": o.asignada_en,
+                "observaciones": o.observaciones,
+                "modificado_en": o.modificado_en,
+                "luminarias": luminarias,
+            }
+        )
+    return salida
+
+
+def ordenes_retiradas_campo(
+    db: Session, sede_id: int, usuario_id: int, desde: datetime, vigentes: list[int]
+) -> list[dict[str, Any]]:
+    """Órdenes que el técnico tuvo y que cambiaron desde `desde`: anuladas, cerradas o
+    reasignadas a otra persona. La app las retira de su bandeja y avisa."""
+    est = _Estados(db)
+    salida = []
+    for o in repositorio.ordenes_retiradas_desde(db, sede_id, usuario_id, desde, vigentes):
+        codigo = est.codigo(o.estado_id)
+        motivo = {dominio.ANULADA: "anulada", dominio.CERRADA: "cerrada"}.get(codigo, "reasignada")
+        salida.append({"id": o.id, "numero": o.numero, "motivo": motivo})
+    return salida
+
+
+def estado_orden_campo(
+    db: Session, sede_id: int, orden_id: int, usuario_id: int
+) -> dict[str, Any] | None:
+    """Lo mínimo para decidir si una operación de campo aplica o es un conflicto."""
+    orden = repositorio.obtener_orden(db, sede_id, orden_id)
+    if orden is None:
+        return None
+    return {
+        "id": orden.id,
+        "numero": orden.numero,
+        "tipo": orden.tipo,
+        "estado_codigo": _Estados(db).codigo(orden.estado_id),
+        "es_mia": _es_mia(db, orden, usuario_id),
+        "uuid_origen": orden.uuid_origen,
+    }
+
+
+def orden_cerrada_por_uuid(db: Session, sede_id: int, uuid_origen: UUID) -> int | None:
+    return repositorio.orden_por_uuid_origen(db, sede_id, uuid_origen)
+
+
+def cerrar_orden_desde_campo(
+    db: Session,
+    actor: UsuarioAutenticado,
+    sede: SedeResumen,
+    orden_id: int,
+    payload: dict[str, Any],
+    *,
+    uuid_origen: UUID,
+    ejecutada_en: datetime | None,
+) -> tuple[OrdenSalida, bool]:
+    """Cierre que llega en un lote de la app de campo: mismas reglas y misma transacción que el
+    cierre web, marcado con el uuid de la operación. Lanza HTTPException si no se puede."""
+    try:
+        entrada = OrdenCerrarEntrada.model_validate(payload)
+    except ValidationError as exc:
+        raise HTTPException(status_code=422, detail=_resumen_validacion(exc)) from exc
+    if entrada.fecha_ejecucion is None:
+        entrada.fecha_ejecucion = ejecutada_en
+    return _cerrar(db, actor, sede, orden_id, entrada, uuid_origen=uuid_origen)
+
+
+def catalogos_campo() -> dict[str, Any]:
+    return {
+        "componentes": list(dominio.COMPONENTES),
+        "destinos_desmontada": list(dominio.DESTINOS_DESMONTADA),
+        "tipos_evidencia": list(dominio.TIPOS_EVIDENCIA_CAMPO),
+        "abiertos": list(dominio.ABIERTOS),
+    }
 
 
 # === Cargue masivo (RF-032 a RF-034) ===========================================================

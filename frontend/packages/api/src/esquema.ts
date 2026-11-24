@@ -1409,6 +1409,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/notificaciones/push/clave-publica": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Clave pública VAPID para suscribirse (applicationServerKey) */
+        get: operations["clave_publica_api_v1_notificaciones_push_clave_publica_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notificaciones/push/suscripciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Registrar la suscripción Web Push de este dispositivo */
+        post: operations["suscribir_api_v1_notificaciones_push_suscripciones_post"];
+        /** Quitar la suscripción Web Push de este dispositivo */
+        delete: operations["desuscribir_api_v1_notificaciones_push_suscripciones_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campo/paquete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Paquete para trabajar sin señal (completo, o solo cambios con `desde`) */
+        get: operations["obtener_paquete_api_v1_campo_paquete_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campo/sincronizar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Aplicar un lote de operaciones de campo (idempotente por uuid) */
+        post: operations["sincronizar_api_v1_campo_sincronizar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campo/operaciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Operaciones recibidas de campo (para revisar conflictos en la oficina) */
+        get: operations["listar_operaciones_api_v1_campo_operaciones_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sistema/tareas/prueba": {
         parameters: {
             query?: never;
@@ -1690,6 +1776,17 @@ export interface components {
             /** Request Id */
             request_id: string | null;
         };
+        /** BarrioCampo */
+        BarrioCampo: {
+            /** Id */
+            id: number;
+            /** Nombre */
+            nombre: string;
+            /** Zona Id */
+            zona_id: number;
+            /** Zona Nombre */
+            zona_nombre: string;
+        };
         /** BarrioCrearEntrada */
         BarrioCrearEntrada: {
             /** Zona Id */
@@ -1858,6 +1955,23 @@ export interface components {
             /** Activo */
             activo: boolean;
         };
+        /** CatalogosCampo */
+        CatalogosCampo: {
+            /** Barrios */
+            barrios: components["schemas"]["BarrioCampo"][];
+            /** Tipos Expansion */
+            tipos_expansion: components["schemas"]["ValorCampo"][];
+            /** Tipos Modernizacion */
+            tipos_modernizacion: components["schemas"]["ValorCampo"][];
+            /** Marcas */
+            marcas: components["schemas"]["ValorCampo"][];
+            /** Componentes */
+            componentes: string[];
+            /** Destinos Desmontada */
+            destinos_desmontada: components["schemas"]["DestinoCampo"][];
+            /** Tipos Evidencia */
+            tipos_evidencia: string[];
+        };
         /** CiudadanoCrearEntrada */
         CiudadanoCrearEntrada: {
             /** Identificacion */
@@ -1914,6 +2028,20 @@ export interface components {
              */
             enmascarado: boolean;
         };
+        /** ClavePublicaSalida */
+        ClavePublicaSalida: {
+            /** Habilitado */
+            habilitado: boolean;
+            /** Clave Publica */
+            clave_publica: string | null;
+        };
+        /** ClavesPush */
+        ClavesPush: {
+            /** P256Dh */
+            p256dh: string;
+            /** Auth */
+            auth: string;
+        };
         /** ComercializadorSalida */
         ComercializadorSalida: {
             /** Id */
@@ -1962,6 +2090,13 @@ export interface components {
             activa: boolean;
             /** Tecnicos */
             tecnicos: components["schemas"]["TecnicoSalida"][];
+        };
+        /** DestinoCampo */
+        DestinoCampo: {
+            /** Codigo */
+            codigo: string;
+            /** Nombre */
+            nombre: string;
         };
         /** EjecucionMigracionSalida */
         EjecucionMigracionSalida: {
@@ -2242,6 +2377,29 @@ export interface components {
              */
             creado_en: string;
         };
+        /** LuminariaCampo */
+        LuminariaCampo: {
+            /** Id */
+            id: number;
+            /** Codigo */
+            codigo: string;
+            /** Estado Codigo */
+            estado_codigo: string;
+            /** Barrio Id */
+            barrio_id: number | null;
+            /** Poste */
+            poste: string | null;
+            /** Latitud */
+            latitud: number | null;
+            /** Longitud */
+            longitud: number | null;
+            /** Tecnologia */
+            tecnologia: string | null;
+            /** Potencia */
+            potencia: string | null;
+            /** Marca */
+            marca: string | null;
+        };
         /** LuminariaCrearEntrada */
         LuminariaCrearEntrada: {
             /** Codigo */
@@ -2391,6 +2549,27 @@ export interface components {
              * @default web
              */
             origen: string;
+        };
+        /** LuminariaOrdenCampo */
+        LuminariaOrdenCampo: {
+            /** Luminaria Id */
+            luminaria_id: number;
+            /** Codigo */
+            codigo: string;
+            /** Rol */
+            rol: string;
+            /** Estado Codigo */
+            estado_codigo: string | null;
+            /** Barrio Id */
+            barrio_id: number | null;
+            /** Barrio Nombre */
+            barrio_nombre: string | null;
+            /** Poste */
+            poste: string | null;
+            /** Latitud */
+            latitud: number | null;
+            /** Longitud */
+            longitud: number | null;
         };
         /** LuminariaSalida */
         LuminariaSalida: {
@@ -2564,6 +2743,26 @@ export interface components {
                 [key: string]: boolean;
             };
         };
+        /** MapaBaseCampo */
+        MapaBaseCampo: {
+            /** Url */
+            url: string;
+        };
+        /** MaterialCampo */
+        MaterialCampo: {
+            /** Id */
+            id: number;
+            /** Codigo */
+            codigo: string;
+            /** Descripcion */
+            descripcion: string;
+            /** Categoria */
+            categoria: string;
+            /** Unidad */
+            unidad: string;
+            /** Existencias */
+            existencias: string;
+        };
         /** MaterialCrearEntrada */
         MaterialCrearEntrada: {
             /** Categoria */
@@ -2711,6 +2910,67 @@ export interface components {
             /** Creado Por */
             creado_por: number | null;
         };
+        /** OperacionCampoSalida */
+        OperacionCampoSalida: {
+            /**
+             * Uuid
+             * Format: uuid
+             */
+            uuid: string;
+            /** Tipo */
+            tipo: string;
+            /** Orden Id */
+            orden_id: number | null;
+            /** Orden Numero */
+            orden_numero: number | null;
+            /**
+             * Estado
+             * @enum {string}
+             */
+            estado: "aplicada" | "conflicto" | "error";
+            /** Motivo */
+            motivo: string | null;
+            /** Intentos */
+            intentos: number;
+            /** Usuario Id */
+            usuario_id: number;
+            /** Usuario Nombre */
+            usuario_nombre: string;
+            /** Creada En */
+            creada_en: string | null;
+            /**
+             * Recibida En
+             * Format: date-time
+             */
+            recibida_en: string;
+            /**
+             * Actualizada En
+             * Format: date-time
+             */
+            actualizada_en: string;
+        };
+        /**
+         * OperacionEntrada
+         * @description Una operación de la bandeja de salida del teléfono. Acepta `ordenId`/`creadaEn` (contrato
+         *     de la app) o `orden_id`/`creada_en`.
+         */
+        OperacionEntrada: {
+            /**
+             * Uuid
+             * Format: uuid
+             */
+            uuid: string;
+            /** Tipo */
+            tipo: string;
+            /** Ordenid */
+            ordenId?: number | null;
+            /** Creadaen */
+            creadaEn?: string | null;
+            /** Payload */
+            payload?: {
+                [key: string]: unknown;
+            };
+        };
         /** OrdenAnularEntrada */
         OrdenAnularEntrada: {
             /** Motivo */
@@ -2724,6 +2984,36 @@ export interface components {
             cuadrilla_id?: number | null;
             /** Fecha Programada */
             fecha_programada?: string | null;
+        };
+        /** OrdenCampo */
+        OrdenCampo: {
+            /** Id */
+            id: number;
+            /** Numero */
+            numero: number;
+            /** Tipo */
+            tipo: string;
+            /** Estado Codigo */
+            estado_codigo: string;
+            /** Estado Nombre */
+            estado_nombre: string;
+            /** Prioridad */
+            prioridad: number;
+            /** Pqrs Id */
+            pqrs_id: number | null;
+            /** Fecha Programada */
+            fecha_programada: string | null;
+            /** Asignada En */
+            asignada_en: string | null;
+            /** Observaciones */
+            observaciones: string | null;
+            /**
+             * Modificado En
+             * Format: date-time
+             */
+            modificado_en: string;
+            /** Luminarias */
+            luminarias: components["schemas"]["LuminariaOrdenCampo"][];
         };
         /**
          * OrdenCerrarEntrada
@@ -2831,6 +3121,18 @@ export interface components {
             luminaria_codigo: string;
             /** Rol */
             rol: string;
+        };
+        /** OrdenRetirada */
+        OrdenRetirada: {
+            /** Id */
+            id: number;
+            /** Numero */
+            numero: number;
+            /**
+             * Motivo
+             * @enum {string}
+             */
+            motivo: "anulada" | "cerrada" | "reasignada";
         };
         /** OrdenSalida */
         OrdenSalida: {
@@ -2967,6 +3269,17 @@ export interface components {
             /** Size */
             size: number;
         };
+        /** Pagina[OperacionCampoSalida] */
+        Pagina_OperacionCampoSalida_: {
+            /** Items */
+            items: components["schemas"]["OperacionCampoSalida"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+        };
         /** Pagina[OrdenSalida] */
         Pagina_OrdenSalida_: {
             /** Items */
@@ -3021,6 +3334,35 @@ export interface components {
             page: number;
             /** Size */
             size: number;
+        };
+        /** PaqueteCampo */
+        PaqueteCampo: {
+            /** Cursor */
+            cursor: string;
+            /**
+             * Generado En
+             * Format: date-time
+             */
+            generado_en: string;
+            /**
+             * Completo
+             * @description True si trae todas las luminarias; False si es delta
+             */
+            completo: boolean;
+            sede: components["schemas"]["SedeCampo"];
+            usuario: components["schemas"]["UsuarioCampo"];
+            /** Ordenes Asignadas */
+            ordenes_asignadas: components["schemas"]["OrdenCampo"][];
+            /** Ordenes Anuladas O Reasignadas */
+            ordenes_anuladas_o_reasignadas: components["schemas"]["OrdenRetirada"][];
+            /** Luminarias Zona */
+            luminarias_zona: components["schemas"]["LuminariaCampo"][];
+            /** Luminarias Bodega */
+            luminarias_bodega: components["schemas"]["LuminariaCampo"][];
+            /** Materiales */
+            materiales: components["schemas"]["MaterialCampo"][];
+            catalogos: components["schemas"]["CatalogosCampo"];
+            mapa_base: components["schemas"]["MapaBaseCampo"];
         };
         /** ParametroEditarEntrada */
         ParametroEditarEntrada: {
@@ -3310,6 +3652,23 @@ export interface components {
             /** Clave Nueva */
             clave_nueva: string;
         };
+        /** ResultadoOperacion */
+        ResultadoOperacion: {
+            /**
+             * Uuid
+             * Format: uuid
+             */
+            uuid: string;
+            /**
+             * Estado
+             * @enum {string}
+             */
+            estado: "aplicada" | "ya_aplicada" | "conflicto" | "error";
+            /** Motivo */
+            motivo?: string | null;
+            /** Orden Id */
+            orden_id?: number | null;
+        };
         /** RolCrearEntrada */
         RolCrearEntrada: {
             /** Codigo */
@@ -3383,6 +3742,13 @@ export interface components {
             postgres?: string | null;
             /** Postgis */
             postgis?: string | null;
+        };
+        /** SedeCampo */
+        SedeCampo: {
+            /** Codigo */
+            codigo: string;
+            /** Nombre */
+            nombre: string;
         };
         /** SedeComercializadorEntrada */
         SedeComercializadorEntrada: {
@@ -3470,6 +3836,45 @@ export interface components {
              */
             modificado_en: string;
         };
+        /** SincronizarEntrada */
+        SincronizarEntrada: {
+            /** Operaciones */
+            operaciones: components["schemas"]["OperacionEntrada"][];
+        };
+        /** SincronizarSalida */
+        SincronizarSalida: {
+            /** Resultados */
+            resultados: components["schemas"]["ResultadoOperacion"][];
+            /**
+             * Procesado En
+             * Format: date-time
+             */
+            procesado_en: string;
+        };
+        /** SuscripcionBorrarEntrada */
+        SuscripcionBorrarEntrada: {
+            /** Endpoint */
+            endpoint: string;
+        };
+        /**
+         * SuscripcionEntrada
+         * @description Lo que entrega `PushSubscription.toJSON()` del navegador (con `keys` o `claves`).
+         */
+        SuscripcionEntrada: {
+            /** Endpoint */
+            endpoint: string;
+            keys: components["schemas"]["ClavesPush"];
+        };
+        /** SuscripcionSalida */
+        SuscripcionSalida: {
+            /** Id */
+            id: number;
+            /**
+             * Creado En
+             * Format: date-time
+             */
+            creado_en: string;
+        };
         /** TareaExportacionSalida */
         TareaExportacionSalida: {
             /** Id */
@@ -3551,6 +3956,13 @@ export interface components {
             cambiado_en: string;
             /** Cambiado Por */
             cambiado_por: number | null;
+        };
+        /** UsuarioCampo */
+        UsuarioCampo: {
+            /** Id */
+            id: number;
+            /** Nombre Completo */
+            nombre_completo: string;
         };
         /** UsuarioCrearEntrada */
         UsuarioCrearEntrada: {
@@ -3642,6 +4054,15 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** ValorCampo */
+        ValorCampo: {
+            /** Id */
+            id: number;
+            /** Codigo */
+            codigo: string;
+            /** Nombre */
+            nombre: string;
         };
         /** ZonaCrearEntrada */
         ZonaCrearEntrada: {
@@ -7316,6 +7737,205 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OrdenSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    clave_publica_api_v1_notificaciones_push_clave_publica_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClavePublicaSalida"];
+                };
+            };
+        };
+    };
+    suscribir_api_v1_notificaciones_push_suscripciones_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "User-Agent"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SuscripcionEntrada"];
+            };
+        };
+        responses: {
+            /** @description Ya existía; se actualizó */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuscripcionSalida"];
+                };
+            };
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuscripcionSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    desuscribir_api_v1_notificaciones_push_suscripciones_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SuscripcionBorrarEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    obtener_paquete_api_v1_campo_paquete_get: {
+        parameters: {
+            query?: {
+                /** @description Cursor anterior */
+                desde?: string | null;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaqueteCampo"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sincronizar_api_v1_campo_sincronizar_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SincronizarEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SincronizarSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_operaciones_api_v1_campo_operaciones_get: {
+        parameters: {
+            query?: {
+                estado?: ("aplicada" | "conflicto" | "error") | null;
+                page?: number;
+                size?: number;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pagina_OperacionCampoSalida_"];
                 };
             };
             /** @description Validation Error */

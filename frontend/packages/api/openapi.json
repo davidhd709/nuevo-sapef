@@ -7247,6 +7247,348 @@
         }
       }
     },
+    "/api/v1/notificaciones/push/clave-publica": {
+      "get": {
+        "tags": [
+          "notificaciones"
+        ],
+        "summary": "Clave pública VAPID para suscribirse (applicationServerKey)",
+        "operationId": "clave_publica_api_v1_notificaciones_push_clave_publica_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClavePublicaSalida"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notificaciones/push/suscripciones": {
+      "post": {
+        "tags": [
+          "notificaciones"
+        ],
+        "summary": "Registrar la suscripción Web Push de este dispositivo",
+        "operationId": "suscribir_api_v1_notificaciones_push_suscripciones_post",
+        "parameters": [
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User-Agent"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuscripcionEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuscripcionSalida"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Ya existía; se actualizó",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuscripcionSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "notificaciones"
+        ],
+        "summary": "Quitar la suscripción Web Push de este dispositivo",
+        "operationId": "desuscribir_api_v1_notificaciones_push_suscripciones_delete",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuscripcionBorrarEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campo/paquete": {
+      "get": {
+        "tags": [
+          "campo"
+        ],
+        "summary": "Paquete para trabajar sin señal (completo, o solo cambios con `desde`)",
+        "operationId": "obtener_paquete_api_v1_campo_paquete_get",
+        "parameters": [
+          {
+            "name": "desde",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Cursor anterior",
+              "title": "Desde"
+            },
+            "description": "Cursor anterior"
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaqueteCampo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campo/sincronizar": {
+      "post": {
+        "tags": [
+          "campo"
+        ],
+        "summary": "Aplicar un lote de operaciones de campo (idempotente por uuid)",
+        "operationId": "sincronizar_api_v1_campo_sincronizar_post",
+        "parameters": [
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SincronizarEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SincronizarSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/campo/operaciones": {
+      "get": {
+        "tags": [
+          "campo"
+        ],
+        "summary": "Operaciones recibidas de campo (para revisar conflictos en la oficina)",
+        "operationId": "listar_operaciones_api_v1_campo_operaciones_get",
+        "parameters": [
+          {
+            "name": "estado",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "aplicada",
+                    "conflicto",
+                    "error"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Estado"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Size"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_OperacionCampoSalida_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/sistema/tareas/prueba": {
       "post": {
         "tags": [
@@ -8124,6 +8466,34 @@
         ],
         "title": "AuditoriaSalida"
       },
+      "BarrioCampo": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "zona_id": {
+            "type": "integer",
+            "title": "Zona Id"
+          },
+          "zona_nombre": {
+            "type": "string",
+            "title": "Zona Nombre"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "zona_id",
+          "zona_nombre"
+        ],
+        "title": "BarrioCampo"
+      },
       "BarrioCrearEntrada": {
         "properties": {
           "zona_id": {
@@ -8590,6 +8960,70 @@
         ],
         "title": "CatalogoComercialSalida"
       },
+      "CatalogosCampo": {
+        "properties": {
+          "barrios": {
+            "items": {
+              "$ref": "#/components/schemas/BarrioCampo"
+            },
+            "type": "array",
+            "title": "Barrios"
+          },
+          "tipos_expansion": {
+            "items": {
+              "$ref": "#/components/schemas/ValorCampo"
+            },
+            "type": "array",
+            "title": "Tipos Expansion"
+          },
+          "tipos_modernizacion": {
+            "items": {
+              "$ref": "#/components/schemas/ValorCampo"
+            },
+            "type": "array",
+            "title": "Tipos Modernizacion"
+          },
+          "marcas": {
+            "items": {
+              "$ref": "#/components/schemas/ValorCampo"
+            },
+            "type": "array",
+            "title": "Marcas"
+          },
+          "componentes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Componentes"
+          },
+          "destinos_desmontada": {
+            "items": {
+              "$ref": "#/components/schemas/DestinoCampo"
+            },
+            "type": "array",
+            "title": "Destinos Desmontada"
+          },
+          "tipos_evidencia": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tipos Evidencia"
+          }
+        },
+        "type": "object",
+        "required": [
+          "barrios",
+          "tipos_expansion",
+          "tipos_modernizacion",
+          "marcas",
+          "componentes",
+          "destinos_desmontada",
+          "tipos_evidencia"
+        ],
+        "title": "CatalogosCampo"
+      },
       "CiudadanoCrearEntrada": {
         "properties": {
           "identificacion": {
@@ -8841,6 +9275,52 @@
         ],
         "title": "CiudadanoSalida"
       },
+      "ClavePublicaSalida": {
+        "properties": {
+          "habilitado": {
+            "type": "boolean",
+            "title": "Habilitado"
+          },
+          "clave_publica": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clave Publica"
+          }
+        },
+        "type": "object",
+        "required": [
+          "habilitado",
+          "clave_publica"
+        ],
+        "title": "ClavePublicaSalida"
+      },
+      "ClavesPush": {
+        "properties": {
+          "p256dh": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "P256Dh"
+          },
+          "auth": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Auth"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "p256dh",
+          "auth"
+        ],
+        "title": "ClavesPush"
+      },
       "ComercializadorSalida": {
         "properties": {
           "id": {
@@ -8996,6 +9476,24 @@
           "tecnicos"
         ],
         "title": "CuadrillaSalida"
+      },
+      "DestinoCampo": {
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          }
+        },
+        "type": "object",
+        "required": [
+          "codigo",
+          "nombre"
+        ],
+        "title": "DestinoCampo"
       },
       "EjecucionMigracionSalida": {
         "properties": {
@@ -9887,6 +10385,113 @@
         ],
         "title": "LoteSalida"
       },
+      "LuminariaCampo": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "estado_codigo": {
+            "type": "string",
+            "title": "Estado Codigo"
+          },
+          "barrio_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barrio Id"
+          },
+          "poste": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Poste"
+          },
+          "latitud": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitud"
+          },
+          "longitud": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitud"
+          },
+          "tecnologia": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tecnologia"
+          },
+          "potencia": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Potencia"
+          },
+          "marca": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marca"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "codigo",
+          "estado_codigo",
+          "barrio_id",
+          "poste",
+          "latitud",
+          "longitud",
+          "tecnologia",
+          "potencia",
+          "marca"
+        ],
+        "title": "LuminariaCampo"
+      },
       "LuminariaCrearEntrada": {
         "properties": {
           "codigo": {
@@ -10541,6 +11146,101 @@
           "longitud"
         ],
         "title": "LuminariaMoverEntrada"
+      },
+      "LuminariaOrdenCampo": {
+        "properties": {
+          "luminaria_id": {
+            "type": "integer",
+            "title": "Luminaria Id"
+          },
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "rol": {
+            "type": "string",
+            "title": "Rol"
+          },
+          "estado_codigo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estado Codigo"
+          },
+          "barrio_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barrio Id"
+          },
+          "barrio_nombre": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Barrio Nombre"
+          },
+          "poste": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Poste"
+          },
+          "latitud": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitud"
+          },
+          "longitud": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitud"
+          }
+        },
+        "type": "object",
+        "required": [
+          "luminaria_id",
+          "codigo",
+          "rol",
+          "estado_codigo",
+          "barrio_id",
+          "barrio_nombre",
+          "poste",
+          "latitud",
+          "longitud"
+        ],
+        "title": "LuminariaOrdenCampo"
       },
       "LuminariaSalida": {
         "properties": {
@@ -11250,6 +11950,57 @@
         ],
         "title": "MantenimientoSalida"
       },
+      "MapaBaseCampo": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "MapaBaseCampo"
+      },
+      "MaterialCampo": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          },
+          "categoria": {
+            "type": "string",
+            "title": "Categoria"
+          },
+          "unidad": {
+            "type": "string",
+            "title": "Unidad"
+          },
+          "existencias": {
+            "type": "string",
+            "title": "Existencias"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "codigo",
+          "descripcion",
+          "categoria",
+          "unidad",
+          "existencias"
+        ],
+        "title": "MaterialCampo"
+      },
       "MaterialCrearEntrada": {
         "properties": {
           "categoria": {
@@ -11738,6 +12489,160 @@
         ],
         "title": "MovimientoSalida"
       },
+      "OperacionCampoSalida": {
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Uuid"
+          },
+          "tipo": {
+            "type": "string",
+            "title": "Tipo"
+          },
+          "orden_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Orden Id"
+          },
+          "orden_numero": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Orden Numero"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "aplicada",
+              "conflicto",
+              "error"
+            ],
+            "title": "Estado"
+          },
+          "motivo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Motivo"
+          },
+          "intentos": {
+            "type": "integer",
+            "title": "Intentos"
+          },
+          "usuario_id": {
+            "type": "integer",
+            "title": "Usuario Id"
+          },
+          "usuario_nombre": {
+            "type": "string",
+            "title": "Usuario Nombre"
+          },
+          "creada_en": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creada En"
+          },
+          "recibida_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Recibida En"
+          },
+          "actualizada_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Actualizada En"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uuid",
+          "tipo",
+          "orden_id",
+          "orden_numero",
+          "estado",
+          "motivo",
+          "intentos",
+          "usuario_id",
+          "usuario_nombre",
+          "creada_en",
+          "recibida_en",
+          "actualizada_en"
+        ],
+        "title": "OperacionCampoSalida"
+      },
+      "OperacionEntrada": {
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Uuid"
+          },
+          "tipo": {
+            "type": "string",
+            "maxLength": 30,
+            "title": "Tipo"
+          },
+          "ordenId": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ordenid"
+          },
+          "creadaEn": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Creadaen"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Payload"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uuid",
+          "tipo"
+        ],
+        "title": "OperacionEntrada",
+        "description": "Una operación de la bandeja de salida del teléfono. Acepta `ordenId`/`creadaEn` (contrato\nde la app) o `orden_id`/`creada_en`."
+      },
       "OrdenAnularEntrada": {
         "properties": {
           "motivo": {
@@ -11794,6 +12699,108 @@
         "additionalProperties": false,
         "type": "object",
         "title": "OrdenAsignarEntrada"
+      },
+      "OrdenCampo": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "numero": {
+            "type": "integer",
+            "title": "Numero"
+          },
+          "tipo": {
+            "type": "string",
+            "title": "Tipo"
+          },
+          "estado_codigo": {
+            "type": "string",
+            "title": "Estado Codigo"
+          },
+          "estado_nombre": {
+            "type": "string",
+            "title": "Estado Nombre"
+          },
+          "prioridad": {
+            "type": "integer",
+            "title": "Prioridad"
+          },
+          "pqrs_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pqrs Id"
+          },
+          "fecha_programada": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Programada"
+          },
+          "asignada_en": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asignada En"
+          },
+          "observaciones": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observaciones"
+          },
+          "modificado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Modificado En"
+          },
+          "luminarias": {
+            "items": {
+              "$ref": "#/components/schemas/LuminariaOrdenCampo"
+            },
+            "type": "array",
+            "title": "Luminarias"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "numero",
+          "tipo",
+          "estado_codigo",
+          "estado_nombre",
+          "prioridad",
+          "pqrs_id",
+          "fecha_programada",
+          "asignada_en",
+          "observaciones",
+          "modificado_en",
+          "luminarias"
+        ],
+        "title": "OrdenCampo"
       },
       "OrdenCerrarEntrada": {
         "properties": {
@@ -12225,6 +13232,34 @@
           "rol"
         ],
         "title": "OrdenLuminariaSalida"
+      },
+      "OrdenRetirada": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "numero": {
+            "type": "integer",
+            "title": "Numero"
+          },
+          "motivo": {
+            "type": "string",
+            "enum": [
+              "anulada",
+              "cerrada",
+              "reasignada"
+            ],
+            "title": "Motivo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "numero",
+          "motivo"
+        ],
+        "title": "OrdenRetirada"
       },
       "OrdenSalida": {
         "properties": {
@@ -12695,6 +13730,37 @@
         ],
         "title": "Pagina[MovimientoSalida]"
       },
+      "Pagina_OperacionCampoSalida_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OperacionCampoSalida"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "size": {
+            "type": "integer",
+            "title": "Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "size"
+        ],
+        "title": "Pagina[OperacionCampoSalida]"
+      },
       "Pagina_OrdenSalida_": {
         "properties": {
           "items": {
@@ -12849,6 +13915,87 @@
           "size"
         ],
         "title": "Pagina[UsuarioSalida]"
+      },
+      "PaqueteCampo": {
+        "properties": {
+          "cursor": {
+            "type": "string",
+            "title": "Cursor"
+          },
+          "generado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generado En"
+          },
+          "completo": {
+            "type": "boolean",
+            "title": "Completo",
+            "description": "True si trae todas las luminarias; False si es delta"
+          },
+          "sede": {
+            "$ref": "#/components/schemas/SedeCampo"
+          },
+          "usuario": {
+            "$ref": "#/components/schemas/UsuarioCampo"
+          },
+          "ordenes_asignadas": {
+            "items": {
+              "$ref": "#/components/schemas/OrdenCampo"
+            },
+            "type": "array",
+            "title": "Ordenes Asignadas"
+          },
+          "ordenes_anuladas_o_reasignadas": {
+            "items": {
+              "$ref": "#/components/schemas/OrdenRetirada"
+            },
+            "type": "array",
+            "title": "Ordenes Anuladas O Reasignadas"
+          },
+          "luminarias_zona": {
+            "items": {
+              "$ref": "#/components/schemas/LuminariaCampo"
+            },
+            "type": "array",
+            "title": "Luminarias Zona"
+          },
+          "luminarias_bodega": {
+            "items": {
+              "$ref": "#/components/schemas/LuminariaCampo"
+            },
+            "type": "array",
+            "title": "Luminarias Bodega"
+          },
+          "materiales": {
+            "items": {
+              "$ref": "#/components/schemas/MaterialCampo"
+            },
+            "type": "array",
+            "title": "Materiales"
+          },
+          "catalogos": {
+            "$ref": "#/components/schemas/CatalogosCampo"
+          },
+          "mapa_base": {
+            "$ref": "#/components/schemas/MapaBaseCampo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cursor",
+          "generado_en",
+          "completo",
+          "sede",
+          "usuario",
+          "ordenes_asignadas",
+          "ordenes_anuladas_o_reasignadas",
+          "luminarias_zona",
+          "luminarias_bodega",
+          "materiales",
+          "catalogos",
+          "mapa_base"
+        ],
+        "title": "PaqueteCampo"
       },
       "ParametroEditarEntrada": {
         "properties": {
@@ -13805,6 +14952,53 @@
         ],
         "title": "RestablecerClaveEntrada"
       },
+      "ResultadoOperacion": {
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Uuid"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "aplicada",
+              "ya_aplicada",
+              "conflicto",
+              "error"
+            ],
+            "title": "Estado"
+          },
+          "motivo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Motivo"
+          },
+          "orden_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Orden Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uuid",
+          "estado"
+        ],
+        "title": "ResultadoOperacion"
+      },
       "RolCrearEntrada": {
         "properties": {
           "codigo": {
@@ -14034,6 +15228,24 @@
           "base_de_datos"
         ],
         "title": "Salud"
+      },
+      "SedeCampo": {
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          }
+        },
+        "type": "object",
+        "required": [
+          "codigo",
+          "nombre"
+        ],
+        "title": "SedeCampo"
       },
       "SedeComercializadorEntrada": {
         "properties": {
@@ -14280,6 +15492,99 @@
           "modificado_en"
         ],
         "title": "SedeSalida"
+      },
+      "SincronizarEntrada": {
+        "properties": {
+          "operaciones": {
+            "items": {
+              "$ref": "#/components/schemas/OperacionEntrada"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Operaciones"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "operaciones"
+        ],
+        "title": "SincronizarEntrada"
+      },
+      "SincronizarSalida": {
+        "properties": {
+          "resultados": {
+            "items": {
+              "$ref": "#/components/schemas/ResultadoOperacion"
+            },
+            "type": "array",
+            "title": "Resultados"
+          },
+          "procesado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Procesado En"
+          }
+        },
+        "type": "object",
+        "required": [
+          "resultados",
+          "procesado_en"
+        ],
+        "title": "SincronizarSalida"
+      },
+      "SuscripcionBorrarEntrada": {
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "maxLength": 2048,
+            "title": "Endpoint"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "endpoint"
+        ],
+        "title": "SuscripcionBorrarEntrada"
+      },
+      "SuscripcionEntrada": {
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "maxLength": 2048,
+            "title": "Endpoint"
+          },
+          "keys": {
+            "$ref": "#/components/schemas/ClavesPush"
+          }
+        },
+        "type": "object",
+        "required": [
+          "endpoint",
+          "keys"
+        ],
+        "title": "SuscripcionEntrada",
+        "description": "Lo que entrega `PushSubscription.toJSON()` del navegador (con `keys` o `claves`)."
+      },
+      "SuscripcionSalida": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "creado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creado En"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "creado_en"
+        ],
+        "title": "SuscripcionSalida"
       },
       "TareaExportacionSalida": {
         "properties": {
@@ -14596,6 +15901,24 @@
         ],
         "title": "UbicacionHistorialSalida"
       },
+      "UsuarioCampo": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nombre_completo": {
+            "type": "string",
+            "title": "Nombre Completo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nombre_completo"
+        ],
+        "title": "UsuarioCampo"
+      },
       "UsuarioCrearEntrada": {
         "properties": {
           "nombre_usuario": {
@@ -14888,6 +16211,29 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "ValorCampo": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "codigo",
+          "nombre"
+        ],
+        "title": "ValorCampo"
       },
       "ZonaCrearEntrada": {
         "properties": {

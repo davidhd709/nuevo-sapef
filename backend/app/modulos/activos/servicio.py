@@ -1045,3 +1045,26 @@ def listar_luminarias_bodega(
     return Pagina[LuminariaSalida](
         items=[_a_luminaria_salida(f) for f in filas], total=total, page=page, size=size
     )
+
+
+def luminarias_para_campo(
+    db: Session, sede_id: int, desde: datetime | None = None
+) -> list[dict[str, Any]]:
+    """Luminarias de la sede para trabajar sin señal (RF-104). Con `desde`, solo las que
+    cambiaron después de esa fecha (descarga incremental)."""
+    return [_compacta(f) for f in repositorio.listar_para_campo(db, sede_id, desde)]
+
+
+def luminarias_bodega_buena_para_campo(db: Session, sede_id: int) -> list[dict[str, Any]]:
+    """Luminarias en bodega buena (124): las que el técnico puede instalar como reemplazo."""
+    return [
+        _compacta(f) for f in repositorio.listar_para_campo(db, sede_id, None, ["124"])
+    ]
+
+
+def _compacta(fila: dict[str, Any]) -> dict[str, Any]:
+    return {
+        **fila,
+        "latitud": float(fila["latitud"]) if fila["latitud"] is not None else None,
+        "longitud": float(fila["longitud"]) if fila["longitud"] is not None else None,
+    }

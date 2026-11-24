@@ -54,6 +54,11 @@ class Configuracion(BaseSettings):
     smtp_remitente: str = "noreply@sapef.local"
     smtp_tls: bool = True
 
+    # Web Push (app de campo). Clave privada VAPID en base64url (python -m app.semillas vapid).
+    vapid_clave_privada: SecretStr | None = None
+    vapid_sujeto: str = "mailto:soporte@sapef.local"
+    push_ttl_segundos: int = Field(default=86400, ge=60)
+
     @model_validator(mode="after")
     def _validar_seguridad_produccion(self) -> "Configuracion":
         if self.es_produccion:

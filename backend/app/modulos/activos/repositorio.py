@@ -1,6 +1,6 @@
 """Repositorio SQLAlchemy/PostGIS del módulo de activos y mapa (EP-03)."""
 
-from datetime import date
+from datetime import date, datetime
 from typing import Any
 
 from sqlalchemy import func, select, text
@@ -487,3 +487,31 @@ def obtener_tesela_mvt(
     sql = _SQL_MVT_AGRUPADO if z <= 12 else _SQL_MVT_DETALLE
     resultado = db.execute(sql, params).scalar_one()
     return bytes(resultado) if resultado else b""
+
+
+def listar_para_campo(
+    db: Session, sede_id: int, desde: datetime | None, estado_codigos: list[str] | None = None
+) -> list[dict[str, Any]]:
+    """Ficha compacta de las luminarias de la sede para la app de campo (sin la comodín)."""
+    sql = text(
+        """
+        SELECT
+            l.id, l.codigo, e.codigo AS estado_codigo, l.barrio_id, l.poste,
+            ST_Y(l.ubicacion::geometry) AS latitud, ST_X(l.ubicacion::geometry) AS longitud,
+            mt.nombre AS tecnologia, mp.nombre AS potencia, mm.nombre AS marca
+        FROM luminaria l
+        JOIN estado e ON e.id = l.estado_id
+        LEFT JOIN maestro_valor mt ON mt.id = l.tecnologia_id
+        LEFT JOIN maestro_valor mp ON mp.id = l.potencia_id
+        LEFT JOIN maestro_valor mm ON mm.id = l.marca_id
+        WHERE l.sede_id = :sede_id
+          AND NOT l.es_comodin
+          AND (CAST(:desde AS timestamptz) IS NULL OR l.modificado_en > CAST(:desde AS timestamptz))
+          AND (CAST(:estados AS text[]) IS NULL OR e.codigo = ANY(CAST(:estados AS text[])))
+        ORDER BY l.id
+        """
+    )
+    filas = db.execute(
+        sql, {"sede_id": sede_id, "desde": desde, "estados": estado_codigos}
+    ).mappings()
+    return [dict(f) for f in filas]
