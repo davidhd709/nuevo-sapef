@@ -21,8 +21,8 @@ dev-dist/
 *.tsbuildinfo
 
 # Datos locales (nunca al repositorio: pueden contener datos personales)
-data/
-datos/
+/data/
+/datos/
 .e2e_data/
 # Material de la ingeniería inversa: tráfico capturado de producción y el JS de SAPEF (de terceros)
 docs/.sapef-bundle/
@@ -48,3 +48,6 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Paquetes de OPainn para importar en desarrollo (datos reales: nunca al repositorio)
+importacion/
