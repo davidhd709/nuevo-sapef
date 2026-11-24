@@ -10,7 +10,7 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { useCallback, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 
 import { PantallaLuminarias } from "./activos/PantallaLuminarias";
 import { PantallaAtencion } from "./atencion/PantallaAtencion";
@@ -23,6 +23,11 @@ import { PantallaInventario } from "./inventario/PantallaInventario";
 import { PantallaSeguridad } from "./seguridad/PantallaSeguridad";
 import { EstadoSistema } from "./sistema/EstadoSistema";
 import { PantallaOrdenes } from "./trabajos/PantallaOrdenes";
+
+// ECharts pesa: el tablero se carga aparte, solo cuando se abre.
+const PantallaTablero = lazy(() =>
+  import("./tablero/PantallaTablero").then((m) => ({ default: m.PantallaTablero })),
+);
 
 function ContenidoApp() {
   const { usuario, cargando, sedeActiva, cambiarSede, salir, tienePermiso } = useAuth();
@@ -83,6 +88,12 @@ function ContenidoApp() {
     contenido = <PantallaInventario />;
   } else if (ruta.startsWith("/comercial")) {
     contenido = <PantallaComercial />;
+  } else if (ruta.startsWith("/tablero")) {
+    contenido = (
+      <Suspense fallback={<Loader aria-label="Cargando tablero" />}>
+        <PantallaTablero />
+      </Suspense>
+    );
   } else if (ruta.startsWith("/seguridad")) {
     contenido = <PantallaSeguridad />;
   } else if (ruta.startsWith("/configuracion")) {
@@ -135,6 +146,13 @@ function ContenidoApp() {
             active={ruta === "/"}
             onClick={() => navegar("/")}
           />
+          {tienePermiso("tablero.ver") && (
+            <NavLink
+              label="Tablero"
+              active={ruta.startsWith("/tablero")}
+              onClick={() => navegar("/tablero")}
+            />
+          )}
           {tienePermiso("activos.mapa.ver") && (
             <NavLink
               label="Mapa"

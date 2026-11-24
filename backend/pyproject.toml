@@ -80,6 +80,7 @@ containers = [
     "app.modulos.notificaciones",
     "app.modulos.sincronizacion",
     "app.modulos.comercial",
+    "app.modulos.tablero",
 ]
 layers = [
     "router | (tareas)",
@@ -153,7 +154,26 @@ forbidden_modules = [
     "app.modulos.notificaciones",
     "app.modulos.sincronizacion",
     "app.modulos.comercial",
+    "app.modulos.tablero",
 ]
+
+[[tool.importlinter.contracts]]
+name = "el tablero es una hoja: ningún módulo depende de él"
+type = "forbidden"
+source_modules = [
+    "app.modulos.seguridad",
+    "app.modulos.archivos",
+    "app.modulos.configuracion",
+    "app.modulos.activos",
+    "app.modulos.migracion",
+    "app.modulos.inventario",
+    "app.modulos.atencion",
+    "app.modulos.trabajos",
+    "app.modulos.notificaciones",
+    "app.modulos.sincronizacion",
+    "app.modulos.comercial",
+]
+forbidden_modules = ["app.modulos.tablero"]
 
 [[tool.importlinter.contracts]]
 name = "activos, inventario y atencion no dependen de trabajos"

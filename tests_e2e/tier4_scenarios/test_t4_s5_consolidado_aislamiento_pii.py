@@ -346,7 +346,7 @@ def test_consolidado_multi_sede_isolation_pii_masking_and_audit_logs(
             gerente["nombre_usuario"],
         )
         browser_driver.fill("input[name='clave'], input[type='password']", gerente["_secret"])
-        browser_driver.click("button[type='submit"]')
+        browser_driver.click("button[type='submit']")
         deadline = time.monotonic() + e2e_config.timeout_seconds
         while time.monotonic() < deadline and "/ingresar" in browser_driver.current_url():
             time.sleep(0.2)

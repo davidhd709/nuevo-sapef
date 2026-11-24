@@ -2212,6 +2212,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tablero/resumen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tablero gerencial de la sede o consolidado (?sede=todas) */
+        get: operations["resumen_api_v1_tablero_resumen_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tablero/recalcular": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Encolar el recálculo de las tablas resumen */
+        post: operations["recalcular_api_v1_tablero_recalcular_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sistema/tareas/prueba": {
         parameters: {
             query?: never;
@@ -2257,6 +2291,27 @@ export interface components {
              * @default true
              */
             acepto: boolean;
+        };
+        /** ActivosTablero */
+        ActivosTablero: {
+            /** Total Luminarias */
+            total_luminarias: number;
+            /** En Servicio */
+            en_servicio: number;
+            /** En Bodega */
+            en_bodega: number;
+            /** Instaladas Anio */
+            instaladas_anio: number;
+            /** Luminarias Instaladas Mes */
+            luminarias_instaladas_mes: components["schemas"]["MesTablero"][];
+            /** Por Tecnologia */
+            por_tecnologia: components["schemas"]["ConteoTablero"][];
+            /** Por Potencia */
+            por_potencia: components["schemas"]["ConteoTablero"][];
+            /** Por Zona */
+            por_zona: components["schemas"]["ConteoTablero"][];
+            /** Por Barrio */
+            por_barrio: components["schemas"]["ConteoTablero"][];
         };
         /** AcuerdoAprobarEntrada */
         AcuerdoAprobarEntrada: {
@@ -2862,6 +2917,16 @@ export interface components {
             /** Auth */
             auth: string;
         };
+        /** ComercialTablero */
+        ComercialTablero: {
+            /**
+             * Estado
+             * @description con_datos, sin_cortes_cargados o pendiente_de_calculo
+             */
+            estado: string;
+            /** Comercializadores */
+            comercializadores: components["schemas"]["ComercializadorTablero"][];
+        };
         /** ComercializadorSalida */
         ComercializadorSalida: {
             /** Id */
@@ -2878,6 +2943,50 @@ export interface components {
             periodicidad: string;
             /** Activo */
             activo: boolean;
+        };
+        /** ComercializadorTablero */
+        ComercializadorTablero: {
+            /** Sede Codigo */
+            sede_codigo: string;
+            /** Sede Nombre */
+            sede_nombre: string;
+            /** Comercializador */
+            comercializador: string;
+            /** Nombre */
+            nombre: string;
+            /** Periodo */
+            periodo: string;
+            /** Periodo Anterior */
+            periodo_anterior: string | null;
+            /** Actual */
+            actual: {
+                [key: string]: unknown;
+            };
+            /** Anterior */
+            anterior: {
+                [key: string]: unknown;
+            } | null;
+            /** Variacion */
+            variacion: {
+                [key: string]: number | null;
+            };
+            /** Participacion */
+            participacion: {
+                [key: string]: unknown;
+            }[];
+            /** Historico */
+            historico: {
+                [key: string]: unknown;
+            }[];
+        };
+        /** ConteoTablero */
+        ConteoTablero: {
+            /** Etiqueta */
+            etiqueta: string;
+            /** Grupo */
+            grupo?: string | null;
+            /** Cantidad */
+            cantidad: number;
         };
         /** CorteSalida */
         CorteSalida: {
@@ -3790,6 +3899,15 @@ export interface components {
             /** Mensaje */
             mensaje: string;
         };
+        /** MesTablero */
+        MesTablero: {
+            /** Mes */
+            mes: number;
+            /** Cantidad */
+            cantidad: number;
+            /** Acumulado */
+            acumulado: number;
+        };
         /** MovimientoEntrada */
         MovimientoEntrada: {
             /**
@@ -3900,6 +4018,38 @@ export interface components {
             payload?: {
                 [key: string]: unknown;
             };
+        };
+        /** OperacionTablero */
+        OperacionTablero: {
+            /** Luminarias Por Estado */
+            luminarias_por_estado: components["schemas"]["ConteoTablero"][];
+            /** Pqrs Abiertas */
+            pqrs_abiertas: number;
+            pqrs_semaforo: components["schemas"]["SemaforoTablero"];
+            /** Pqrs Recibidas Mes */
+            pqrs_recibidas_mes: number;
+            /** Pqrs Recibidas Mes Anterior */
+            pqrs_recibidas_mes_anterior: number;
+            /** Variacion Pqrs Recibidas */
+            variacion_pqrs_recibidas: number | null;
+            /** Pqrs Atendidas Mes */
+            pqrs_atendidas_mes: number;
+            /** Pqrs Atendidas Anio */
+            pqrs_atendidas_anio: number;
+            /** Tiempo Promedio Atencion Horas */
+            tiempo_promedio_atencion_horas: number | null;
+            /** Pqrs Por Barrio */
+            pqrs_por_barrio: components["schemas"]["ConteoTablero"][];
+            /** Mantenimientos Mes */
+            mantenimientos_mes: number;
+            /** Mantenimientos Mes Anterior */
+            mantenimientos_mes_anterior: number;
+            /** Variacion Mantenimientos */
+            variacion_mantenimientos: number | null;
+            /** Ordenes Abiertas */
+            ordenes_abiertas: number;
+            /** Materiales Bajo Minimo */
+            materiales_bajo_minimo: number;
         };
         /** OrdenAnularEntrada */
         OrdenAnularEntrada: {
@@ -4592,6 +4742,20 @@ export interface components {
              */
             creado_en: string;
         };
+        /** RecalcularEntrada */
+        RecalcularEntrada: {
+            /** Sede Id */
+            sede_id?: number | null;
+        };
+        /** RecalculoEncolado */
+        RecalculoEncolado: {
+            /** Tarea Id */
+            tarea_id: number;
+            /** Tareaid */
+            tareaId: number;
+            /** Sede Ids */
+            sede_ids: number[];
+        };
         /** RecuperarClaveEntrada */
         RecuperarClaveEntrada: {
             /** Correo */
@@ -4620,6 +4784,25 @@ export interface components {
             motivo?: string | null;
             /** Orden Id */
             orden_id?: number | null;
+        };
+        /** ResumenTableroSalida */
+        ResumenTableroSalida: {
+            /**
+             * Sede
+             * @description Código de la sede o «todas» para el consolidado
+             */
+            sede: string;
+            /** Sedes Incluidas */
+            sedes_incluidas: components["schemas"]["SedeTablero"][];
+            /** Anio */
+            anio: number;
+            /** Calculado En */
+            calculado_en: string | null;
+            activos: components["schemas"]["ActivosTablero"];
+            operacion: components["schemas"]["OperacionTablero"];
+            comercial: components["schemas"]["ComercialTablero"];
+            /** Por Sede */
+            por_sede: components["schemas"]["SedeResumenTablero"][];
         };
         /** RolCrearEntrada */
         RolCrearEntrada: {
@@ -4774,6 +4957,24 @@ export interface components {
             /** Nombre */
             nombre: string;
         };
+        /** SedeResumenTablero */
+        SedeResumenTablero: {
+            sede: components["schemas"]["SedeTablero"];
+            /** Calculado En */
+            calculado_en: string | null;
+            /** Total Luminarias */
+            total_luminarias: number;
+            /** En Servicio */
+            en_servicio: number;
+            /** Instaladas Anio */
+            instaladas_anio: number;
+            /** Pqrs Abiertas */
+            pqrs_abiertas: number;
+            /** Pqrs Rojo */
+            pqrs_rojo: number;
+            /** Mantenimientos Mes */
+            mantenimientos_mes: number;
+        };
         /** SedeSalida */
         SedeSalida: {
             /** Id */
@@ -4798,6 +4999,28 @@ export interface components {
              * Format: date-time
              */
             modificado_en: string;
+        };
+        /** SedeTablero */
+        SedeTablero: {
+            /** Id */
+            id: number;
+            /** Codigo */
+            codigo: string;
+            /** Nombre */
+            nombre: string;
+        };
+        /** SemaforoTablero */
+        SemaforoTablero: {
+            /** Verde */
+            verde: number;
+            /** Amarillo */
+            amarillo: number;
+            /** Rojo */
+            rojo: number;
+            /** Umbral Verde Dias */
+            umbral_verde_dias?: number | null;
+            /** Umbral Amarillo Dias */
+            umbral_amarillo_dias?: number | null;
         };
         /** SincronizarEntrada */
         SincronizarEntrada: {
@@ -10569,6 +10792,75 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resumen_api_v1_tablero_resumen_get: {
+        parameters: {
+            query?: {
+                sede?: string | null;
+                anio?: number | null;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResumenTableroSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    recalcular_api_v1_tablero_recalcular_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["RecalcularEntrada"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecalculoEncolado"];
                 };
             };
             /** @description Validation Error */

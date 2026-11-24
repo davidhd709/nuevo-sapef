@@ -20,12 +20,13 @@ from types import ModuleType
 from typing import Any
 
 from fastapi import HTTPException, UploadFile
+from procrastinate.exceptions import AlreadyEnqueued
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 
 from app.core.config import obtener_configuracion
-from app.core.tareas import encolar
+from app.core.tareas import app_tareas, encolar
 from app.modulos.comercial import repositorio
 from app.modulos.comercial.dominio import (
     afinia,
@@ -460,7 +461,25 @@ def _terminar(
     cargue.procesado_en = datetime.now(UTC)
     db.commit()
     log.info("cargue %s: %s", cargue.id, estado)
+    if estado == "publicado":
+        _avisar_tablero(cargue.sede_id)
     return estado
+
+
+TAREA_TABLERO = "tablero.recalcular"
+
+
+def _avisar_tablero(sede_id: int) -> None:
+    """Tras publicar un corte se recalculan las tablas resumen del tablero (§9.8). Si la cola no
+    responde, el recálculo nocturno lo cubre: nunca se pierde la publicación por esto."""
+    try:
+        app_tareas.configure_task(name=TAREA_TABLERO, queueing_lock=f"tablero-{sede_id}").defer(
+            sede_ids=str(sede_id)
+        )
+    except AlreadyEnqueued:
+        pass
+    except Exception:  # noqa: BLE001 - el aviso es de mejor esfuerzo
+        log.warning("no se pudo encolar el recálculo del tablero de la sede %s", sede_id)
 
 
 def obtener_cargue(
@@ -1951,8 +1970,11 @@ XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
 
-def _informe_gerencial(db: Session, ctx: Contexto, periodo: str) -> entregables.Documento:
-    """Informe gerencial (secciones del PDF de SAPEF): actual frente al corte anterior."""
+def _cifras_gerenciales(
+    db: Session, ctx: Contexto, periodo: str
+) -> tuple[dict[str, Any], dict[str, Any], analisis.Movimiento]:
+    """Cifras del informe gerencial: el corte y su comparable. Una sola fuente para el informe
+    y el tablero (coherencia obligatoria, §11.12)."""
     actual = totales_corte(db, ctx, periodo, con_movimiento=True)
     mov = _movimiento(db, ctx, periodo)
     if ctx.codigo != "afinia":
@@ -1962,6 +1984,120 @@ def _informe_gerencial(db: Session, ctx: Contexto, periodo: str) -> entregables.
             usuarios_dejados_facturar=len(mov.dejados_facturar),
         )
     anterior = totales_corte(db, ctx, mov.comparable) if mov.comparable else {}
+    return actual, anterior, mov
+
+
+def _participacion(db: Session, ctx: Contexto, periodo: str) -> list[dict[str, Any]]:
+    """Participación por tarifa (Afinia) o por segmento (Celsia y Vatia), como el informe."""
+    if ctx.codigo == "afinia":
+        return [
+            {
+                "grupo": f["estrato_uso"],
+                "usuarios": f["n_factura"],
+                "facturacion": f["facturacion"],
+                "recaudo": f["recaudo_total"],
+                "consumo": f["consumo_kwh"],
+            }
+            for f in _td_afinia(db, ctx, periodo)["filas"]
+        ]
+    return [
+        {
+            "grupo": g["segmento"],
+            "usuarios": g["usuarios"],
+            "facturacion": g["facturacion"],
+            "recaudo": g["recaudo"],
+            "consumo": g["consumo"],
+        }
+        for g in analisis.agrupar(usuarios(ctx, periodo).values(), "segmento")
+    ]
+
+
+CLAVES_TABLERO = (
+    "n_facturados",
+    "facturacion",
+    "recaudo_corriente",
+    "recaudo_cartera",
+    "recaudo",
+    "cartera",
+    "eficiencia",
+    "n_usuarios_convenios",
+    "valor_convenios_periodo",
+    "nuevos_usuarios",
+    "usuarios_dejados_facturar",
+    "usuarios_reintegrados",
+    "consumo",
+)
+
+
+def _a_json(valor: Any) -> Any:
+    if isinstance(valor, bool) or valor is None:
+        return valor
+    if isinstance(valor, Decimal):
+        return float(valor)
+    if isinstance(valor, (int, float, str)):
+        return valor
+    return str(valor)
+
+
+def _cifras_tablero(cifras: dict[str, Any], codigo: str) -> dict[str, Any]:
+    datos = dict(cifras)
+    if codigo == "afinia" and "consumo" not in datos:
+        datos["consumo"] = datos.get("consumo_kwh")
+    return {clave: _a_json(datos.get(clave)) for clave in CLAVES_TABLERO}
+
+
+def resumen_tablero(db: Session, sede_id: int) -> list[dict[str, Any]]:
+    """Indicadores del informe gerencial (RF-066) del último corte publicado de cada
+    comercializador de la sede, para las tablas resumen del tablero (HU-092)."""
+    sede_dict = next(
+        (s for s in configuracion.listar_sedes_activas_resumen(db) if s["id"] == sede_id), None
+    )
+    if sede_dict is None:
+        return []
+    sede = SedeResumen(**sede_dict)
+    salida: list[dict[str, Any]] = []
+    for codigo in configuracion.listar_comercializadores_activos_sede(db, sede_id):
+        if codigo not in ADAPTADORES:
+            continue
+        ctx = contexto(db, sede, codigo)
+        lista = periodos(db, ctx)
+        if not lista:
+            continue
+        periodo = lista[-1]
+        actual, anterior, mov = _cifras_gerenciales(db, ctx, periodo)
+        historico = []
+        for p in lista[-12:]:
+            t = totales_corte(db, ctx, p)
+            historico.append(
+                {
+                    "periodo": p,
+                    "facturacion": _a_json(t["facturacion"]),
+                    "recaudo": _a_json(t["recaudo"]),
+                    "cartera": _a_json(t["cartera"]),
+                    "n_facturados": _a_json(t["n_facturados"]),
+                }
+            )
+        salida.append(
+            {
+                "comercializador": codigo,
+                "nombre": NOMBRES[codigo],
+                "periodo": periodo,
+                "periodo_anterior": mov.comparable,
+                "actual": _cifras_tablero(actual, codigo),
+                "anterior": _cifras_tablero(anterior, codigo) if anterior else None,
+                "participacion": [
+                    {k: _a_json(v) for k, v in fila.items()}
+                    for fila in _participacion(db, ctx, periodo)
+                ],
+                "historico": historico,
+            }
+        )
+    return salida
+
+
+def _informe_gerencial(db: Session, ctx: Contexto, periodo: str) -> entregables.Documento:
+    """Informe gerencial (secciones del PDF de SAPEF): actual frente al corte anterior."""
+    actual, anterior, mov = _cifras_gerenciales(db, ctx, periodo)
 
     def comparar(claves: list[tuple[str, str]]) -> entregables.Tabla:
         filas = []

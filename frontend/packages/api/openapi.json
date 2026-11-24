@@ -10994,6 +10994,155 @@
         }
       }
     },
+    "/api/v1/tablero/resumen": {
+      "get": {
+        "tags": [
+          "tablero"
+        ],
+        "summary": "Tablero gerencial de la sede o consolidado (?sede=todas)",
+        "operationId": "resumen_api_v1_tablero_resumen_get",
+        "parameters": [
+          {
+            "name": "sede",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Sede"
+            }
+          },
+          {
+            "name": "anio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Anio"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumenTableroSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tablero/recalcular": {
+      "post": {
+        "tags": [
+          "tablero"
+        ],
+        "summary": "Encolar el recálculo de las tablas resumen",
+        "operationId": "recalcular_api_v1_tablero_recalcular_post",
+        "parameters": [
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/RecalcularEntrada"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Entrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecalculoEncolado"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/sistema/tareas/prueba": {
       "post": {
         "tags": [
@@ -11070,6 +11219,74 @@
         },
         "type": "object",
         "title": "AceptarCondicionesEntrada"
+      },
+      "ActivosTablero": {
+        "properties": {
+          "total_luminarias": {
+            "type": "integer",
+            "title": "Total Luminarias"
+          },
+          "en_servicio": {
+            "type": "integer",
+            "title": "En Servicio"
+          },
+          "en_bodega": {
+            "type": "integer",
+            "title": "En Bodega"
+          },
+          "instaladas_anio": {
+            "type": "integer",
+            "title": "Instaladas Anio"
+          },
+          "luminarias_instaladas_mes": {
+            "items": {
+              "$ref": "#/components/schemas/MesTablero"
+            },
+            "type": "array",
+            "title": "Luminarias Instaladas Mes"
+          },
+          "por_tecnologia": {
+            "items": {
+              "$ref": "#/components/schemas/ConteoTablero"
+            },
+            "type": "array",
+            "title": "Por Tecnologia"
+          },
+          "por_potencia": {
+            "items": {
+              "$ref": "#/components/schemas/ConteoTablero"
+            },
+            "type": "array",
+            "title": "Por Potencia"
+          },
+          "por_zona": {
+            "items": {
+              "$ref": "#/components/schemas/ConteoTablero"
+            },
+            "type": "array",
+            "title": "Por Zona"
+          },
+          "por_barrio": {
+            "items": {
+              "$ref": "#/components/schemas/ConteoTablero"
+            },
+            "type": "array",
+            "title": "Por Barrio"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_luminarias",
+          "en_servicio",
+          "en_bodega",
+          "instaladas_anio",
+          "luminarias_instaladas_mes",
+          "por_tecnologia",
+          "por_potencia",
+          "por_zona",
+          "por_barrio"
+        ],
+        "title": "ActivosTablero"
       },
       "AcuerdoAprobarEntrada": {
         "properties": {
@@ -13006,6 +13223,28 @@
         ],
         "title": "ClavesPush"
       },
+      "ComercialTablero": {
+        "properties": {
+          "estado": {
+            "type": "string",
+            "title": "Estado",
+            "description": "con_datos, sin_cortes_cargados o pendiente_de_calculo"
+          },
+          "comercializadores": {
+            "items": {
+              "$ref": "#/components/schemas/ComercializadorTablero"
+            },
+            "type": "array",
+            "title": "Comercializadores"
+          }
+        },
+        "type": "object",
+        "required": [
+          "estado",
+          "comercializadores"
+        ],
+        "title": "ComercialTablero"
+      },
       "ComercializadorSalida": {
         "properties": {
           "id": {
@@ -13055,6 +13294,132 @@
           "activo"
         ],
         "title": "ComercializadorSalida"
+      },
+      "ComercializadorTablero": {
+        "properties": {
+          "sede_codigo": {
+            "type": "string",
+            "title": "Sede Codigo"
+          },
+          "sede_nombre": {
+            "type": "string",
+            "title": "Sede Nombre"
+          },
+          "comercializador": {
+            "type": "string",
+            "title": "Comercializador"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "periodo": {
+            "type": "string",
+            "title": "Periodo"
+          },
+          "periodo_anterior": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Periodo Anterior"
+          },
+          "actual": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Actual"
+          },
+          "anterior": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anterior"
+          },
+          "variacion": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Variacion"
+          },
+          "participacion": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Participacion"
+          },
+          "historico": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Historico"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sede_codigo",
+          "sede_nombre",
+          "comercializador",
+          "nombre",
+          "periodo",
+          "periodo_anterior",
+          "actual",
+          "anterior",
+          "variacion",
+          "participacion",
+          "historico"
+        ],
+        "title": "ComercializadorTablero"
+      },
+      "ConteoTablero": {
+        "properties": {
+          "etiqueta": {
+            "type": "string",
+            "title": "Etiqueta"
+          },
+          "grupo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grupo"
+          },
+          "cantidad": {
+            "type": "integer",
+            "title": "Cantidad"
+          }
+        },
+        "type": "object",
+        "required": [
+          "etiqueta",
+          "cantidad"
+        ],
+        "title": "ConteoTablero"
       },
       "CorteSalida": {
         "properties": {
@@ -16376,6 +16741,29 @@
         ],
         "title": "MensajeSalida"
       },
+      "MesTablero": {
+        "properties": {
+          "mes": {
+            "type": "integer",
+            "title": "Mes"
+          },
+          "cantidad": {
+            "type": "integer",
+            "title": "Cantidad"
+          },
+          "acumulado": {
+            "type": "integer",
+            "title": "Acumulado"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mes",
+          "cantidad",
+          "acumulado"
+        ],
+        "title": "MesTablero"
+      },
       "MovimientoEntrada": {
         "properties": {
           "tipo": {
@@ -16713,6 +17101,115 @@
         ],
         "title": "OperacionEntrada",
         "description": "Una operación de la bandeja de salida del teléfono. Acepta `ordenId`/`creadaEn` (contrato\nde la app) o `orden_id`/`creada_en`."
+      },
+      "OperacionTablero": {
+        "properties": {
+          "luminarias_por_estado": {
+            "items": {
+              "$ref": "#/components/schemas/ConteoTablero"
+            },
+            "type": "array",
+            "title": "Luminarias Por Estado"
+          },
+          "pqrs_abiertas": {
+            "type": "integer",
+            "title": "Pqrs Abiertas"
+          },
+          "pqrs_semaforo": {
+            "$ref": "#/components/schemas/SemaforoTablero"
+          },
+          "pqrs_recibidas_mes": {
+            "type": "integer",
+            "title": "Pqrs Recibidas Mes"
+          },
+          "pqrs_recibidas_mes_anterior": {
+            "type": "integer",
+            "title": "Pqrs Recibidas Mes Anterior"
+          },
+          "variacion_pqrs_recibidas": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variacion Pqrs Recibidas"
+          },
+          "pqrs_atendidas_mes": {
+            "type": "integer",
+            "title": "Pqrs Atendidas Mes"
+          },
+          "pqrs_atendidas_anio": {
+            "type": "integer",
+            "title": "Pqrs Atendidas Anio"
+          },
+          "tiempo_promedio_atencion_horas": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tiempo Promedio Atencion Horas"
+          },
+          "pqrs_por_barrio": {
+            "items": {
+              "$ref": "#/components/schemas/ConteoTablero"
+            },
+            "type": "array",
+            "title": "Pqrs Por Barrio"
+          },
+          "mantenimientos_mes": {
+            "type": "integer",
+            "title": "Mantenimientos Mes"
+          },
+          "mantenimientos_mes_anterior": {
+            "type": "integer",
+            "title": "Mantenimientos Mes Anterior"
+          },
+          "variacion_mantenimientos": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variacion Mantenimientos"
+          },
+          "ordenes_abiertas": {
+            "type": "integer",
+            "title": "Ordenes Abiertas"
+          },
+          "materiales_bajo_minimo": {
+            "type": "integer",
+            "title": "Materiales Bajo Minimo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "luminarias_por_estado",
+          "pqrs_abiertas",
+          "pqrs_semaforo",
+          "pqrs_recibidas_mes",
+          "pqrs_recibidas_mes_anterior",
+          "variacion_pqrs_recibidas",
+          "pqrs_atendidas_mes",
+          "pqrs_atendidas_anio",
+          "tiempo_promedio_atencion_horas",
+          "pqrs_por_barrio",
+          "mantenimientos_mes",
+          "mantenimientos_mes_anterior",
+          "variacion_mantenimientos",
+          "ordenes_abiertas",
+          "materiales_bajo_minimo"
+        ],
+        "title": "OperacionTablero"
       },
       "OrdenAnularEntrada": {
         "properties": {
@@ -19048,6 +19545,49 @@
         ],
         "title": "PqrsSalida"
       },
+      "RecalcularEntrada": {
+        "properties": {
+          "sede_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sede Id"
+          }
+        },
+        "type": "object",
+        "title": "RecalcularEntrada"
+      },
+      "RecalculoEncolado": {
+        "properties": {
+          "tarea_id": {
+            "type": "integer",
+            "title": "Tarea Id"
+          },
+          "tareaId": {
+            "type": "integer",
+            "title": "Tareaid"
+          },
+          "sede_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Sede Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tarea_id",
+          "tareaId",
+          "sede_ids"
+        ],
+        "title": "RecalculoEncolado"
+      },
       "RecuperarClaveEntrada": {
         "properties": {
           "correo": {
@@ -19129,6 +19669,66 @@
           "estado"
         ],
         "title": "ResultadoOperacion"
+      },
+      "ResumenTableroSalida": {
+        "properties": {
+          "sede": {
+            "type": "string",
+            "title": "Sede",
+            "description": "Código de la sede o «todas» para el consolidado"
+          },
+          "sedes_incluidas": {
+            "items": {
+              "$ref": "#/components/schemas/SedeTablero"
+            },
+            "type": "array",
+            "title": "Sedes Incluidas"
+          },
+          "anio": {
+            "type": "integer",
+            "title": "Anio"
+          },
+          "calculado_en": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calculado En"
+          },
+          "activos": {
+            "$ref": "#/components/schemas/ActivosTablero"
+          },
+          "operacion": {
+            "$ref": "#/components/schemas/OperacionTablero"
+          },
+          "comercial": {
+            "$ref": "#/components/schemas/ComercialTablero"
+          },
+          "por_sede": {
+            "items": {
+              "$ref": "#/components/schemas/SedeResumenTablero"
+            },
+            "type": "array",
+            "title": "Por Sede"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sede",
+          "sedes_incluidas",
+          "anio",
+          "calculado_en",
+          "activos",
+          "operacion",
+          "comercial",
+          "por_sede"
+        ],
+        "title": "ResumenTableroSalida"
       },
       "RolCrearEntrada": {
         "properties": {
@@ -19599,6 +20199,61 @@
         ],
         "title": "SedeResumen"
       },
+      "SedeResumenTablero": {
+        "properties": {
+          "sede": {
+            "$ref": "#/components/schemas/SedeTablero"
+          },
+          "calculado_en": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calculado En"
+          },
+          "total_luminarias": {
+            "type": "integer",
+            "title": "Total Luminarias"
+          },
+          "en_servicio": {
+            "type": "integer",
+            "title": "En Servicio"
+          },
+          "instaladas_anio": {
+            "type": "integer",
+            "title": "Instaladas Anio"
+          },
+          "pqrs_abiertas": {
+            "type": "integer",
+            "title": "Pqrs Abiertas"
+          },
+          "pqrs_rojo": {
+            "type": "integer",
+            "title": "Pqrs Rojo"
+          },
+          "mantenimientos_mes": {
+            "type": "integer",
+            "title": "Mantenimientos Mes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sede",
+          "calculado_en",
+          "total_luminarias",
+          "en_servicio",
+          "instaladas_anio",
+          "pqrs_abiertas",
+          "pqrs_rojo",
+          "mantenimientos_mes"
+        ],
+        "title": "SedeResumenTablero"
+      },
       "SedeSalida": {
         "properties": {
           "id": {
@@ -19648,6 +20303,74 @@
           "modificado_en"
         ],
         "title": "SedeSalida"
+      },
+      "SedeTablero": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "codigo",
+          "nombre"
+        ],
+        "title": "SedeTablero"
+      },
+      "SemaforoTablero": {
+        "properties": {
+          "verde": {
+            "type": "integer",
+            "title": "Verde"
+          },
+          "amarillo": {
+            "type": "integer",
+            "title": "Amarillo"
+          },
+          "rojo": {
+            "type": "integer",
+            "title": "Rojo"
+          },
+          "umbral_verde_dias": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Umbral Verde Dias"
+          },
+          "umbral_amarillo_dias": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Umbral Amarillo Dias"
+          }
+        },
+        "type": "object",
+        "required": [
+          "verde",
+          "amarillo",
+          "rojo"
+        ],
+        "title": "SemaforoTablero"
       },
       "SincronizarEntrada": {
         "properties": {

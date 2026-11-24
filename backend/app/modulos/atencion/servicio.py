@@ -618,6 +618,16 @@ def quitar_luminaria(
     db.commit()
 
 
+def umbrales_semaforo(db: Session, sede_id: int) -> tuple[int, int]:
+    """(verde_max_dias, amarillo_max_dias) vigentes para la sede (RN-015). Lo usa el tablero."""
+    return dominio.umbrales(
+        configuracion.obtener_valor_parametro(db, "semaforo_pqrs_umbrales", sede_id)
+    )
+
+
+ESTADOS_PQRS_ABIERTOS: tuple[str, ...] = tuple(dominio.ABIERTOS)
+
+
 def listar_pendientes(
     db: Session,
     actor: UsuarioAutenticado,

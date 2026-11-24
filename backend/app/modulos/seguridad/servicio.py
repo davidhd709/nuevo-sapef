@@ -602,7 +602,7 @@ def requerir_tablero_alcance(
             raise _traducir_error_dominio(exc) from exc
         sede_log.set("todas")
         return [s for s in usuario.sedes if s.id in set(ids_permitidos)]
-    return [validar_acceso_sede(db, usuario, x_sede)]
+    return [validar_acceso_sede(db, usuario, sede or x_sede)]
 
 
 async def _encolar_correo_recuperacion(usuario_id: int, token_id: str) -> None:
