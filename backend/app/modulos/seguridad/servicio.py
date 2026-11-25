@@ -51,6 +51,7 @@ from app.modulos.seguridad.modelos import (
     Sesion,
     TokenRecuperacion,
     Usuario,
+    UsuarioSede,
 )
 
 log = logging.getLogger("sapef.seguridad")
@@ -255,9 +256,7 @@ def autenticar_usuario(
         raise HTTPException(status_code=401, detail="Credenciales inválidas.")
 
     if dominio.evaluar_bloqueo(usuario.bloqueado_hasta, ahora):
-        bloqueo_iso = (
-            usuario.bloqueado_hasta.isoformat() if usuario.bloqueado_hasta else None
-        )
+        bloqueo_iso = usuario.bloqueado_hasta.isoformat() if usuario.bloqueado_hasta else None
         repositorio.crear_auditoria(
             db,
             usuario_id=usuario.id,
@@ -416,9 +415,7 @@ def cerrar_sesion(db: Session, token_renovacion: str | None, token_acceso: str |
     ahora = datetime.now(UTC)
     revoco = False
     if token_renovacion:
-        sesion = repositorio.obtener_sesion_por_hash(
-            db, dominio.hash_sha256_hex(token_renovacion)
-        )
+        sesion = repositorio.obtener_sesion_por_hash(db, dominio.hash_sha256_hex(token_renovacion))
         if sesion is not None:
             repositorio.revocar_familia_sesiones(db, sesion.familia, ahora)
             revoco = True
@@ -576,9 +573,7 @@ def requerir_permiso_carga_archivo(
 ) -> UsuarioAutenticado:
     """Permite carga de archivos a campo o usuarios con permisos de escritura."""
     sufijos = (".crear", ".editar", ".cerrar", ".ejecutar", ".subir")
-    permitido = any(
-        p == "campo.app.usar" or p.endswith(sufijos) for p in usuario.permisos
-    )
+    permitido = any(p == "campo.app.usar" or p.endswith(sufijos) for p in usuario.permisos)
     if not permitido:
         raise HTTPException(
             status_code=403,
@@ -640,8 +635,7 @@ async def solicitar_recuperacion_clave(
         await _encolar_correo_recuperacion(usuario.id, str(token.id))
     return MensajeSalida(
         mensaje=(
-            "Si el correo está registrado, recibirá instrucciones "
-            "para restablecer su contraseña."
+            "Si el correo está registrado, recibirá instrucciones para restablecer su contraseña."
         )
     )
 
@@ -1065,9 +1059,7 @@ def crear_o_actualizar_usuario_importado(
                 detail="El nombre de usuario coincide con el correo electrónico de otro usuario.",
             )
         if repositorio.obtener_usuario_por_correo(db, correo_norm) is not None:
-            raise HTTPException(
-                status_code=409, detail="El correo electrónico ya está registrado."
-            )
+            raise HTTPException(status_code=409, detail="El correo electrónico ya está registrado.")
         if repositorio.obtener_usuario_por_nombre_usuario(db, correo_norm) is not None:
             raise HTTPException(
                 status_code=409,
@@ -1094,9 +1086,7 @@ def crear_o_actualizar_usuario_importado(
 
     existente_correo = repositorio.obtener_usuario_por_correo(db, correo_norm)
     if existente_correo is not None and existente_correo.id != existente.id:
-        raise HTTPException(
-            status_code=409, detail="El correo electrónico ya está registrado."
-        )
+        raise HTTPException(status_code=409, detail="El correo electrónico ya está registrado.")
     existente_nombre = repositorio.obtener_usuario_por_nombre_usuario(db, correo_norm)
     if existente_nombre is not None and existente_nombre.id != existente.id:
         raise HTTPException(
@@ -1459,3 +1449,10 @@ def crear_admin_inicial(
     )
     db.flush()
     return True
+
+
+def asignar_sede_a_usuario(db: Session, usuario_id: int, sede_id: int) -> None:
+    """Da acceso a una sede (p. ej., a quien la acaba de crear). Idempotente; sin commit."""
+    if db.get(UsuarioSede, (usuario_id, sede_id)) is None:
+        db.add(UsuarioSede(usuario_id=usuario_id, sede_id=sede_id))
+        db.flush()

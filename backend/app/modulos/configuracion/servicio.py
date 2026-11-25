@@ -171,8 +171,17 @@ def crear_sede(db: Session, actor: UsuarioAutenticado, entrada: SedeCrearEntrada
     db.add(sede)
     db.flush()
     _sembrar_valores_por_sede(db, sede)
-    _auditar(db, actor, accion="crear", entidad="sede", entidad_id=sede.id, sede_id=sede.id,
-             despues=_a_sede(sede).model_dump(mode="json"))
+    # Quien crea la sede la configura: sin acceso, sus propias rutas de la sede darían 403.
+    seguridad.asignar_sede_a_usuario(db, actor.id, sede.id)
+    _auditar(
+        db,
+        actor,
+        accion="crear",
+        entidad="sede",
+        entidad_id=sede.id,
+        sede_id=sede.id,
+        despues=_a_sede(sede).model_dump(mode="json"),
+    )
     _confirmar(db, "Ya existe una sede con ese código.")
     db.refresh(sede)
     return _a_sede(sede)
@@ -195,8 +204,16 @@ def editar_sede(
         cambios.pop("activa", None)
     _aplicar(sede, cambios)
     db.flush()
-    _auditar(db, actor, accion="editar", entidad="sede", entidad_id=sede.id, sede_id=sede.id,
-             antes=antes, despues=_a_sede(sede).model_dump(mode="json"))
+    _auditar(
+        db,
+        actor,
+        accion="editar",
+        entidad="sede",
+        entidad_id=sede.id,
+        sede_id=sede.id,
+        antes=antes,
+        despues=_a_sede(sede).model_dump(mode="json"),
+    )
     _confirmar(db, "No se pudo editar la sede.")
     db.refresh(sede)
     return _a_sede(sede)
@@ -235,9 +252,7 @@ def reemplazar_comercializadores_sede(
     for codigo, entrada in zip(codigos, entradas, strict=True):
         com = repositorio.obtener_comercializador_por_codigo(db, codigo)
         if com is None:
-            raise HTTPException(
-                status_code=422, detail=f"El comercializador '{codigo}' no existe."
-            )
+            raise HTTPException(status_code=422, detail=f"El comercializador '{codigo}' no existe.")
         recibidos.add(com.id)
         asignacion = actuales.get(com.id)
         if asignacion is None:
@@ -256,8 +271,16 @@ def reemplazar_comercializadores_sede(
         _a_asignacion(a).model_dump(mode="json")
         for a in repositorio.listar_asignaciones_sede(db, sede_id)
     ]
-    _auditar(db, actor, accion="editar", entidad="sede_comercializador", entidad_id=sede_id,
-             sede_id=sede_id, antes={"asignaciones": antes}, despues={"asignaciones": despues})
+    _auditar(
+        db,
+        actor,
+        accion="editar",
+        entidad="sede_comercializador",
+        entidad_id=sede_id,
+        sede_id=sede_id,
+        antes={"asignaciones": antes},
+        despues={"asignaciones": despues},
+    )
     _confirmar(db, "No se pudieron guardar los comercializadores de la sede.")
     return [_a_asignacion(a) for a in repositorio.listar_asignaciones_sede(db, sede_id)]
 
@@ -283,7 +306,11 @@ def _obtener_clase(db: Session, clase_codigo: str) -> MaestroClase:
 
 def _a_valor(v: MaestroValor, clase: MaestroClase) -> MaestroValorSalida:
     return MaestroValorSalida(
-        id=v.id, clase_codigo=clase.codigo, codigo=v.codigo, nombre=v.nombre, orden=v.orden,
+        id=v.id,
+        clase_codigo=clase.codigo,
+        codigo=v.codigo,
+        nombre=v.nombre,
+        orden=v.orden,
         activo=v.activo,
     )
 
@@ -323,8 +350,14 @@ def crear_valor(
     )
     db.add(valor)
     db.flush()
-    _auditar(db, actor, accion="crear", entidad="maestro_valor", entidad_id=valor.id,
-             despues=_a_valor(valor, clase).model_dump(mode="json"))
+    _auditar(
+        db,
+        actor,
+        accion="crear",
+        entidad="maestro_valor",
+        entidad_id=valor.id,
+        despues=_a_valor(valor, clase).model_dump(mode="json"),
+    )
     _confirmar(db, "Ya existe un valor con ese código.")
     return _a_valor(valor, clase)
 
@@ -347,8 +380,15 @@ def editar_valor(
     _aplicar(valor, cambios)
     valor.modificado_por = actor.id
     db.flush()
-    _auditar(db, actor, accion="editar", entidad="maestro_valor", entidad_id=valor.id,
-             antes=antes, despues=_a_valor(valor, clase).model_dump(mode="json"))
+    _auditar(
+        db,
+        actor,
+        accion="editar",
+        entidad="maestro_valor",
+        entidad_id=valor.id,
+        antes=antes,
+        despues=_a_valor(valor, clase).model_dump(mode="json"),
+    )
     _confirmar(db, "No se pudo editar el valor.")
     return _a_valor(valor, clase)
 
@@ -364,8 +404,12 @@ def _a_zona(z: Zona, total_barrios: int) -> ZonaSalida:
 
 def _a_barrio(b: Barrio, zona_nombre: str) -> BarrioSalida:
     return BarrioSalida(
-        id=b.id, sede_id=b.sede_id, zona_id=b.zona_id, zona_nombre=zona_nombre,
-        nombre=b.nombre, activo=b.activo,
+        id=b.id,
+        sede_id=b.sede_id,
+        zona_id=b.zona_id,
+        zona_nombre=zona_nombre,
+        nombre=b.nombre,
+        activo=b.activo,
     )
 
 
@@ -379,12 +423,24 @@ def crear_zona(
     nombre = _dominio(lambda: dominio.normalizar_nombre(entrada.nombre))
     if repositorio.existe_zona_nombre(db, sede.id, nombre):
         raise HTTPException(status_code=409, detail="Ya existe una zona con ese nombre.")
-    zona = Zona(sede_id=sede.id, nombre=nombre, activa=entrada.activa, creado_por=actor.id,
-                modificado_por=actor.id)
+    zona = Zona(
+        sede_id=sede.id,
+        nombre=nombre,
+        activa=entrada.activa,
+        creado_por=actor.id,
+        modificado_por=actor.id,
+    )
     db.add(zona)
     db.flush()
-    _auditar(db, actor, accion="crear", entidad="zona", entidad_id=zona.id, sede_id=sede.id,
-             despues=_a_zona(zona, 0).model_dump(mode="json"))
+    _auditar(
+        db,
+        actor,
+        accion="crear",
+        entidad="zona",
+        entidad_id=zona.id,
+        sede_id=sede.id,
+        despues=_a_zona(zona, 0).model_dump(mode="json"),
+    )
     _confirmar(db, "Ya existe una zona con ese nombre.")
     return _a_zona(zona, 0)
 
@@ -409,8 +465,16 @@ def editar_zona(
     _aplicar(zona, cambios)
     zona.modificado_por = actor.id
     db.flush()
-    _auditar(db, actor, accion="editar", entidad="zona", entidad_id=zona.id, sede_id=sede.id,
-             antes=antes, despues=_a_zona(zona, total).model_dump(mode="json"))
+    _auditar(
+        db,
+        actor,
+        accion="editar",
+        entidad="zona",
+        entidad_id=zona.id,
+        sede_id=sede.id,
+        antes=antes,
+        despues=_a_zona(zona, total).model_dump(mode="json"),
+    )
     _confirmar(db, "Ya existe una zona con ese nombre.")
     return _a_zona(zona, total)
 
@@ -441,12 +505,25 @@ def crear_barrio(
     nombre = _dominio(lambda: dominio.normalizar_nombre(entrada.nombre))
     if repositorio.existe_barrio_nombre(db, zona.id, nombre):
         raise HTTPException(status_code=409, detail=_BARRIO_DUPLICADO)
-    barrio = Barrio(sede_id=sede.id, zona_id=zona.id, nombre=nombre, activo=entrada.activo,
-                    creado_por=actor.id, modificado_por=actor.id)
+    barrio = Barrio(
+        sede_id=sede.id,
+        zona_id=zona.id,
+        nombre=nombre,
+        activo=entrada.activo,
+        creado_por=actor.id,
+        modificado_por=actor.id,
+    )
     db.add(barrio)
     db.flush()
-    _auditar(db, actor, accion="crear", entidad="barrio", entidad_id=barrio.id, sede_id=sede.id,
-             despues=_a_barrio(barrio, zona.nombre).model_dump(mode="json"))
+    _auditar(
+        db,
+        actor,
+        accion="crear",
+        entidad="barrio",
+        entidad_id=barrio.id,
+        sede_id=sede.id,
+        despues=_a_barrio(barrio, zona.nombre).model_dump(mode="json"),
+    )
     _confirmar(db, _BARRIO_DUPLICADO)
     return _a_barrio(barrio, zona.nombre)
 
@@ -478,8 +555,16 @@ def editar_barrio(
     _aplicar(barrio, cambios)
     barrio.modificado_por = actor.id
     db.flush()
-    _auditar(db, actor, accion="editar", entidad="barrio", entidad_id=barrio.id, sede_id=sede.id,
-             antes=antes, despues=_a_barrio(barrio, zona_nombre).model_dump(mode="json"))
+    _auditar(
+        db,
+        actor,
+        accion="editar",
+        entidad="barrio",
+        entidad_id=barrio.id,
+        sede_id=sede.id,
+        antes=antes,
+        despues=_a_barrio(barrio, zona_nombre).model_dump(mode="json"),
+    )
     _confirmar(db, _BARRIO_DUPLICADO)
     return _a_barrio(barrio, zona_nombre)
 
@@ -510,8 +595,15 @@ def editar_estado(
     _aplicar(estado, cambios)
     estado.modificado_por = actor.id
     db.flush()
-    _auditar(db, actor, accion="editar", entidad="estado", entidad_id=estado.id, antes=antes,
-             despues=_a_estado(estado).model_dump(mode="json"))
+    _auditar(
+        db,
+        actor,
+        accion="editar",
+        entidad="estado",
+        entidad_id=estado.id,
+        antes=antes,
+        despues=_a_estado(estado).model_dump(mode="json"),
+    )
     _confirmar(db, "No se pudo editar el estado.")
     return _a_estado(estado)
 
@@ -521,8 +613,13 @@ def editar_estado(
 
 def _a_parametro(p: Parametro) -> ParametroSalida:
     return ParametroSalida(
-        id=p.id, sede_id=p.sede_id, alcance="global" if p.sede_id is None else "sede",
-        codigo=p.codigo, nombre=p.nombre, valor=p.valor, editable=p.editable,
+        id=p.id,
+        sede_id=p.sede_id,
+        alcance="global" if p.sede_id is None else "sede",
+        codigo=p.codigo,
+        nombre=p.nombre,
+        valor=p.valor,
+        editable=p.editable,
         modificado_en=p.modificado_en,
     )
 
@@ -555,9 +652,16 @@ def editar_parametro(
     parametro.modificado_por = actor.id
     db.flush()
     db.refresh(parametro)
-    _auditar(db, actor, accion="editar", entidad="parametro", entidad_id=parametro.id,
-             sede_id=parametro.sede_id, antes=antes,
-             despues=_a_parametro(parametro).model_dump(mode="json"))
+    _auditar(
+        db,
+        actor,
+        accion="editar",
+        entidad="parametro",
+        entidad_id=parametro.id,
+        sede_id=parametro.sede_id,
+        antes=antes,
+        despues=_a_parametro(parametro).model_dump(mode="json"),
+    )
     _confirmar(db, "No se pudo editar el parámetro.")
     return _a_parametro(parametro)
 
@@ -602,8 +706,16 @@ def editar_plantilla(
     plantilla.modificado_por = actor.id
     db.flush()
     db.refresh(plantilla)
-    _auditar(db, actor, accion="editar", entidad="plantilla_correo", entidad_id=plantilla.id,
-             sede_id=sede.id, antes=antes, despues=_a_plantilla(plantilla).model_dump(mode="json"))
+    _auditar(
+        db,
+        actor,
+        accion="editar",
+        entidad="plantilla_correo",
+        entidad_id=plantilla.id,
+        sede_id=sede.id,
+        antes=antes,
+        despues=_a_plantilla(plantilla).model_dump(mode="json"),
+    )
     _confirmar(db, "No se pudo editar la plantilla.")
     return _a_plantilla(plantilla)
 
@@ -666,12 +778,24 @@ def _datos_de_modelo(a: AcuerdoVigencia) -> dominio.AcuerdoDatos:
 
 def _a_acuerdo_resumen(a: AcuerdoVigencia) -> AcuerdoResumen:
     return AcuerdoResumen(
-        id=a.id, sede_id=a.sede_id, comercializador_codigo=a.comercializador.codigo,
-        comercializador_nombre=a.comercializador.nombre, anio=a.anio, estado=a.estado,
-        uvt=a.uvt, umbral_kwh=a.umbral_kwh, tolerancia=a.tolerancia,
-        base_costo_variable=a.base_costo_variable, fuente=a.fuente, origen_id=a.origen_id,
-        aprobado_por=a.aprobado_por, aprobado_en=a.aprobado_en, total_tarifas=len(a.tarifas),
-        total_excepciones=len(a.excepciones), creado_en=a.creado_en, modificado_en=a.modificado_en,
+        id=a.id,
+        sede_id=a.sede_id,
+        comercializador_codigo=a.comercializador.codigo,
+        comercializador_nombre=a.comercializador.nombre,
+        anio=a.anio,
+        estado=a.estado,
+        uvt=a.uvt,
+        umbral_kwh=a.umbral_kwh,
+        tolerancia=a.tolerancia,
+        base_costo_variable=a.base_costo_variable,
+        fuente=a.fuente,
+        origen_id=a.origen_id,
+        aprobado_por=a.aprobado_por,
+        aprobado_en=a.aprobado_en,
+        total_tarifas=len(a.tarifas),
+        total_excepciones=len(a.excepciones),
+        creado_en=a.creado_en,
+        modificado_en=a.modificado_en,
     )
 
 
@@ -681,16 +805,21 @@ def _a_acuerdo_detalle(a: AcuerdoVigencia) -> AcuerdoDetalle:
         reglas=a.reglas,
         tarifas=[
             TarifaSalida(
-                id=t.id, tarifa=t.tarifa, orden=t.orden, tipo_regla=t.tipo_regla,
+                id=t.id,
+                tarifa=t.tarifa,
+                orden=t.orden,
+                tipo_regla=t.tipo_regla,
                 factor_uvt_minimo=t.factor_uvt_minimo,
                 porcentaje_costo_variable=t.porcentaje_costo_variable,
-                valor_urbano=t.valor_urbano, valor_rural=t.valor_rural,
+                valor_urbano=t.valor_urbano,
+                valor_rural=t.valor_rural,
                 valor_minimo=dominio.valor_minimo(a.uvt, t.factor_uvt_minimo),
             )
             for t in a.tarifas
         ],
-        excepciones=[ExcepcionSalida.model_validate(e, from_attributes=True)
-                     for e in a.excepciones],
+        excepciones=[
+            ExcepcionSalida.model_validate(e, from_attributes=True) for e in a.excepciones
+        ],
     )
 
 
@@ -707,10 +836,13 @@ def _snapshot_acuerdo(a: AcuerdoVigencia) -> dict[str, Any]:
 def _tarifas_modelo(tarifas: list[TarifaEntrada]) -> list[AcuerdoTarifa]:
     return [
         AcuerdoTarifa(
-            tarifa=t.tarifa.strip(), orden=i, tipo_regla=t.tipo_regla,
+            tarifa=t.tarifa.strip(),
+            orden=i,
+            tipo_regla=t.tipo_regla,
             factor_uvt_minimo=t.factor_uvt_minimo,
             porcentaje_costo_variable=t.porcentaje_costo_variable,
-            valor_urbano=t.valor_urbano, valor_rural=t.valor_rural,
+            valor_urbano=t.valor_urbano,
+            valor_rural=t.valor_rural,
         )
         for i, t in enumerate(tarifas)
     ]
@@ -721,7 +853,9 @@ def _excepciones_modelo(excepciones: list[ExcepcionEntrada]) -> list[AcuerdoExce
         AcuerdoExcepcion(
             identificador=e.identificador.strip(),
             nombre=e.nombre.strip() if e.nombre else None,
-            factor_uvt=e.factor_uvt, regla=e.regla, activo=e.activo,
+            factor_uvt=e.factor_uvt,
+            regla=e.regla,
+            activo=e.activo,
         )
         for e in excepciones
     ]
@@ -775,7 +909,10 @@ def obtener_acuerdo(
     if acuerdo.excepciones:
         # Las excepciones identifican contribuyentes (NIC/cuenta): se audita quién las consultó.
         seguridad.registrar_auditoria_consulta(
-            db, usuario_id=actor.id, sede_id=sede.id, recurso="acuerdo.detalle",
+            db,
+            usuario_id=actor.id,
+            sede_id=sede.id,
+            recurso="acuerdo.detalle",
             parametros_permitidos={"acuerdo_id": acuerdo.id},
         )
         db.commit()
@@ -787,26 +924,47 @@ def crear_acuerdo(
 ) -> AcuerdoDetalle:
     com = _comercializador_de_sede(db, sede.id, entrada.comercializador_codigo)
     regla = _dominio(lambda: dominio.validar_regla_admite_acuerdo(com.regla_tarifaria, com.codigo))
-    datos = _datos_acuerdo(entrada.uvt, entrada.umbral_kwh, entrada.tolerancia,
-                           entrada.base_costo_variable, entrada.tarifas, entrada.excepciones)
+    datos = _datos_acuerdo(
+        entrada.uvt,
+        entrada.umbral_kwh,
+        entrada.tolerancia,
+        entrada.base_costo_variable,
+        entrada.tarifas,
+        entrada.excepciones,
+    )
     _dominio(lambda: dominio.validar_estructura_acuerdo(regla, datos))
     if repositorio.obtener_acuerdo_en_estado(db, sede.id, com.id, entrada.anio, "borrador"):
         raise HTTPException(
             status_code=409, detail="Ya hay un borrador para ese comercializador y año."
         )
     acuerdo = AcuerdoVigencia(
-        sede_id=sede.id, comercializador_id=com.id, anio=entrada.anio, estado="borrador",
-        uvt=entrada.uvt, umbral_kwh=entrada.umbral_kwh, tolerancia=entrada.tolerancia,
-        base_costo_variable=entrada.base_costo_variable, reglas=entrada.reglas,
-        fuente=entrada.fuente, creado_por=actor.id, modificado_por=actor.id,
+        sede_id=sede.id,
+        comercializador_id=com.id,
+        anio=entrada.anio,
+        estado="borrador",
+        uvt=entrada.uvt,
+        umbral_kwh=entrada.umbral_kwh,
+        tolerancia=entrada.tolerancia,
+        base_costo_variable=entrada.base_costo_variable,
+        reglas=entrada.reglas,
+        fuente=entrada.fuente,
+        creado_por=actor.id,
+        modificado_por=actor.id,
         tarifas=_tarifas_modelo(entrada.tarifas),
         excepciones=_excepciones_modelo(entrada.excepciones),
     )
     db.add(acuerdo)
     db.flush()
     db.refresh(acuerdo)
-    _auditar(db, actor, accion="crear", entidad="acuerdo_vigencia", entidad_id=acuerdo.id,
-             sede_id=sede.id, despues=_snapshot_acuerdo(acuerdo))
+    _auditar(
+        db,
+        actor,
+        accion="crear",
+        entidad="acuerdo_vigencia",
+        entidad_id=acuerdo.id,
+        sede_id=sede.id,
+        despues=_snapshot_acuerdo(acuerdo),
+    )
     _confirmar(db, "Ya hay un borrador para ese comercializador y año.")
     return _a_acuerdo_detalle(acuerdo)
 
@@ -859,8 +1017,16 @@ def editar_acuerdo(
     acuerdo.modificado_por = actor.id
     db.flush()
     db.refresh(acuerdo)
-    _auditar(db, actor, accion="editar", entidad="acuerdo_vigencia", entidad_id=acuerdo.id,
-             sede_id=sede.id, antes=antes, despues=_snapshot_acuerdo(acuerdo))
+    _auditar(
+        db,
+        actor,
+        accion="editar",
+        entidad="acuerdo_vigencia",
+        entidad_id=acuerdo.id,
+        sede_id=sede.id,
+        antes=antes,
+        despues=_snapshot_acuerdo(acuerdo),
+    )
     _confirmar(db, "No se pudo editar el acuerdo.")
     return _a_acuerdo_detalle(acuerdo)
 
@@ -881,24 +1047,38 @@ def copiar_acuerdo(
             status_code=409, detail="Ya hay un borrador para ese comercializador y año."
         )
     copia = AcuerdoVigencia(
-        sede_id=sede.id, comercializador_id=origen.comercializador_id,
-        anio=entrada.anio_destino, estado="borrador", uvt=origen.uvt,
-        umbral_kwh=origen.umbral_kwh, tolerancia=origen.tolerancia,
-        base_costo_variable=origen.base_costo_variable, reglas=dict(origen.reglas),
-        fuente=origen.fuente, origen_id=origen.id, creado_por=actor.id, modificado_por=actor.id,
+        sede_id=sede.id,
+        comercializador_id=origen.comercializador_id,
+        anio=entrada.anio_destino,
+        estado="borrador",
+        uvt=origen.uvt,
+        umbral_kwh=origen.umbral_kwh,
+        tolerancia=origen.tolerancia,
+        base_costo_variable=origen.base_costo_variable,
+        reglas=dict(origen.reglas),
+        fuente=origen.fuente,
+        origen_id=origen.id,
+        creado_por=actor.id,
+        modificado_por=actor.id,
         tarifas=[
             AcuerdoTarifa(
-                tarifa=t.tarifa, orden=t.orden, tipo_regla=t.tipo_regla,
+                tarifa=t.tarifa,
+                orden=t.orden,
+                tipo_regla=t.tipo_regla,
                 factor_uvt_minimo=t.factor_uvt_minimo,
                 porcentaje_costo_variable=t.porcentaje_costo_variable,
-                valor_urbano=t.valor_urbano, valor_rural=t.valor_rural,
+                valor_urbano=t.valor_urbano,
+                valor_rural=t.valor_rural,
             )
             for t in origen.tarifas
         ],
         excepciones=[
             AcuerdoExcepcion(
-                identificador=e.identificador, nombre=e.nombre, factor_uvt=e.factor_uvt,
-                regla=e.regla, activo=e.activo,
+                identificador=e.identificador,
+                nombre=e.nombre,
+                factor_uvt=e.factor_uvt,
+                regla=e.regla,
+                activo=e.activo,
             )
             for e in origen.excepciones
         ],
@@ -906,8 +1086,15 @@ def copiar_acuerdo(
     db.add(copia)
     db.flush()
     db.refresh(copia)
-    _auditar(db, actor, accion="copiar", entidad="acuerdo_vigencia", entidad_id=copia.id,
-             sede_id=sede.id, despues={**_snapshot_acuerdo(copia), "copiado_de": origen.id})
+    _auditar(
+        db,
+        actor,
+        accion="copiar",
+        entidad="acuerdo_vigencia",
+        entidad_id=copia.id,
+        sede_id=sede.id,
+        despues={**_snapshot_acuerdo(copia), "copiado_de": origen.id},
+    )
     _confirmar(db, "Ya hay un borrador para ese comercializador y año.")
     return _a_acuerdo_detalle(copia)
 
@@ -931,9 +1118,16 @@ def aprobar_acuerdo(
         anterior.estado = "reemplazado"
         anterior.modificado_por = actor.id
         db.flush()
-        _auditar(db, actor, accion="reemplazar", entidad="acuerdo_vigencia",
-                 entidad_id=anterior.id, sede_id=sede.id, antes={"estado": "aprobado"},
-                 despues={"estado": "reemplazado", "reemplazado_por": acuerdo.id})
+        _auditar(
+            db,
+            actor,
+            accion="reemplazar",
+            entidad="acuerdo_vigencia",
+            entidad_id=anterior.id,
+            sede_id=sede.id,
+            antes={"estado": "aprobado"},
+            despues={"estado": "reemplazado", "reemplazado_por": acuerdo.id},
+        )
 
     acuerdo.estado = "aprobado"
     acuerdo.aprobado_por = actor.id
@@ -941,9 +1135,16 @@ def aprobar_acuerdo(
     acuerdo.modificado_por = actor.id
     db.flush()
     db.refresh(acuerdo)
-    _auditar(db, actor, accion="aprobar", entidad="acuerdo_vigencia", entidad_id=acuerdo.id,
-             sede_id=sede.id, antes={"estado": "borrador"},
-             despues={**_snapshot_acuerdo(acuerdo), "observacion": observacion})
+    _auditar(
+        db,
+        actor,
+        accion="aprobar",
+        entidad="acuerdo_vigencia",
+        entidad_id=acuerdo.id,
+        sede_id=sede.id,
+        antes={"estado": "borrador"},
+        despues={**_snapshot_acuerdo(acuerdo), "observacion": observacion},
+    )
     _confirmar(db, "Otra aprobación del mismo año se registró al mismo tiempo; recargue.")
     return _a_acuerdo_detalle(acuerdo)
 
@@ -964,8 +1165,12 @@ def obtener_vigencia_aprobada(
 
 def _a_item_catalogo(item: ConceptoComercial | OperacionContable) -> CatalogoComercialSalida:
     return CatalogoComercialSalida(
-        id=item.id, comercializador_codigo=item.comercializador.codigo, codigo=item.codigo,
-        descripcion=item.descripcion, entra_al_calculo=item.entra_al_calculo, activo=item.activo,
+        id=item.id,
+        comercializador_codigo=item.comercializador.codigo,
+        codigo=item.codigo,
+        descripcion=item.descripcion,
+        entra_al_calculo=item.entra_al_calculo,
+        activo=item.activo,
     )
 
 
@@ -1004,14 +1209,24 @@ def crear_item_catalogo(
     if repositorio.existe_item_catalogo(db, modelo, com.id, codigo):
         raise HTTPException(status_code=409, detail="Ya existe ese código para el comercializador.")
     item = modelo(
-        comercializador_id=com.id, codigo=codigo, descripcion=entrada.descripcion.strip(),
-        entra_al_calculo=entrada.entra_al_calculo, activo=entrada.activo, modificado_por=actor.id,
+        comercializador_id=com.id,
+        codigo=codigo,
+        descripcion=entrada.descripcion.strip(),
+        entra_al_calculo=entrada.entra_al_calculo,
+        activo=entrada.activo,
+        modificado_por=actor.id,
     )
     db.add(item)
     db.flush()
     db.refresh(item)
-    _auditar(db, actor, accion="crear", entidad=modelo.__tablename__, entidad_id=item.id,
-             despues=_a_item_catalogo(item).model_dump(mode="json"))
+    _auditar(
+        db,
+        actor,
+        accion="crear",
+        entidad=modelo.__tablename__,
+        entidad_id=item.id,
+        despues=_a_item_catalogo(item).model_dump(mode="json"),
+    )
     _confirmar(db, "Ya existe ese código para el comercializador.")
     return _a_item_catalogo(item)
 
@@ -1034,8 +1249,15 @@ def editar_item_catalogo(
     _aplicar(item, cambios)
     item.modificado_por = actor.id
     db.flush()
-    _auditar(db, actor, accion="editar", entidad=modelo.__tablename__, entidad_id=item.id,
-             antes=antes, despues=_a_item_catalogo(item).model_dump(mode="json"))
+    _auditar(
+        db,
+        actor,
+        accion="editar",
+        entidad=modelo.__tablename__,
+        entidad_id=item.id,
+        antes=antes,
+        despues=_a_item_catalogo(item).model_dump(mode="json"),
+    )
     _confirmar(db, "No se pudo editar el elemento del catálogo.")
     return _a_item_catalogo(item)
 
@@ -1048,13 +1270,24 @@ def _sembrar_valores_por_sede(db: Session, sede: Sede) -> int:
     creados = 0
     for codigo, (nombre, valor, editable) in datos_semilla.PARAMETROS_POR_SEDE.items():
         if repositorio.obtener_parametro_por_codigo(db, codigo, sede.id) is None:
-            db.add(Parametro(sede_id=sede.id, codigo=codigo, nombre=nombre, valor=valor,
-                             editable=editable))
+            db.add(
+                Parametro(
+                    sede_id=sede.id, codigo=codigo, nombre=nombre, valor=valor, editable=editable
+                )
+            )
             creados += 1
     for codigo, (nombre, asunto, cuerpo, variables) in datos_semilla.PLANTILLAS_CORREO.items():
         if repositorio.obtener_plantilla_por_codigo(db, sede.id, codigo) is None:
-            db.add(PlantillaCorreo(sede_id=sede.id, codigo=codigo, nombre=nombre, asunto=asunto,
-                                   cuerpo_html=cuerpo, variables=list(variables)))
+            db.add(
+                PlantillaCorreo(
+                    sede_id=sede.id,
+                    codigo=codigo,
+                    nombre=nombre,
+                    asunto=asunto,
+                    cuerpo_html=cuerpo,
+                    variables=list(variables),
+                )
+            )
             creados += 1
     db.flush()
     return creados
@@ -1067,8 +1300,21 @@ def sembrar_catalogos(db: Session, *, archivo_max_evidencia_mb: int) -> dict[str
     No hace commit: lo decide quien la llama.
     """
     n: dict[str, int] = dict.fromkeys(
-        ("sedes", "comercializadores", "asignaciones", "clases", "valores", "estados", "zonas",
-         "barrios", "por_sede", "acuerdos", "conceptos", "operaciones"), 0
+        (
+            "sedes",
+            "comercializadores",
+            "asignaciones",
+            "clases",
+            "valores",
+            "estados",
+            "zonas",
+            "barrios",
+            "por_sede",
+            "acuerdos",
+            "conceptos",
+            "operaciones",
+        ),
+        0,
     )
 
     sedes: dict[str, Sede] = {}
@@ -1085,8 +1331,13 @@ def sembrar_catalogos(db: Session, *, archivo_max_evidencia_mb: int) -> dict[str
     for codigo, (nombre, ident, regla, periodicidad) in datos_semilla.COMERCIALIZADORES.items():
         com = repositorio.obtener_comercializador_por_codigo(db, codigo)
         if com is None:
-            com = Comercializador(codigo=codigo, nombre=nombre, identificador_usuario=ident,
-                                  regla_tarifaria=regla, periodicidad=periodicidad)
+            com = Comercializador(
+                codigo=codigo,
+                nombre=nombre,
+                identificador_usuario=ident,
+                regla_tarifaria=regla,
+                periodicidad=periodicidad,
+            )
             db.add(com)
             n["comercializadores"] += 1
         coms[codigo] = com
@@ -1116,8 +1367,16 @@ def sembrar_catalogos(db: Session, *, archivo_max_evidencia_mb: int) -> dict[str
     for proceso, estados in datos_semilla.ESTADOS.items():
         for orden, (codigo, nombre, final, vigente) in enumerate(estados):
             if (proceso, codigo) not in existentes:
-                db.add(Estado(proceso=proceso, codigo=codigo, nombre=nombre, orden=orden,
-                              final=final, vigente=vigente))
+                db.add(
+                    Estado(
+                        proceso=proceso,
+                        codigo=codigo,
+                        nombre=nombre,
+                        orden=orden,
+                        final=final,
+                        vigente=vigente,
+                    )
+                )
                 n["estados"] += 1
     db.flush()
 
@@ -1148,8 +1407,9 @@ def sembrar_catalogos(db: Session, *, archivo_max_evidencia_mb: int) -> dict[str
         parametro = repositorio.obtener_parametro_por_codigo(db, codigo, None)
         valor = {"valor": archivo_max_evidencia_mb}
         if parametro is None:
-            db.add(Parametro(sede_id=None, codigo=codigo, nombre=nombre, valor=valor,
-                             editable=False))
+            db.add(
+                Parametro(sede_id=None, codigo=codigo, nombre=nombre, valor=valor, editable=False)
+            )
         else:
             parametro.valor, parametro.editable = valor, False
     db.flush()
@@ -1161,19 +1421,33 @@ def sembrar_catalogos(db: Session, *, archivo_max_evidencia_mb: int) -> dict[str
         if repositorio.existe_acuerdo(db, sede.id, com.id, anio):
             continue
         tarifas = [TarifaEntrada(**t) for t in datos["tarifas"]]
-        db.add(AcuerdoVigencia(
-            sede_id=sede.id, comercializador_id=com.id, anio=anio, estado="aprobado",
-            uvt=datos["uvt"], umbral_kwh=datos["umbral_kwh"], tolerancia=datos["tolerancia"],
-            base_costo_variable=datos["base_costo_variable"], reglas=datos["reglas"],
-            fuente=datos["fuente"], aprobado_en=ahora, tarifas=_tarifas_modelo(tarifas),
-        ))
+        db.add(
+            AcuerdoVigencia(
+                sede_id=sede.id,
+                comercializador_id=com.id,
+                anio=anio,
+                estado="aprobado",
+                uvt=datos["uvt"],
+                umbral_kwh=datos["umbral_kwh"],
+                tolerancia=datos["tolerancia"],
+                base_costo_variable=datos["base_costo_variable"],
+                reglas=datos["reglas"],
+                fuente=datos["fuente"],
+                aprobado_en=ahora,
+                tarifas=_tarifas_modelo(tarifas),
+            )
+        )
         n["acuerdos"] += 1
     db.flush()
 
     afinia = coms["afinia"]
     for clave, modelo, catalogo, en_calculo in (
-        ("conceptos", ConceptoComercial, datos_semilla.CONCEPTOS_AFINIA,
-         datos_semilla.CONCEPTOS_AFINIA_EN_CALCULO),
+        (
+            "conceptos",
+            ConceptoComercial,
+            datos_semilla.CONCEPTOS_AFINIA,
+            datos_semilla.CONCEPTOS_AFINIA_EN_CALCULO,
+        ),
         ("operaciones", OperacionContable, datos_semilla.OPERACIONES_AFINIA, frozenset()),
     ):
         presentes = {
@@ -1181,8 +1455,14 @@ def sembrar_catalogos(db: Session, *, archivo_max_evidencia_mb: int) -> dict[str
         }
         for codigo, descripcion in catalogo.items():
             if codigo not in presentes:
-                db.add(modelo(comercializador_id=afinia.id, codigo=codigo,
-                              descripcion=descripcion, entra_al_calculo=codigo in en_calculo))
+                db.add(
+                    modelo(
+                        comercializador_id=afinia.id,
+                        codigo=codigo,
+                        descripcion=descripcion,
+                        entra_al_calculo=codigo in en_calculo,
+                    )
+                )
                 n[clave] += 1
     db.flush()
     return n
@@ -1219,9 +1499,7 @@ def resolver_barrio_sede(db: Session, sede_id: int, barrio_id: int) -> dict[str,
     }
 
 
-def resolver_barrio_por_nombre(
-    db: Session, sede_id: int, nombre: str
-) -> dict[str, Any] | None:
+def resolver_barrio_por_nombre(db: Session, sede_id: int, nombre: str) -> dict[str, Any] | None:
     objetivo = nombre.strip().lower()
     for barrio, zona_nombre in repositorio.listar_barrios(db, sede_id):
         if barrio.nombre.strip().lower() == objetivo:

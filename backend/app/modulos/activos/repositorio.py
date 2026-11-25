@@ -47,9 +47,15 @@ def obtener_por_codigo(db: Session, sede_id: int, codigo: str) -> Luminaria | No
     ).scalar_one_or_none()
 
 
-def obtener_detalle_fila(
-    db: Session, sede_id: int, luminaria_id: int
-) -> dict[str, Any] | None:
+def ids_por_codigo(db: Session, sede_id: int) -> dict[str, int]:
+    """{código en minúsculas: id} de todas las luminarias de la sede (una consulta)."""
+    filas = db.execute(
+        select(Luminaria.codigo, Luminaria.id).where(Luminaria.sede_id == sede_id)
+    ).all()
+    return {codigo.strip().lower(): id_ for codigo, id_ in filas}
+
+
+def obtener_detalle_fila(db: Session, sede_id: int, luminaria_id: int) -> dict[str, Any] | None:
     sql = text(
         """
         SELECT
@@ -204,13 +210,12 @@ def listar_luminarias(
         LEFT JOIN maestro_valor mp ON mp.id = l.potencia_id
         LEFT JOIN maestro_valor mm ON mm.id = l.marca_id
     """
-    total = int(
-        db.execute(text(f"SELECT COUNT(*) {joins} WHERE {where_sql}"), params).scalar_one()
-    )
+    total = int(db.execute(text(f"SELECT COUNT(*) {joins} WHERE {where_sql}"), params).scalar_one())
     params_pag = {**params, "limit": size, "offset": (page - 1) * size}
-    filas = db.execute(
-        text(
-            f"""
+    filas = (
+        db.execute(
+            text(
+                f"""
             SELECT
                 l.id, l.sede_id, l.codigo, l.codigo_externo, l.barrio_id,
                 b.nombre AS barrio_nombre, b.zona_id, z.nombre AS zona_nombre,
@@ -231,9 +236,12 @@ def listar_luminarias(
             ORDER BY l.id DESC
             LIMIT :limit OFFSET :offset
             """
-        ),
-        params_pag,
-    ).mappings().all()
+            ),
+            params_pag,
+        )
+        .mappings()
+        .all()
+    )
     return [dict(f) for f in filas], total
 
 
@@ -329,16 +337,12 @@ def existe_lote_solapado(
 def existen_codigos_luminaria(db: Session, sede_id: int, codigos: list[str]) -> bool:
     if not codigos:
         return False
-    stmt = select(Luminaria.id).where(
-        Luminaria.sede_id == sede_id, Luminaria.codigo.in_(codigos)
-    )
+    stmt = select(Luminaria.id).where(Luminaria.sede_id == sede_id, Luminaria.codigo.in_(codigos))
     return db.execute(stmt).first() is not None
 
 
 def listar_lotes(db: Session, sede_id: int, *, page: int, size: int) -> tuple[list[Lote], int]:
-    total = int(
-        db.execute(select(func.count(Lote.id)).where(Lote.sede_id == sede_id)).scalar_one()
-    )
+    total = int(db.execute(select(func.count(Lote.id)).where(Lote.sede_id == sede_id)).scalar_one())
     stmt = (
         select(Lote)
         .where(Lote.sede_id == sede_id)

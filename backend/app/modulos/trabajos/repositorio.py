@@ -224,3 +224,11 @@ def obtener_cargue(db: Session, sede_id: int, cargue_id: int) -> CargueMasivo | 
 
 def obtener_cargue_por_id(db: Session, cargue_id: int) -> CargueMasivo | None:
     return db.get(CargueMasivo, cargue_id)
+
+
+def orden_por_id_origen(db: Session, sede_id: int, id_origen: str) -> int | None:
+    return db.execute(
+        select(OrdenTrabajo.id).where(
+            OrdenTrabajo.sede_id == sede_id, OrdenTrabajo.id_origen == id_origen
+        )
+    ).scalar_one_or_none()

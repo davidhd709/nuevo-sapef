@@ -5,7 +5,7 @@ la transacción del cierre de la orden) y `encolar_notificacion` (después del c
 """
 
 import io
-from datetime import UTC, date, datetime, time, timedelta
+from datetime import UTC, date, datetime, time, timedelta, timezone
 from typing import Any
 
 from fastapi import HTTPException
@@ -868,3 +868,142 @@ def procesar_notificacion(db: Session, pqrs_id: int, evento: str) -> bool:
         return False
     asunto, cuerpo = correo
     return enviar_correo(ciudadano.correo, asunto, cuerpo)
+
+
+# === Migración (HU-034) ==========================================================================
+# Sin commit: el importador controla la transacción (una por PQRS). Son la foto del SAPEF de
+# origen: no cambian el estado de las luminarias ni envían correos.
+
+
+def asegurar_ciudadano_importado(
+    db: Session,
+    *,
+    sede_id: int,
+    identificacion: str,
+    nombre_completo: str,
+    barrio_id: int | None = None,
+    sector: str | None = None,
+    telefono: str | None = None,
+    celular: str | None = None,
+    correo: str | None = None,
+    actor_id: int | None = None,
+) -> tuple[int, bool]:
+    """Un solicitante por (sede, identificación): SAPEF lo copiaba en cada PQRS."""
+    existente = repositorio.ciudadano_por_identificacion(db, sede_id, identificacion)
+    if existente is not None:
+        # Completa lo que falte sin pisar lo que la oficina ya corrigió.
+        existente.barrio_id = existente.barrio_id or barrio_id
+        existente.sector = existente.sector or sector
+        existente.telefono = existente.telefono or telefono
+        existente.celular = existente.celular or celular
+        existente.correo = existente.correo or correo
+        db.flush()
+        return existente.id, False
+    ciudadano = Ciudadano(
+        sede_id=sede_id,
+        identificacion=identificacion[:40],
+        nombre_completo=(nombre_completo or identificacion)[:180],
+        barrio_id=barrio_id,
+        sector=sector[:120] if sector else None,
+        telefono=telefono[:40] if telefono else None,
+        celular=celular[:40] if celular else None,
+        correo=correo[:180] if correo else None,
+        creado_por=actor_id,
+        modificado_por=actor_id,
+    )
+    db.add(ciudadano)
+    db.flush()
+    return ciudadano.id, True
+
+
+def pqrs_importada(db: Session, sede_id: int, id_origen: str) -> int | None:
+    return repositorio.pqrs_por_id_origen(db, sede_id, id_origen)
+
+
+def importar_pqrs_historica(
+    db: Session,
+    *,
+    sede_id: int,
+    id_origen: str,
+    canal_id: int,
+    fecha_solicitud: datetime | None,
+    prioridad: int,
+    estado_codigo: str,
+    ciudadano_id: int | None,
+    observacion_solicitante: str | None,
+    luminarias: list[dict[str, Any]],
+    actor_id: int | None,
+) -> tuple[int, bool]:
+    """Crea la PQRS histórica con su detalle por luminaria. Repetible por `id_origen`:
+    si ya existe, no la toca y devuelve (id, False).
+
+    `luminarias`: [{luminaria_id, reparada, fecha_reparacion, observacion_solicitante,
+    observacion_tecnico, estado_reportado_codigo}]
+    """
+    previa = repositorio.pqrs_por_id_origen(db, sede_id, id_origen)
+    if previa is not None:
+        return previa, False
+    cat = _Catalogos(db)
+    if estado_codigo not in cat.estados_pqrs:
+        raise HTTPException(status_code=422, detail=f"Estado de PQRS desconocido: {estado_codigo}.")
+    por_luminaria: dict[int, dict[str, Any]] = {}
+    for lum in luminarias:
+        por_luminaria.setdefault(int(lum["luminaria_id"]), lum)  # SAPEF repite filas
+    todas_reparadas = bool(por_luminaria) and all(
+        bool(lum.get("reparada")) for lum in por_luminaria.values()
+    )
+    pqrs = Pqrs(
+        sede_id=sede_id,
+        numero=repositorio.siguiente_numero(db, sede_id),
+        canal_id=canal_id,
+        ciudadano_id=ciudadano_id,
+        observacion_solicitante=observacion_solicitante,
+        observacion_interna="Migrada de SAPEF.",
+        prioridad=prioridad,
+        estado_id=cat.id_estado(estado_codigo),
+        id_origen=id_origen[:80],
+        creado_por=actor_id,
+        modificado_por=actor_id,
+    )
+    if fecha_solicitud is not None:
+        pqrs.fecha_solicitud = _con_zona(fecha_solicitud)
+    if estado_codigo in dominio.CERRADOS:
+        fechas = [
+            lum["fecha_reparacion"]
+            for lum in por_luminaria.values()
+            if lum.get("fecha_reparacion") is not None
+        ]
+        pqrs.fecha_cierre = _con_zona(max(fechas)) if fechas else pqrs.fecha_solicitud
+    db.add(pqrs)
+    db.flush()
+    estados_lum = {codigo: id_ for id_, codigo in cat.estados_luminaria.items()}
+    for luminaria_id, lum in por_luminaria.items():
+        reparada = bool(lum.get("reparada")) or (
+            estado_codigo == dominio.ATENDIDA and not todas_reparadas
+        )
+        db.add(
+            PqrsLuminaria(
+                pqrs_id=pqrs.id,
+                luminaria_id=luminaria_id,
+                estado_reportado_id=estados_lum.get(lum.get("estado_reportado_codigo") or ""),
+                observacion_solicitante=lum.get("observacion_solicitante"),
+                observacion_tecnico=lum.get("observacion_tecnico"),
+                reparada=reparada,
+                fecha_reparacion=(
+                    _con_zona(lum["fecha_reparacion"]) if lum.get("fecha_reparacion") else None
+                ),
+            )
+        )
+    db.flush()
+    return pqrs.id, True
+
+
+def _con_zona(momento: datetime) -> datetime:
+    """Las fechas de SAPEF vienen sin zona: son hora de Colombia (UTC-5, sin horario de
+    verano)."""
+    if momento.tzinfo is not None:
+        return momento
+    return momento.replace(tzinfo=_ZONA_COLOMBIA)
+
+
+_ZONA_COLOMBIA = timezone(timedelta(hours=-5), "America/Bogota")

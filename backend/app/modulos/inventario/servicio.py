@@ -564,3 +564,118 @@ def materiales_para_campo(db: Session, sede_id: int) -> list[dict[str, Any]]:
         }
         for m in repositorio.materiales_activos(db, sede_id)
     ]
+
+
+# === Migración (HU-053) ==========================================================================
+# Sin commit: el importador controla la transacción (una por fila).
+
+
+def asegurar_material_importado(
+    db: Session,
+    *,
+    sede_id: int,
+    codigo: str,
+    categoria: str,
+    descripcion: str,
+    unidad: str,
+    existencias_minimas: Decimal,
+    actor_id: int | None,
+) -> tuple[int, bool]:
+    """Upsert por (sede, código). Las existencias no se tocan aquí: entran por el kárdex."""
+    material = repositorio.material_por_codigo(db, sede_id, codigo)
+    if material is None:
+        material = Material(
+            sede_id=sede_id,
+            codigo=codigo.strip(),
+            categoria=categoria.strip()[:60],
+            descripcion=descripcion.strip()[:255],
+            unidad=unidad.strip()[:20],
+            existencias=Decimal(0),
+            existencias_minimas=existencias_minimas,
+            creado_por=actor_id,
+            modificado_por=actor_id,
+        )
+        db.add(material)
+        db.flush()
+        return material.id, True
+    material.categoria = categoria.strip()[:60] or material.categoria
+    material.descripcion = descripcion.strip()[:255] or material.descripcion
+    material.unidad = unidad.strip()[:20] or material.unidad
+    material.existencias_minimas = existencias_minimas
+    material.modificado_por = actor_id
+    db.flush()
+    return material.id, False
+
+
+def aplicar_movimiento_importado(
+    db: Session,
+    *,
+    sede_id: int,
+    material_codigo: str,
+    tipo: str,
+    cantidad: Decimal,
+    descripcion: str | None,
+    uuid_origen: UUID,
+    actor_id: int | None,
+) -> bool:
+    """Aplica un movimiento del kárdex migrado. False si ese `uuid_origen` ya se aplicó."""
+    material = repositorio.material_por_codigo(db, sede_id, material_codigo)
+    if material is None:
+        raise HTTPException(status_code=422, detail=f"El material {material_codigo} no existe.")
+    previo = repositorio.obtener_movimiento_por_uuid(db, sede_id, uuid_origen)
+    if previo is not None:
+        if previo.material_id != material.id:
+            raise HTTPException(
+                status_code=409, detail="Ese movimiento ya se usó en otro material."
+            )
+        return False
+    _aplicar(
+        db,
+        material,
+        tipo=tipo,
+        cantidad=cantidad,
+        origen="migracion",
+        actor_id=actor_id,
+        descripcion=descripcion,
+        uuid_origen=uuid_origen,
+    )
+    return True
+
+
+def existencias_material(db: Session, sede_id: int, codigo: str) -> Decimal | None:
+    material = repositorio.material_por_codigo(db, sede_id, codigo)
+    return None if material is None else material.existencias
+
+
+def fijar_estado_bodega_importado(
+    db: Session,
+    *,
+    sede_id: int,
+    luminaria_id: int,
+    estado_codigo: str,
+    observacion: str | None,
+    actor_id: int | None,
+) -> bool:
+    """Deja la luminaria en el estado de bodega que trae SAPEF (es la foto de origen, no una
+    transición operativa). False si ya estaba en ese estado."""
+    if estado_codigo not in dominio.ESTADOS_BODEGA:
+        raise HTTPException(
+            status_code=422,
+            detail=f"El estado {estado_codigo} no es de bodega "
+            f"({', '.join(dominio.ESTADOS_BODEGA)}).",
+        )
+    resumen = activos.resumen_luminarias(db, sede_id, [luminaria_id]).get(luminaria_id)
+    if resumen is None:
+        raise HTTPException(status_code=422, detail="Luminaria no encontrada.")
+    if resumen["estado_codigo"] == estado_codigo:
+        return False
+    activos.cambiar_estado_luminaria(
+        db,
+        sede_id=sede_id,
+        luminaria_id=luminaria_id,
+        estado_codigo=estado_codigo,
+        tipo_evento="cambio_estado",
+        actor_id=actor_id,
+        detalle={"origen": "migracion", "observacion": observacion},
+    )
+    return True

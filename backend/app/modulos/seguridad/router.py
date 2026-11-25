@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, Query, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -56,9 +56,7 @@ def ingresar(
         agente=request.headers.get("User-Agent"),
         ip=_ip_cliente(request),
     )
-    servicio.aplicar_cookies_sesion(
-        response, token_acceso, token_renovacion, entrada.tipo_cliente
-    )
+    servicio.aplicar_cookies_sesion(response, token_acceso, token_renovacion, entrada.tipo_cliente)
     return perfil
 
 
@@ -89,9 +87,7 @@ def renovar(
         }
         if (rid := id_peticion.get()) is not None:
             cuerpo["requestId"] = rid
-        error_resp = JSONResponse(
-            cuerpo, status_code=401, media_type="application/problem+json"
-        )
+        error_resp = JSONResponse(cuerpo, status_code=401, media_type="application/problem+json")
         if exc.limpiar_cookies:
             servicio.limpiar_cookies_sesion(error_resp)
         return error_resp
@@ -109,11 +105,12 @@ def salir(
     request: Request,
     db: Annotated[Session, Depends(obtener_sesion)],
 ) -> Response:
-    servicio.cerrar_sesion(
-        db,
-        request.cookies.get(servicio.COOKIE_RENOVACION),
-        request.cookies.get(servicio.COOKIE_ACCESO),
-    )
+    renovacion = request.cookies.get(servicio.COOKIE_RENOVACION)
+    acceso = request.cookies.get(servicio.COOKIE_ACCESO)
+    if not renovacion and not acceso:
+        # Sin ninguna cookie de sesión no hay nada que cerrar: es una petición no autenticada.
+        raise HTTPException(status_code=401, detail="No hay una sesión activa.")
+    servicio.cerrar_sesion(db, renovacion, acceso)
     respuesta = Response(status_code=204)
     servicio.limpiar_cookies_sesion(respuesta)
     return respuesta
@@ -130,9 +127,7 @@ async def recuperar(
     request: Request,
     db: Annotated[Session, Depends(obtener_sesion)],
 ) -> MensajeSalida:
-    return await servicio.solicitar_recuperacion_clave(
-        db, entrada, ip=_ip_cliente(request)
-    )
+    return await servicio.solicitar_recuperacion_clave(db, entrada, ip=_ip_cliente(request))
 
 
 @router.post(
@@ -342,9 +337,7 @@ def listar_permisos(
     summary="Consultar bitácora de cambios y consultas nominales",
 )
 def listar_auditoria(
-    _: Annotated[
-        UsuarioAutenticado, Depends(servicio.requerir_permiso("seguridad.auditoria.ver"))
-    ],
+    _: Annotated[UsuarioAutenticado, Depends(servicio.requerir_permiso("seguridad.auditoria.ver"))],
     db: Annotated[Session, Depends(obtener_sesion)],
     page: Annotated[int, Query(ge=1)] = 1,
     size: Annotated[int, Query(ge=1, le=100)] = 20,

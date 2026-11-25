@@ -1,14 +1,15 @@
-"""Tareas de segundo plano del módulo de migración (Procrastinate)."""
+"""Tareas de segundo plano del módulo de migración (Procrastinate; solo reciben ids)."""
 
-import logging
+from sqlalchemy.orm import Session
 
+from app.core.db import obtener_motor
 from app.core.tareas import app_tareas
+from app.modulos.migracion import servicio
 
-log = logging.getLogger("sapef.migracion.tareas")
 
-
-@app_tareas.task(name="migracion.confirmar_ejecucion", queue="migracion", retry=2)
-def tarea_confirmar_ejecucion(ejecucion_id: int) -> str:
-    """Registra cierre de tarea asíncrona de migración usando solo ID primitivo."""
-    log.info("migracion confirmada", extra={"ejecucion_id": ejecucion_id})
-    return f"ejecucion:{ejecucion_id}"
+@app_tareas.task(name=servicio.TAREA_PROCESAR, queue="migracion")
+def tarea_procesar_ejecucion(ejecucion_id: int) -> str:
+    """Procesa una ejecución pendiente. Sin reintento automático: el importador es repetible y
+    una ejecución interrumpida se vuelve a lanzar subiendo el mismo archivo."""
+    with Session(obtener_motor()) as db:
+        return servicio.procesar_ejecucion(db, ejecucion_id)

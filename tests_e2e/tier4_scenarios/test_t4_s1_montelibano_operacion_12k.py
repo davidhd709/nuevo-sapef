@@ -95,7 +95,7 @@ def _wait_migration_execution(
         if poll.status_code == 200:
             last = poll.json()
             estado = str(last.get("estado", "")).lower()
-            if estado in {"completado", "finalizado", "succeeded", "ok"}:
+            if estado in {"completado", "con_errores", "finalizado", "succeeded", "ok"}:
                 return last
             if estado in {"error", "fallido", "failed", "rechazado"}:
                 raise AssertionError(f"Migration execution {exec_id} failed: {last}")

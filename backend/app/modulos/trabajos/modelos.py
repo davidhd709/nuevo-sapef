@@ -78,7 +78,9 @@ class OrdenTrabajo(Base):
             name="ck_orden_tipo",
         ),
         CheckConstraint("prioridad BETWEEN 0 AND 3", name="ck_orden_prioridad"),
-        CheckConstraint("origen IN ('web', 'cargue', 'campo')", name="ck_orden_origen"),
+        CheckConstraint(
+            "origen IN ('web', 'cargue', 'campo', 'migracion')", name="ck_orden_origen"
+        ),
         Index("ix_orden_sede_estado", "sede_id", "estado_id"),
         Index("ix_orden_sede_creado", "sede_id", "creado_en"),
         Index("ix_orden_tecnico", "tecnico_id"),
@@ -90,6 +92,14 @@ class OrdenTrabajo(Base):
             "uuid_origen",
             unique=True,
             postgresql_where=text("uuid_origen IS NOT NULL"),
+        ),
+        # Llave natural del SAPEF de origen (órdenes históricas importadas).
+        Index(
+            "uq_orden_sede_id_origen",
+            "sede_id",
+            "id_origen",
+            unique=True,
+            postgresql_where=text("id_origen IS NOT NULL"),
         ),
     )
 
@@ -125,6 +135,7 @@ class OrdenTrabajo(Base):
         BigInteger, ForeignKey("cargue_masivo.id", ondelete="SET NULL"), nullable=True
     )
     uuid_origen: Mapped[uuid.UUID | None] = mapped_column(PG_UUID(as_uuid=True), nullable=True)
+    id_origen: Mapped[str | None] = mapped_column(String(80), nullable=True)
     creado_en: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

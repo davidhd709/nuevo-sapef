@@ -93,6 +93,7 @@ def _wait_migration_terminal(
                 "succeeded",
                 "ok",
                 "completado_con_errores",
+                "con_errores",
                 "error",
                 "fallido",
                 "failed",

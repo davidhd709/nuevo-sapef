@@ -1184,3 +1184,72 @@ def procesar_cargue(db: Session, cargue_id: int) -> str:
         db.commit()
         return "con_errores"
     return "completado"
+
+
+# === Migración (HU-046) ==========================================================================
+# Las 4 tablas de SAPEF (mantenimientos, expansiones, modernizaciones y reubicaciones) se
+# transforman en órdenes cerradas con su detalle. Son historia: no cambian luminarias, kárdex ni
+# PQRS. Sin commit: el importador controla la transacción (una por orden).
+
+
+def importar_orden_historica(
+    db: Session,
+    *,
+    sede_id: int,
+    id_origen: str,
+    tipo: str,
+    estado_id: int,
+    luminarias: list[tuple[int, str]],
+    fecha_programada: date | None,
+    fecha_ejecucion: datetime | None,
+    latitud: float | None,
+    longitud: float | None,
+    observaciones: str | None,
+    mantenimiento: dict[str, Any] | None,
+    instalacion: dict[str, Any] | None,
+    actor_id: int | None,
+) -> tuple[int, bool]:
+    """Crea la orden histórica. Repetible por `id_origen`: si ya existe devuelve (id, False).
+
+    `estado_id`: estado del proceso «orden» (el importador lo resuelve una vez).
+    `luminarias`: [(luminaria_id, rol)]. `mantenimiento` / `instalacion`: campos de
+    OrdenMantenimiento / OrdenInstalacion (sin orden_id).
+    """
+    previa = repositorio.orden_por_id_origen(db, sede_id, id_origen)
+    if previa is not None:
+        return previa, False
+    try:
+        dominio.validar_luminarias(tipo, [rol for _, rol in luminarias])
+    except dominio.ErrorDominioTrabajos as exc:
+        raise _http(exc) from exc
+    geom = (
+        f"SRID=4326;POINT({longitud} {latitud})"
+        if latitud is not None and longitud is not None
+        else None
+    )
+    orden = OrdenTrabajo(
+        sede_id=sede_id,
+        numero=repositorio.siguiente_numero(db, sede_id),
+        tipo=tipo,
+        estado_id=estado_id,
+        prioridad=2,
+        fecha_programada=fecha_programada,
+        fecha_ejecucion=fecha_ejecucion,
+        ubicacion=geom,
+        observaciones=observaciones,
+        origen="migracion",
+        id_origen=id_origen[:80],
+        creado_por=actor_id,
+        modificado_por=actor_id,
+        luminarias=[
+            OrdenLuminaria(luminaria_id=lum_id, rol=rol)
+            for lum_id, rol in dict.fromkeys(luminarias)
+        ],
+    )
+    if mantenimiento is not None:
+        orden.mantenimiento = OrdenMantenimiento(**mantenimiento)
+    if instalacion is not None:
+        orden.instalacion = OrdenInstalacion(**instalacion)
+    db.add(orden)
+    db.flush()
+    return orden.id, True

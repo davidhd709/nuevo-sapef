@@ -39,7 +39,10 @@ def buscar_ciudadanos(
             or_(
                 nombre_sin_tildes.like(func.concat("%", consulta, "%")),
                 nombre_sin_tildes.op("%")(consulta),
-                Ciudadano.identificacion.like(f"{termino}%"),
+                # Identificación sin distinguir mayúsculas ni puntos/espacios (50.929.069).
+                func.replace(
+                    func.replace(func.lower(Ciudadano.identificacion), ".", ""), " ", ""
+                ).like(termino.replace(".", "").replace(" ", "") + "%"),
             )
         )
         orden = [func.similarity(nombre_sin_tildes, consulta).desc(), *orden]
@@ -257,3 +260,22 @@ def filas_exportacion(
             """  # noqa: S608
     filas = db.execute(text(sql), params).mappings()
     return [dict(f) for f in filas]
+
+
+# --- Migración (HU-034) -------------------------------------------------------------------------
+
+
+def ciudadano_por_identificacion(
+    db: Session, sede_id: int, identificacion: str
+) -> Ciudadano | None:
+    return db.execute(
+        select(Ciudadano).where(
+            Ciudadano.sede_id == sede_id, Ciudadano.identificacion == identificacion
+        )
+    ).scalar_one_or_none()
+
+
+def pqrs_por_id_origen(db: Session, sede_id: int, id_origen: str) -> int | None:
+    return db.execute(
+        select(Pqrs.id).where(Pqrs.sede_id == sede_id, Pqrs.id_origen == id_origen)
+    ).scalar_one_or_none()

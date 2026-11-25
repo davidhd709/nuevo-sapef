@@ -85,9 +85,7 @@ def _validar_referencias_luminaria(
             valor_id is not None
             and config_servicio.obtener_valor_maestro(db, clase, valor_id=valor_id) is None
         ):
-            raise HTTPException(
-                status_code=422, detail=f"Valor inválido para catálogo {clase}."
-            )
+            raise HTTPException(status_code=422, detail=f"Valor inválido para catálogo {clase}.")
     if (
         luminaria_reemplazada_id is not None
         and repositorio.obtener_por_id(db, sede_id, luminaria_reemplazada_id) is None
@@ -419,14 +417,10 @@ async def encolar_exportacion_luminarias(
     deferrer = app_tareas.configure_task(name="activos.exportar_luminarias")
     texto = entrada.texto if entrada else None
     try:
-        job_id = await deferrer.defer_async(
-            sede_id=sede.id, usuario_id=actor.id, texto=texto
-        )
+        job_id = await deferrer.defer_async(sede_id=sede.id, usuario_id=actor.id, texto=texto)
     except AppNotOpen:
         async with app_tareas.open_async():
-            job_id = await deferrer.defer_async(
-                sede_id=sede.id, usuario_id=actor.id, texto=texto
-            )
+            job_id = await deferrer.defer_async(sede_id=sede.id, usuario_id=actor.id, texto=texto)
     return TareaExportacionSalida(id=job_id, tarea_id=job_id, tareaId=job_id, estado="encolada")
 
 
@@ -854,6 +848,11 @@ def codigos_luminarias(db: Session, ids: list[int]) -> dict[int, tuple[str, bool
     return repositorio.codigos_por_ids(db, list(dict.fromkeys(ids)))
 
 
+def ids_luminarias_por_codigo(db: Session, sede_id: int) -> dict[str, int]:
+    """{código en minúsculas: id} de la sede, para importadores que resuelven miles de filas."""
+    return repositorio.ids_por_codigo(db, sede_id)
+
+
 def obtener_luminaria_por_codigo(db: Session, sede_id: int, codigo: str) -> dict[str, Any] | None:
     lum = repositorio.obtener_por_codigo(db, sede_id, codigo)
     if lum is None:
@@ -929,8 +928,16 @@ def cambiar_estado_luminaria(
     if estado_codigo == "123" and lum.fecha_baja is None:
         lum.fecha_baja = date.today()
     db.flush()
-    _evento(db, lum, tipo=tipo_evento, actor_id=actor_id, estado_anterior_id=anterior_id,
-            orden_id=orden_id, pqrs_id=pqrs_id, detalle=detalle)
+    _evento(
+        db,
+        lum,
+        tipo=tipo_evento,
+        actor_id=actor_id,
+        estado_anterior_id=anterior_id,
+        orden_id=orden_id,
+        pqrs_id=pqrs_id,
+        detalle=detalle,
+    )
     return actual
 
 
@@ -949,8 +956,9 @@ def registrar_evento_luminaria(
     lum = repositorio.obtener_por_id(db, sede_id, luminaria_id)
     if lum is None:
         raise HTTPException(status_code=404, detail="Luminaria no encontrada.")
-    _evento(db, lum, tipo=tipo, actor_id=actor_id, orden_id=orden_id, pqrs_id=pqrs_id,
-            detalle=detalle)
+    _evento(
+        db, lum, tipo=tipo, actor_id=actor_id, orden_id=orden_id, pqrs_id=pqrs_id, detalle=detalle
+    )
 
 
 def instalar_luminaria(
@@ -984,9 +992,10 @@ def instalar_luminaria(
     )
     if barrio_ajeno:
         raise HTTPException(status_code=404, detail="El barrio no pertenece a la sede activa.")
-    if marca_id is not None and config_servicio.obtener_valor_maestro(
-        db, "LUMINARIA_MARCA", valor_id=marca_id
-    ) is None:
+    if (
+        marca_id is not None
+        and config_servicio.obtener_valor_maestro(db, "LUMINARIA_MARCA", valor_id=marca_id) is None
+    ):
         raise HTTPException(status_code=422, detail="La marca indicada no existe.")
 
     lum = _bloquear(db, sede_id, luminaria_id)
@@ -1027,9 +1036,15 @@ def instalar_luminaria(
             cambiado_por=actor_id,
         ),
     )
-    _evento(db, lum, tipo=tipo_evento, actor_id=actor_id, estado_anterior_id=anterior_id,
-            orden_id=orden_id,
-            detalle={**(detalle or {}), "latitud": coords[0], "longitud": coords[1]})
+    _evento(
+        db,
+        lum,
+        tipo=tipo_evento,
+        actor_id=actor_id,
+        estado_anterior_id=anterior_id,
+        orden_id=orden_id,
+        detalle={**(detalle or {}), "latitud": coords[0], "longitud": coords[1]},
+    )
 
 
 def listar_luminarias_bodega(
@@ -1042,7 +1057,12 @@ def listar_luminarias_bodega(
     estado_id: int | None = None,
 ) -> Pagina[LuminariaSalida]:
     filas, total = repositorio.listar_luminarias(
-        db, sede.id, page=page, size=size, texto=texto, estado_id=estado_id,
+        db,
+        sede.id,
+        page=page,
+        size=size,
+        texto=texto,
+        estado_id=estado_id,
         estado_codigos=list(ESTADOS_BODEGA),
     )
     return Pagina[LuminariaSalida](
@@ -1060,9 +1080,7 @@ def luminarias_para_campo(
 
 def luminarias_bodega_buena_para_campo(db: Session, sede_id: int) -> list[dict[str, Any]]:
     """Luminarias en bodega buena (124): las que el técnico puede instalar como reemplazo."""
-    return [
-        _compacta(f) for f in repositorio.listar_para_campo(db, sede_id, None, ["124"])
-    ]
+    return [_compacta(f) for f in repositorio.listar_para_campo(db, sede_id, None, ["124"])]
 
 
 def _compacta(fila: dict[str, Any]) -> dict[str, Any]:

@@ -1,0 +1,91 @@
+# Nginx del host (ADR-015). Dos sitios: la web de oficina y la app de campo (PWA). Ambos sirven
+# sus estáticos y reenvían /api a la API, que escucha solo en 127.0.0.1:8100.
+# Certificados con certbot: certbot --nginx -d sapef.<dominio> -d campo.sapef.<dominio>
+#
+# Copiar a /etc/nginx/sites-available/sapef.conf, ajustar dominios y rutas, enlazar en
+# sites-enabled y probar con `nginx -t` antes de `systemctl reload nginx`.
+
+upstream sapef_api {
+    server 127.0.0.1:8100;
+    keepalive 16;
+}
+
+# Encabezados de seguridad comunes (incluidos en cada server).
+# HSTS solo cuando HTTPS ya funciona.
+map $host $sapef_hsts { default "max-age=31536000; includeSubDomains"; }
+
+server {
+    listen 443 ssl http2;
+    server_name sapef.<dominio>;
+
+    root /srv/sapef/web;          # salida de `pnpm --filter @sapef/web build` (apps/web/dist)
+    index index.html;
+
+    # Igual al tope de los cargues (SAPEF_ARCHIVO_MAX_GENERAL_MB=256).
+    client_max_body_size 256m;
+
+    add_header Strict-Transport-Security $sapef_hsts always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy same-origin always;
+    add_header Content-Security-Policy "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" always;
+
+    location /api/ {
+        proxy_pass http://sapef_api;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 120s;
+    }
+
+    # Archivos con huella en el nombre: caché larga. index.html: sin caché.
+    location /assets/ { expires 1y; add_header Cache-Control "public, immutable" always; }
+    location / {
+        try_files $uri /index.html;
+        add_header Cache-Control "no-cache" always;
+    }
+
+    # ssl_certificate / ssl_certificate_key: los agrega certbot.
+}
+
+server {
+    listen 443 ssl http2;
+    server_name campo.sapef.<dominio>;
+
+    root /srv/sapef/campo;        # salida de `pnpm --filter @sapef/campo build` (apps/campo/dist)
+    index index.html;
+    client_max_body_size 16m;     # evidencias (SAPEF_ARCHIVO_MAX_EVIDENCIA_MB=10) con margen
+
+    add_header Strict-Transport-Security $sapef_hsts always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy same-origin always;
+    # La app usa la cámara, el micrófono y el GPS, y teselas PMTiles servidas por la API.
+    add_header Content-Security-Policy "default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'" always;
+    add_header Permissions-Policy "camera=(self), microphone=(self), geolocation=(self)" always;
+
+    location /api/ {
+        proxy_pass http://sapef_api;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 120s;
+    }
+
+    # El service worker y el manifiesto no se guardan en caché: así llegan las actualizaciones.
+    location = /sw.js { add_header Cache-Control "no-cache" always; }
+    location = /manifest.webmanifest { add_header Cache-Control "no-cache" always; }
+    location /assets/ { expires 1y; add_header Cache-Control "public, immutable" always; }
+    location / {
+        try_files $uri /index.html;
+        add_header Cache-Control "no-cache" always;
+    }
+}
+
+server {
+    listen 80;
+    server_name sapef.<dominio> campo.sapef.<dominio>;
+    return 301 https://$host$request_uri;
+}

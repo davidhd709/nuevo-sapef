@@ -81,6 +81,8 @@ class Luminaria(Base):
     __tablename__ = "luminaria"
     __table_args__ = (
         UniqueConstraint("sede_id", "codigo", name="uq_luminaria_sede_codigo"),
+        # La búsqueda por código no distingue mayúsculas (importadores, app de campo, PQRS).
+        Index("ix_luminaria_sede_codigo_lower", "sede_id", func.lower(text("codigo"))),
         Index("ix_luminaria_sede_estado", "sede_id", "estado_id"),
         Index("ix_luminaria_sede_barrio", "sede_id", "barrio_id"),
         Index("ix_luminaria_ubicacion", "ubicacion", postgresql_using="gist"),

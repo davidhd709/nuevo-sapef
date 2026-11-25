@@ -5,6 +5,7 @@ import math
 
 from openpyxl import Workbook
 
+from app.modulos.migracion import servicio as migracion_servicio
 from tests.conftest import crear_usuario_db, iniciar_sesion_cliente
 
 
@@ -142,9 +143,7 @@ def test_crud_luminarias_ubicacion_lote_mvt_pmtiles_y_aislamiento(cliente, db_co
     assert mvt.headers["content-type"].startswith("application/vnd.mapbox-vector-tile")
     assert len(mvt.content) > 0
 
-    pm = cliente.get(
-        "/api/v1/mapa/base/montelibano.pmtiles", headers={"Range": "bytes=0-511"}
-    )
+    pm = cliente.get("/api/v1/mapa/base/montelibano.pmtiles", headers={"Range": "bytes=0-511"})
     assert pm.status_code == 206
     assert pm.content[:7] == b"PMTiles"
     assert len(pm.content) == 512
@@ -196,7 +195,14 @@ def test_crud_luminarias_ubicacion_lote_mvt_pmtiles_y_aislamiento(cliente, db_co
         files={"archivo": ("lums.xlsx", xlsx, mime_xlsx)},
     )
     assert imp1.status_code == 202, imp1.text
-    assert imp1.json()["conciliacion"]["creadas"] == 2
+    assert imp1.json()["estado"] == "pendiente"
+    migracion_servicio.procesar_ejecucion(db_configurado, imp1.json()["ejecucion_id"])
+    res1 = cliente.get(
+        f"/api/v1/migracion/ejecuciones/{imp1.json()['ejecucion_id']}",
+        headers={"X-Sede": "montelibano"},
+    )
+    assert res1.json()["estado"] == "completado", res1.text
+    assert res1.json()["conciliacion"]["creadas"] == 2
 
     imp2 = cliente.post(
         "/api/v1/migracion/luminarias",
@@ -204,14 +210,18 @@ def test_crud_luminarias_ubicacion_lote_mvt_pmtiles_y_aislamiento(cliente, db_co
         files={"archivo": ("lums.xlsx", xlsx, mime_xlsx)},
     )
     assert imp2.status_code == 202
-    assert imp2.json()["conciliacion"]["creadas"] == 0
-    assert imp2.json()["conciliacion"]["actualizadas"] == 2
+    migracion_servicio.procesar_ejecucion(db_configurado, imp2.json()["ejecucion_id"])
+    res2 = cliente.get(
+        f"/api/v1/migracion/ejecuciones/{imp2.json()['ejecucion_id']}",
+        headers={"X-Sede": "montelibano"},
+    )
+    assert res2.json()["conciliacion"]["creadas"] == 0
+    assert res2.json()["conciliacion"]["actualizadas"] == 2
 
     # Aislamiento estricto: usuario de Alcalá no ve luminaria ni PMTiles de Montelíbano
     iniciar_sesion_cliente(cliente, "censo_al")
     assert (
-        cliente.get(f"/api/v1/luminarias/{lum_id}", headers={"X-Sede": "alcala"}).status_code
-        == 404
+        cliente.get(f"/api/v1/luminarias/{lum_id}", headers={"X-Sede": "alcala"}).status_code == 404
     )
     assert (
         cliente.get(f"/api/v1/luminarias/{lum_id}", headers={"X-Sede": "montelibano"}).status_code

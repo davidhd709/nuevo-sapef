@@ -72,6 +72,14 @@ class Pqrs(Base):
         CheckConstraint("prioridad BETWEEN 0 AND 3", name="ck_pqrs_prioridad"),
         Index("ix_pqrs_sede_fecha", "sede_id", "fecha_solicitud"),
         Index("ix_pqrs_ciudadano", "ciudadano_id"),
+        # Llave natural del SAPEF de origen: el importador histórico es repetible.
+        Index(
+            "uq_pqrs_sede_id_origen",
+            "sede_id",
+            "id_origen",
+            unique=True,
+            postgresql_where=text("id_origen IS NOT NULL"),
+        ),
     )
 
     id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
@@ -100,6 +108,7 @@ class Pqrs(Base):
         Boolean, nullable=False, server_default=text("false")
     )
     motivo_anulacion: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    id_origen: Mapped[str | None] = mapped_column(String(80), nullable=True)
     creado_en: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

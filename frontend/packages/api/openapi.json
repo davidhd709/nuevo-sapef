@@ -4234,7 +4234,7 @@
         "tags": [
           "migracion"
         ],
-        "summary": "Importar luminarias desde Excel de SAPEF (idempotente)",
+        "summary": "Importar luminarias (plantilla o LUMINARIAS_LIST_DESCARGA de SAPEF; .xlsx o .csv)",
         "operationId": "importar_luminarias_api_v1_migracion_luminarias_post",
         "parameters": [
           {
@@ -4347,12 +4347,253 @@
         }
       }
     },
+    "/api/v1/migracion/pqrs": {
+      "post": {
+        "tags": [
+          "migracion"
+        ],
+        "summary": "Importar PQRS históricas (plantilla o LUMINARIAS_REPARAR de SAPEF)",
+        "operationId": "importar_pqrs_api_v1_migracion_pqrs_post",
+        "parameters": [
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_importar_pqrs_api_v1_migracion_pqrs_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EjecucionMigracionSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/migracion/ordenes": {
+      "post": {
+        "tags": [
+          "migracion"
+        ],
+        "summary": "Importar mantenimientos, expansiones, modernizaciones y reubicaciones de SAPEF",
+        "operationId": "importar_ordenes_api_v1_migracion_ordenes_post",
+        "parameters": [
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_importar_ordenes_api_v1_migracion_ordenes_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EjecucionMigracionSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/migracion/inventario": {
+      "post": {
+        "tags": [
+          "migracion"
+        ],
+        "summary": "Importar materiales, kárdex inicial y luminarias en bodega (con conciliación)",
+        "operationId": "importar_inventario_api_v1_migracion_inventario_post",
+        "parameters": [
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_importar_inventario_api_v1_migracion_inventario_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EjecucionMigracionSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/migracion/ejecuciones": {
+      "get": {
+        "tags": [
+          "migracion"
+        ],
+        "summary": "Últimas ejecuciones de migración de la sede",
+        "operationId": "listar_ejecuciones_api_v1_migracion_ejecuciones_get",
+        "parameters": [
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EjecucionMigracionSalida"
+                  },
+                  "title": "Response Listar Ejecuciones Api V1 Migracion Ejecuciones Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/migracion/ejecuciones/{ejecucion_id}": {
       "get": {
         "tags": [
           "migracion"
         ],
-        "summary": "Consultar resultado y conciliación de una ejecución de migración",
+        "summary": "Resultado y conciliación de una ejecución de migración",
         "operationId": "obtener_ejecucion_api_v1_migracion_ejecuciones__ejecucion_id__get",
         "parameters": [
           {
@@ -12388,6 +12629,20 @@
         ],
         "title": "Body_importar_base_api_v1_migracion_base_post"
       },
+      "Body_importar_inventario_api_v1_migracion_inventario_post": {
+        "properties": {
+          "archivo": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Archivo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "archivo"
+        ],
+        "title": "Body_importar_inventario_api_v1_migracion_inventario_post"
+      },
       "Body_importar_luminarias_api_v1_migracion_luminarias_post": {
         "properties": {
           "archivo": {
@@ -12401,6 +12656,74 @@
           "archivo"
         ],
         "title": "Body_importar_luminarias_api_v1_migracion_luminarias_post"
+      },
+      "Body_importar_ordenes_api_v1_migracion_ordenes_post": {
+        "properties": {
+          "mantenimientos": {
+            "anyOf": [
+              {
+                "type": "string",
+                "contentMediaType": "application/octet-stream"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mantenimientos"
+          },
+          "expansiones": {
+            "anyOf": [
+              {
+                "type": "string",
+                "contentMediaType": "application/octet-stream"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expansiones"
+          },
+          "modernizaciones": {
+            "anyOf": [
+              {
+                "type": "string",
+                "contentMediaType": "application/octet-stream"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modernizaciones"
+          },
+          "reubicaciones": {
+            "anyOf": [
+              {
+                "type": "string",
+                "contentMediaType": "application/octet-stream"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reubicaciones"
+          }
+        },
+        "type": "object",
+        "title": "Body_importar_ordenes_api_v1_migracion_ordenes_post"
+      },
+      "Body_importar_pqrs_api_v1_migracion_pqrs_post": {
+        "properties": {
+          "archivo": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Archivo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "archivo"
+        ],
+        "title": "Body_importar_pqrs_api_v1_migracion_pqrs_post"
       },
       "Body_promedios_ids_api_v1_comercial__comercializador__exportaciones_promedios_ids_post": {
         "properties": {
@@ -13658,6 +13981,14 @@
             "type": "string",
             "title": "Estado"
           },
+          "archivos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Archivos",
+            "default": []
+          },
           "conciliacion": {
             "additionalProperties": {
               "type": "integer"
@@ -13673,10 +14004,31 @@
             "type": "array",
             "title": "Errores"
           },
+          "advertencias": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Advertencias",
+            "default": []
+          },
           "creado_en": {
             "type": "string",
             "format": "date-time",
             "title": "Creado En"
+          },
+          "procesado_en": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Procesado En"
           }
         },
         "type": "object",
@@ -13690,7 +14042,8 @@
           "errores",
           "creado_en"
         ],
-        "title": "EjecucionMigracionSalida"
+        "title": "EjecucionMigracionSalida",
+        "description": "Una corrida de importación. `estado`: pendiente → procesando → completado,\ncon_errores (algunas filas no entraron; ver `errores`) o error (no se pudo leer)."
       },
       "EntregableEntrada": {
         "properties": {

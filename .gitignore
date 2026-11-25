@@ -23,6 +23,7 @@ dev-dist/
 # Datos locales (nunca al repositorio: pueden contener datos personales)
 /data/
 /datos/
+/respaldos/
 .e2e_data/
 # Material de la ingeniería inversa: tráfico capturado de producción y el JS de SAPEF (de terceros)
 docs/.sapef-bundle/

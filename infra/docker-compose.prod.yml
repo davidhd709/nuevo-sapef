@@ -1,0 +1,106 @@
+# Producción (y pruebas/staging con otro .env y otro nombre de proyecto) en el VPS (ADR-015).
+#
+#   docker compose -f infra/docker-compose.prod.yml --env-file .env.prod -p sapef up -d
+#
+# Diferencias con desarrollo: la base no publica puerto; la API escucha solo en 127.0.0.1 (el
+# Nginx del host termina HTTPS y reenvía); imagen versionada de GHCR; límites de memoria para no
+# afectar a los otros sistemas del servidor; reinicio automático y rotación de logs.
+# Las dos aplicaciones web (oficina y campo) son estáticos que sirve el Nginx del host.
+name: ${SAPEF_PROYECTO:-sapef}
+
+x-logs: &logs
+  driver: json-file
+  options:
+    max-size: "20m"
+    max-file: "5"
+
+x-backend: &backend
+  image: ${SAPEF_IMAGEN:?Defina SAPEF_IMAGEN (p. ej., ghcr.io/<cuenta>/sapef-backend:<version>)}
+  restart: unless-stopped
+  logging: *logs
+  environment: &entorno
+    SAPEF_ENTORNO: ${SAPEF_ENTORNO:-produccion}
+    SAPEF_LOG_NIVEL: ${SAPEF_LOG_NIVEL:-INFO}
+    SAPEF_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-sapef}:${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-sapef}
+    # La API se niega a arrancar en producción con una clave débil o la de desarrollo.
+    SAPEF_SECRET_KEY: ${SAPEF_SECRET_KEY:?Defina SAPEF_SECRET_KEY (32+ caracteres aleatorios)}
+    SAPEF_SMTP_HOST: ${SAPEF_SMTP_HOST:-}
+    SAPEF_SMTP_PUERTO: ${SAPEF_SMTP_PUERTO:-587}
+    SAPEF_SMTP_USUARIO: ${SAPEF_SMTP_USUARIO:-}
+    SAPEF_SMTP_CLAVE: ${SAPEF_SMTP_CLAVE:-}
+    SAPEF_SMTP_REMITENTE: ${SAPEF_SMTP_REMITENTE:-noreply@sapef.co}
+    SAPEF_VAPID_CLAVE_PRIVADA: ${SAPEF_VAPID_CLAVE_PRIVADA:-}
+    SAPEF_VAPID_SUJETO: ${SAPEF_VAPID_SUJETO:-mailto:soporte@sapef.co}
+    SAPEF_COMERCIAL_IMPORTACION_ALIAS: ${SAPEF_COMERCIAL_IMPORTACION_ALIAS:-}
+
+services:
+  db:
+    image: postgis/postgis:17-3.5
+    restart: unless-stopped
+    logging: *logs
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sapef}
+      POSTGRES_USER: ${POSTGRES_USER:-sapef}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD}
+    # Sin «ports»: solo la API y el worker la alcanzan por la red interna del proyecto.
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    shm_size: 256m
+    mem_limit: ${SAPEF_MEM_DB:-1g}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 3s
+      retries: 30
+
+  # Migraciones + semilla idempotente; la API y el worker arrancan solo si terminó bien.
+  migraciones:
+    <<: *backend
+    restart: "no"
+    command: ["sh", "-c", "alembic upgrade head && python -m app.semillas"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    <<: *backend
+    command:
+      - uvicorn
+      - app.main:app
+      - --host=0.0.0.0
+      - --port=8000
+      - --workers=${SAPEF_API_WORKERS:-2}
+      - --proxy-headers
+      - --forwarded-allow-ips=*
+    volumes:
+      - archivos:/data/archivos
+      - comercial:/data/comercial
+      - ${SAPEF_IMPORTACION_HOST_DIR:-./importacion}:/data/importacion:ro
+    ports:
+      # Solo en el propio servidor: el Nginx del host es la única entrada desde afuera.
+      - "127.0.0.1:${SAPEF_PUERTO_API:-8100}:8000"
+    mem_limit: ${SAPEF_MEM_API:-768m}
+    depends_on:
+      migraciones:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *backend
+    command: ["python", "-m", "app.worker"]
+    volumes:
+      - archivos:/data/archivos
+      - comercial:/data/comercial
+      - ${SAPEF_IMPORTACION_HOST_DIR:-./importacion}:/data/importacion:ro
+    healthcheck:
+      disable: true
+    # DuckDB (comercial) y los importadores de migración son lo más pesado.
+    mem_limit: ${SAPEF_MEM_WORKER:-2g}
+    depends_on:
+      migraciones:
+        condition: service_completed_successfully
+
+volumes:
+  pgdata:
+  archivos:
+  comercial:

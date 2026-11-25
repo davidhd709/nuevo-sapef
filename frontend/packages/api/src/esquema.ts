@@ -898,7 +898,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Importar luminarias desde Excel de SAPEF (idempotente) */
+        /** Importar luminarias (plantilla o LUMINARIAS_LIST_DESCARGA de SAPEF; .xlsx o .csv) */
         post: operations["importar_luminarias_api_v1_migracion_luminarias_post"];
         delete?: never;
         options?: never;
@@ -923,6 +923,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/migracion/pqrs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Importar PQRS históricas (plantilla o LUMINARIAS_REPARAR de SAPEF) */
+        post: operations["importar_pqrs_api_v1_migracion_pqrs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/migracion/ordenes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Importar mantenimientos, expansiones, modernizaciones y reubicaciones de SAPEF */
+        post: operations["importar_ordenes_api_v1_migracion_ordenes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/migracion/inventario": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Importar materiales, kárdex inicial y luminarias en bodega (con conciliación) */
+        post: operations["importar_inventario_api_v1_migracion_inventario_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/migracion/ejecuciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Últimas ejecuciones de migración de la sede */
+        get: operations["listar_ejecuciones_api_v1_migracion_ejecuciones_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/migracion/ejecuciones/{ejecucion_id}": {
         parameters: {
             query?: never;
@@ -930,7 +998,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Consultar resultado y conciliación de una ejecución de migración */
+        /** Resultado y conciliación de una ejecución de migración */
         get: operations["obtener_ejecucion_api_v1_migracion_ejecuciones__ejecucion_id__get"];
         put?: never;
         post?: never;
@@ -2655,8 +2723,29 @@ export interface components {
             /** Archivo */
             archivo: string;
         };
+        /** Body_importar_inventario_api_v1_migracion_inventario_post */
+        Body_importar_inventario_api_v1_migracion_inventario_post: {
+            /** Archivo */
+            archivo: string;
+        };
         /** Body_importar_luminarias_api_v1_migracion_luminarias_post */
         Body_importar_luminarias_api_v1_migracion_luminarias_post: {
+            /** Archivo */
+            archivo: string;
+        };
+        /** Body_importar_ordenes_api_v1_migracion_ordenes_post */
+        Body_importar_ordenes_api_v1_migracion_ordenes_post: {
+            /** Mantenimientos */
+            mantenimientos?: string | null;
+            /** Expansiones */
+            expansiones?: string | null;
+            /** Modernizaciones */
+            modernizaciones?: string | null;
+            /** Reubicaciones */
+            reubicaciones?: string | null;
+        };
+        /** Body_importar_pqrs_api_v1_migracion_pqrs_post */
+        Body_importar_pqrs_api_v1_migracion_pqrs_post: {
             /** Archivo */
             archivo: string;
         };
@@ -3048,7 +3137,11 @@ export interface components {
             /** Nombre */
             nombre: string;
         };
-        /** EjecucionMigracionSalida */
+        /**
+         * EjecucionMigracionSalida
+         * @description Una corrida de importación. `estado`: pendiente → procesando → completado,
+         *     con_errores (algunas filas no entraron; ver `errores`) o error (no se pudo leer).
+         */
         EjecucionMigracionSalida: {
             /** Id */
             id: number;
@@ -3064,6 +3157,11 @@ export interface components {
             tipo: string;
             /** Estado */
             estado: string;
+            /**
+             * Archivos
+             * @default []
+             */
+            archivos: string[];
             /** Conciliacion */
             conciliacion: {
                 [key: string]: number;
@@ -3073,10 +3171,19 @@ export interface components {
                 [key: string]: unknown;
             }[];
             /**
+             * Advertencias
+             * @default []
+             */
+            advertencias: {
+                [key: string]: unknown;
+            }[];
+            /**
              * Creado En
              * Format: date-time
              */
             creado_en: string;
+            /** Procesado En */
+            procesado_en?: string | null;
         };
         /** EntregableEntrada */
         EntregableEntrada: {
@@ -7582,6 +7689,144 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EjecucionMigracionSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    importar_pqrs_api_v1_migracion_pqrs_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_importar_pqrs_api_v1_migracion_pqrs_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EjecucionMigracionSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    importar_ordenes_api_v1_migracion_ordenes_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_importar_ordenes_api_v1_migracion_ordenes_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EjecucionMigracionSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    importar_inventario_api_v1_migracion_inventario_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_importar_inventario_api_v1_migracion_inventario_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EjecucionMigracionSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listar_ejecuciones_api_v1_migracion_ejecuciones_get: {
+        parameters: {
+            query?: {
+                limite?: number;
+            };
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EjecucionMigracionSalida"][];
                 };
             };
             /** @description Validation Error */

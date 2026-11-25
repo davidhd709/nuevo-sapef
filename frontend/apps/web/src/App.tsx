@@ -20,6 +20,7 @@ import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { PantallaIngresar } from "./auth/PantallaIngresar";
 import { PantallaConfiguracion } from "./configuracion/PantallaConfiguracion";
 import { PantallaInventario } from "./inventario/PantallaInventario";
+import { IMPORTADORES, PantallaMigracion } from "./migracion/PantallaMigracion";
 import { PantallaSeguridad } from "./seguridad/PantallaSeguridad";
 import { EstadoSistema } from "./sistema/EstadoSistema";
 import { PantallaOrdenes } from "./trabajos/PantallaOrdenes";
@@ -98,6 +99,8 @@ function ContenidoApp() {
     contenido = <PantallaSeguridad />;
   } else if (ruta.startsWith("/configuracion")) {
     contenido = <PantallaConfiguracion />;
+  } else if (ruta.startsWith("/migracion")) {
+    contenido = <PantallaMigracion />;
   }
 
   return (
@@ -200,6 +203,13 @@ function ContenidoApp() {
             active={ruta.startsWith("/configuracion")}
             onClick={() => navegar("/configuracion")}
           />
+          {IMPORTADORES.some((i) => tienePermiso(i.permiso)) && (
+            <NavLink
+              label="Migración"
+              active={ruta.startsWith("/migracion")}
+              onClick={() => navegar("/migracion")}
+            />
+          )}
           {tienePermiso("seguridad.usuario.ver") && (
             <NavLink
               label="Seguridad"

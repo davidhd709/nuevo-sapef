@@ -55,9 +55,7 @@ MIMES_PERMITIDOS_POR_CATEGORIA: dict[str, frozenset[str]] = {
     ),
 }
 
-MIMES_INLINE_SEGUROS = frozenset(
-    {"image/jpeg", "image/png", "image/webp", "application/pdf"}
-)
+MIMES_INLINE_SEGUROS = frozenset({"image/jpeg", "image/png", "image/webp", "application/pdf"})
 
 _EJECUTABLES_PREFIJOS = (
     b"MZ",
@@ -91,9 +89,7 @@ def calcular_sha256_hex(contenido: bytes) -> str:
     return hashlib.sha256(contenido).hexdigest()
 
 
-def calcular_limite_bytes(
-    categoria: str, max_evidencia_mb: int, max_general_mb: int
-) -> int:
+def calcular_limite_bytes(categoria: str, max_evidencia_mb: int, max_general_mb: int) -> int:
     if categoria in ("evidencia", "adjunto"):
         return max_evidencia_mb * 1024 * 1024
     if categoria == "cargue":
@@ -150,7 +146,37 @@ def _detectar_zip_ooxml(contenido: bytes, ext: str) -> str:
     raise ErrorDominioArchivo(415, "Tipo de contenedor ZIP no permitido.")
 
 
+# Extensiones aceptadas para cada tipo detectado por contenido. Un nombre con otra extensión
+# (p. ej., un PDF llamado «foto.png») se rechaza: la extensión decide cómo lo abre quien lo
+# descarga, y no debe contradecir lo que realmente es el archivo.
+_EXTENSIONES_POR_MIME: dict[str, frozenset[str]] = {
+    "image/jpeg": frozenset({".jpg", ".jpeg", ".jfif", ".jpe"}),
+    "image/png": frozenset({".png"}),
+    "image/webp": frozenset({".webp"}),
+    "application/pdf": frozenset({".pdf"}),
+    "application/x-compress": frozenset({".z"}),
+    "audio/ogg": frozenset({".ogg", ".oga", ".opus"}),
+    "audio/wav": frozenset({".wav"}),
+    "audio/webm": frozenset({".webm", ".weba"}),
+    "audio/mpeg": frozenset({".mp3"}),
+    "audio/mp4": frozenset({".m4a", ".mp4", ".aac", ".3gp", ".3ga"}),
+}
+
+
 def detectar_mime_por_magic_bytes(contenido: bytes, nombre: str) -> str:
+    """Tipo real por los primeros bytes; 415 si no se reconoce, si es un formato bloqueado o si
+    la extensión del nombre no corresponde al contenido."""
+    tipo = _mime_por_contenido(contenido, nombre)
+    ext = "." + nombre.rsplit(".", 1)[-1].lower() if "." in nombre else ""
+    permitidas = _EXTENSIONES_POR_MIME.get(tipo)
+    if ext and permitidas is not None and ext not in permitidas:
+        raise ErrorDominioArchivo(
+            415, f"La extensión {ext} no corresponde al contenido del archivo ({tipo})."
+        )
+    return tipo
+
+
+def _mime_por_contenido(contenido: bytes, nombre: str) -> str:
     if not contenido:
         raise ErrorDominioArchivo(400, "El archivo está vacío (0 bytes).")
     if _es_contenido_peligroso(contenido):
@@ -221,14 +247,10 @@ def construir_ruta_relativa(sede_id: int, sha256_hex: str, ahora: datetime) -> s
     return f"sede_{sede_id}/{ahora:%Y}/{ahora:%m}/{sha256_hex[:2]}/{sha256_hex}"
 
 
-def construir_content_disposition(
-    nombre_original: str, tipo_mime: str, descargar: bool
-) -> str:
+def construir_content_disposition(nombre_original: str, tipo_mime: str, descargar: bool) -> str:
     disposicion = (
-        "inline"
-        if (not descargar and tipo_mime in MIMES_INLINE_SEGUROS)
-        else "attachment"
+        "inline" if (not descargar and tipo_mime in MIMES_INLINE_SEGUROS) else "attachment"
     )
-    ascii_fallback = re.sub(r'[^A-Za-z0-9._ -]+', "_", nombre_original).strip() or "archivo"
+    ascii_fallback = re.sub(r"[^A-Za-z0-9._ -]+", "_", nombre_original).strip() or "archivo"
     utf8_encoded = quote(nombre_original, safe="")
-    return f'{disposicion}; filename="{ascii_fallback}"; filename*=UTF-8\'\'{utf8_encoded}'
+    return f"{disposicion}; filename=\"{ascii_fallback}\"; filename*=UTF-8''{utf8_encoded}"

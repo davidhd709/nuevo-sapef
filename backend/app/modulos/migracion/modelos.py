@@ -3,7 +3,17 @@
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, Identity, Index, String, func, text
+from sqlalchemy import (
+    BigInteger,
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Identity,
+    Index,
+    String,
+    func,
+    text,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -11,8 +21,17 @@ from app.core.db import Base
 
 
 class EjecucionMigracion(Base):
+    """Una corrida de un importador. La API la crea «pendiente» con sus archivos y el worker la
+    procesa (los archivos grandes de SAPEF superan el tiempo de una petición HTTP)."""
+
     __tablename__ = "ejecucion_migracion"
-    __table_args__ = (Index("ix_ejecucion_migracion_sede", "sede_id"),)
+    __table_args__ = (
+        Index("ix_ejecucion_migracion_sede", "sede_id"),
+        CheckConstraint(
+            "estado IN ('pendiente', 'procesando', 'completado', 'con_errores', 'error')",
+            name="ck_ejecucion_migracion_estado",
+        ),
+    )
 
     id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
     sede_id: Mapped[int] = mapped_column(
@@ -20,7 +39,11 @@ class EjecucionMigracion(Base):
     )
     tipo: Mapped[str] = mapped_column(String(40), nullable=False)
     estado: Mapped[str] = mapped_column(
-        String(20), nullable=False, server_default=text("'completado'")
+        String(20), nullable=False, server_default=text("'pendiente'")
+    )
+    # [{"campo": "mantenimientos", "archivo_id": "<uuid>", "nombre": "..."}]
+    archivos: Mapped[list[dict[str, Any]]] = mapped_column(
+        JSONB, nullable=False, server_default=text("'[]'::jsonb")
     )
     conciliacion: Mapped[dict[str, Any]] = mapped_column(
         JSONB, nullable=False, server_default=text("'{}'::jsonb")
@@ -28,9 +51,13 @@ class EjecucionMigracion(Base):
     errores: Mapped[list[dict[str, Any]]] = mapped_column(
         JSONB, nullable=False, server_default=text("'[]'::jsonb")
     )
+    advertencias: Mapped[list[dict[str, Any]]] = mapped_column(
+        JSONB, nullable=False, server_default=text("'[]'::jsonb")
+    )
     creado_en: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
+    procesado_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     creado_por: Mapped[int | None] = mapped_column(
         BigInteger, ForeignKey("usuario.id", ondelete="SET NULL"), nullable=True
     )

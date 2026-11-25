@@ -128,3 +128,11 @@ def materiales_activos(db: Session, sede_id: int) -> list[Material]:
             .order_by(Material.categoria, Material.descripcion)
         ).scalars()
     )
+
+
+def material_por_codigo(db: Session, sede_id: int, codigo: str) -> Material | None:
+    return db.execute(
+        select(Material)
+        .where(Material.sede_id == sede_id, func.lower(Material.codigo) == codigo.lower())
+        .with_for_update()
+    ).scalar_one_or_none()

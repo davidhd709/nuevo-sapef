@@ -12,9 +12,9 @@ Tests interact strictly through HTTP APIs (`/api/v1/...`), PostgreSQL state inva
 | `SAPEF_E2E_WEB_URL` | `http://127.0.0.1:5173` | Frontend Office SPA (`apps/web`) URL |
 | `SAPEF_E2E_CAMPO_URL` | `http://127.0.0.1:5174` | Frontend Field PWA (`apps/campo`) URL |
 | `SAPEF_E2E_INPROCESS` | `0` | Set `1` to run Fase 0 ASGI checks in-process via Starlette `TestClient(crear_app())` |
-| `SAPEF_E2E_DATA_DIR` | `<repo>/.e2e_data` | Isolated storage directory for E2E generated files & Parquet packages |
+| `SAPEF_E2E_DATA_DIR` | *(random `tests_e2e/.e2e_data_<id>`, deleted at the end)* | Storage directory for E2E generated files & Parquet packages. **With the API in Docker, set it to `<repo>/.e2e_data`**: IMP-5 (OPainn import) sends this path to the API, which can only read inside `/data/importacion` (`SAPEF_IMPORTACION_HOST_DIR=../.e2e_data` and `SAPEF_COMERCIAL_IMPORTACION_ALIAS=<repo>/.e2e_data` in `.env`) |
 | `SAPEF_E2E_BROWSER_BIN` | *(auto-discovered)* | Optional path to Chromium / Chrome / Edge executable |
-| `SAPEF_E2E_TIMEOUT` | `30` | Default HTTP / DB polling timeout in seconds |
+| `SAPEF_E2E_TIMEOUT` | `30` | Default HTTP / DB polling timeout in seconds. Tier 4 s1 imports 12,000 luminaires in the worker (~1–2 min): use `180` or more |
 
 ## Canonical Commands
 
