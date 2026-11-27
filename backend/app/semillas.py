@@ -13,6 +13,15 @@ administrador debe cambiarla en el primer ingreso; `--sin-cambio-obligatorio` lo
 
     python -m app.semillas vapid                # genera un par de claves VAPID (Web Push)
 
+    python -m app.semillas excepciones --sede montelibano --comercializador afinia \
+        --anio 2026 --archivo /ruta/excepciones_tarifarias_afinia_2026.json
+
+`excepciones` carga los contribuyentes especiales desde los catálogos privados de OPainn en el
+acuerdo aprobado de ese año (crea una vigencia aprobada nueva y la anterior queda reemplazada):
+Afinia, `{"vigencias": {"2026": {"factores_uvt_por_nic": {"<NIC>": <factor>}}}}` (RN-004);
+Celsia, `{"reglas_por_cuenta": {"<cuenta>": {"tipo": ...}}, "pendientes_revision": [...]}` (anexo
+de la carta). El archivo nunca se copia al repositorio.
+
 `vapid` imprime la clave privada para `SAPEF_VAPID_CLAVE_PRIVADA` (va en el .env del servidor,
 nunca al repositorio) y la pública que la app de campo recibirá de la API.
 """
@@ -71,10 +80,57 @@ def _crear_admin(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cargar_excepciones(args: argparse.Namespace) -> int:
+    import json
+    from decimal import Decimal
+    from pathlib import Path
+
+    try:
+        documento = json.loads(Path(args.archivo).read_text(encoding="utf-8"))
+        vigencia = documento.get("vigencias", {}).get(str(args.anio)) or {}
+        factores = {
+            str(nic): Decimal(str(f))
+            for nic, f in (vigencia.get("factores_uvt_por_nic") or {}).items()
+        }
+        reglas = {str(c): dict(r) for c, r in (documento.get("reglas_por_cuenta") or {}).items()}
+        for cuenta in documento.get("pendientes_revision") or []:
+            reglas[str(cuenta)] = {"pendiente_revision": True}
+        if not factores and not reglas:
+            raise ValueError("no trae factores_uvt_por_nic ni reglas_por_cuenta")
+    except (OSError, ValueError, KeyError, AttributeError, TypeError) as exc:
+        log.error("archivo de excepciones inválido: %s", exc)
+        return 1
+    with _fabrica_sesiones()() as db:
+        sede = configuracion.obtener_sede_por_codigo_publico(db, args.sede)
+        if sede is None:
+            log.error("sede desconocida: %s", args.sede)
+            return 1
+        try:
+            resultado = configuracion.reemplazar_excepciones_acuerdo(
+                db,
+                sede_id=sede["id"],
+                comercializador_codigo=args.comercializador,
+                anio=args.anio,
+                factores=factores,
+                reglas=reglas,
+                fuente=f"Catálogo de excepciones {Path(args.archivo).name}",
+                actor_id=None,
+            )
+        except Exception as exc:  # HTTPException del servicio: sin acuerdo aprobado, etc.
+            log.error("%s", getattr(exc, "detail", exc))
+            return 1
+        db.commit()
+    log.info("contribuyentes especiales: %s", resultado)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     configurar_logs(obtener_configuracion().log_nivel)
-    parser = argparse.ArgumentParser(prog="python -m app.semillas", description=__doc__,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        prog="python -m app.semillas",
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     sub = parser.add_subparsers(dest="comando")
     admin = sub.add_parser("admin", help="crear el primer administrador (todas las sedes)")
     admin.add_argument("--usuario", required=True)
@@ -83,6 +139,11 @@ def main(argv: list[str] | None = None) -> int:
     admin.add_argument("--identificacion", default="0")
     admin.add_argument("--sin-cambio-obligatorio", action="store_true")
     sub.add_parser("vapid", help="generar claves VAPID para Web Push (no toca la base)")
+    exc = sub.add_parser("excepciones", help="cargar contribuyentes especiales desde un archivo")
+    exc.add_argument("--sede", required=True)
+    exc.add_argument("--comercializador", required=True)
+    exc.add_argument("--anio", type=int, required=True)
+    exc.add_argument("--archivo", required=True)
     args = parser.parse_args(argv)
 
     if args.comando == "vapid":
@@ -95,6 +156,8 @@ def main(argv: list[str] | None = None) -> int:
     log.info("semilla aplicada; registros creados: %s", conteos)
     if args.comando == "admin":
         return _crear_admin(args)
+    if args.comando == "excepciones":
+        return _cargar_excepciones(args)
     return 0
 
 

@@ -647,11 +647,11 @@ def test_celsia_tariff_control_no_validable_and_revision_reason_codes(
             "Valor del Impuesto Facturado",
             "Valor del Consumo de Energía Antes de Subsidios o Contribuciones Pesos",
         ],
-        # SIN_VCE -> NO_VALIDABLE
+        # SIN_VCE -> REQUIERE_REVISION (RN-006: falta un dato)
         ["82001", "FC-R1", f_date, "1 Residencial", "R3", "3", "Urbano", "Mensual", "Impuesto Alumbrado Público", 13205.16, None],
-        # ESTRATO_SIN_REGLA -> REQUIERE_REVISION
+        # ESTRATO_SIN_REGLA -> NO_VALIDABLE (RN-006: la regla no permite calcular)
         ["82002", "FC-R2", f_date, "1 Residencial", "R9", "9", "Urbano", "Mensual", "Impuesto Alumbrado Público", 9999.00, 100000.0],
-        # CLASIFICACION_REQUIERE_EXCEPCION (Official/Exempt class without exception row) -> REQUIERE_REVISION
+        # CLASIFICACION_REQUIERE_EXCEPCION (Official/Exempt class without exception row) -> NO_VALIDABLE
         ["82003", "FC-R3", f_date, "3 Oficial Exenta", "OF1", "", "Urbano", "Mensual", "Impuesto Alumbrado Público", 50000.00, 500000.0],
     ]
     reca_rows = [
@@ -680,10 +680,11 @@ def test_celsia_tariff_control_no_validable_and_revision_reason_codes(
         params={"grupo_consumo": "todos", "size": 50},
     ).json()
     by_id = {str(r["identificador"]): r for r in tc["items"]}
-    assert by_id["82001"]["estado"] == "NO_VALIDABLE"
-    assert by_id["82002"]["estado"] == "REQUIERE_REVISION"
+    assert by_id["82001"]["estado"] == "REQUIERE_REVISION"
+    assert by_id["82001"]["motivo_revision"] == "SIN_VCE"
+    assert by_id["82002"]["estado"] == "NO_VALIDABLE"
     assert by_id["82002"]["motivo_revision"] == "ESTRATO_SIN_REGLA"
-    assert by_id["82003"]["estado"] == "REQUIERE_REVISION"
+    assert by_id["82003"]["estado"] == "NO_VALIDABLE"
     assert by_id["82003"]["motivo_revision"] in {
         "CLASIFICACION_REQUIERE_EXCEPCION",
         "ESTRATO_SIN_REGLA",

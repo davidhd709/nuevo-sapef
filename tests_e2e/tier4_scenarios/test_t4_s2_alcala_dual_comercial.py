@@ -232,7 +232,7 @@ def _build_celsia_scenario_month(
                 150000.0,
             ]
         )
-        # NO_VALIDABLE (missing VCE on pct_min rule)
+        # REQUIERE_REVISION (missing VCE on pct_min rule; RN-006: falta un dato)
         fact_rows.append(
             [
                 "8101006",
@@ -254,7 +254,7 @@ def _build_celsia_scenario_month(
                 None,
             ]
         )
-        # REQUIERE_REVISION (ESTRATO_SIN_REGLA)
+        # NO_VALIDABLE (ESTRATO_SIN_REGLA; RN-006: la regla no permite calcular)
         fact_rows.append(
             [
                 "8101007",

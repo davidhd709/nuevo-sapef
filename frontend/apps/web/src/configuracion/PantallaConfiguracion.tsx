@@ -16,6 +16,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { useAuth } from "../auth/AuthContext";
+import { PanelPlantillas } from "./PanelPlantillas";
 
 export function PantallaConfiguracion() {
   const { sedeActiva, tienePermiso } = useAuth();
@@ -116,6 +117,7 @@ export function PantallaConfiguracion() {
           <Tabs.Tab value="zonas">Zonas y barrios ({sedeActiva ?? "-"})</Tabs.Tab>
           <Tabs.Tab value="estados">Estados</Tabs.Tab>
           <Tabs.Tab value="parametros">Parámetros</Tabs.Tab>
+          <Tabs.Tab value="plantillas">Plantillas de correo</Tabs.Tab>
           {tienePermiso("configuracion.acuerdo.ver") && (
             <Tabs.Tab value="acuerdos">Acuerdos tarifarios</Tabs.Tab>
           )}
@@ -270,6 +272,10 @@ export function PantallaConfiguracion() {
               </Table.Tbody>
             </Table>
           </Card>
+        </Tabs.Panel>
+
+        <Tabs.Panel value="plantillas" pt="md">
+          <PanelPlantillas />
         </Tabs.Panel>
 
         {tienePermiso("configuracion.acuerdo.ver") && (

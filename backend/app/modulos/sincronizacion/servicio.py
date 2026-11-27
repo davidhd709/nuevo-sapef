@@ -123,7 +123,9 @@ def obtener_paquete(
             MaterialCampo.model_validate(m) for m in inventario.materiales_para_campo(db, sede.id)
         ],
         catalogos=_catalogos(db, sede),
-        mapa_base=MapaBaseCampo(url=f"/api/v1/mapa/base/{sede.codigo}.pmtiles"),
+        mapa_base=MapaBaseCampo(
+            url=f"/api/v1/mapa/base/{sede.codigo}.pmtiles?v=20261125-ampliado"
+        ),
     )
 
 

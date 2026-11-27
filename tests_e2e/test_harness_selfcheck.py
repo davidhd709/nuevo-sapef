@@ -407,7 +407,9 @@ def test_commercial_oracle_celsia_movements_absences_and_irregulars() -> None:
     tc = evaluate_celsia_tariff_control(celsia_rows, periodo="202606", bimonthly_accounts={"C1"})
     assert tc["counts"]["CORRECTO"] == 1
     assert tc["counts"]["POR_ENCIMA"] == 1
-    assert tc["counts"]["NO_VALIDABLE"] == 1
+    # C3 sin VCE: falta un dato -> REQUIERE_REVISION (RN-006), no NO_VALIDABLE.
+    assert tc["counts"]["REQUIERE_REVISION"] == 1
+    assert tc["counts"]["NO_VALIDABLE"] == 0
 
     assert deduce_celsia_periodicity(["202602", "202604"]) == "bimestral_par"
     assert deduce_celsia_periodicity(["202604", "202605"]) == "mensual"

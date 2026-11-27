@@ -98,6 +98,8 @@ def _construir_filtros(
     potencia_id: int | None = None,
     marca_id: int | None = None,
     tipo_intervencion_id: int | None = None,
+    accion_operativa_id: int | None = None,
+    mision_objetivo_id: int | None = None,
     es_rural: bool | None = None,
     en_transito: bool | None = None,
     validado: bool | None = None,
@@ -144,6 +146,12 @@ def _construir_filtros(
     if tipo_intervencion_id is not None:
         params["tipo_intervencion_id"] = tipo_intervencion_id
         condiciones.append("l.tipo_intervencion_id = :tipo_intervencion_id")
+    if accion_operativa_id is not None:
+        params["accion_operativa_id"] = accion_operativa_id
+        condiciones.append("l.accion_operativa_id = :accion_operativa_id")
+    if mision_objetivo_id is not None:
+        params["mision_objetivo_id"] = mision_objetivo_id
+        condiciones.append("l.mision_objetivo_id = :mision_objetivo_id")
     if es_rural is not None:
         params["es_rural"] = es_rural
         condiciones.append("l.es_rural = :es_rural")
@@ -177,6 +185,8 @@ def listar_luminarias(
     potencia_id: int | None = None,
     marca_id: int | None = None,
     tipo_intervencion_id: int | None = None,
+    accion_operativa_id: int | None = None,
+    mision_objetivo_id: int | None = None,
     es_rural: bool | None = None,
     en_transito: bool | None = None,
     validado: bool | None = None,
@@ -194,6 +204,8 @@ def listar_luminarias(
         potencia_id=potencia_id,
         marca_id=marca_id,
         tipo_intervencion_id=tipo_intervencion_id,
+        accion_operativa_id=accion_operativa_id,
+        mision_objetivo_id=mision_objetivo_id,
         es_rural=es_rural,
         en_transito=en_transito,
         validado=validado,
@@ -380,6 +392,10 @@ _MVT_FILTROS_SQL = """
     )
     AND (CAST(:potencia_id AS BIGINT) IS NULL OR l.potencia_id = CAST(:potencia_id AS BIGINT))
     AND (CAST(:marca_id AS BIGINT) IS NULL OR l.marca_id = CAST(:marca_id AS BIGINT))
+    AND (
+        CAST(:tipo_intervencion_id AS BIGINT) IS NULL
+        OR l.tipo_intervencion_id = CAST(:tipo_intervencion_id AS BIGINT)
+    )
     AND (CAST(:validado AS BOOLEAN) IS NULL OR l.validado = CAST(:validado AS BOOLEAN))
     AND (CAST(:en_transito AS BOOLEAN) IS NULL OR l.en_transito = CAST(:en_transito AS BOOLEAN))
     AND (
@@ -395,11 +411,13 @@ _SQL_MVT_AGRUPADO = text(
     raw AS (
         SELECT
             l.id, l.codigo, e.codigo AS estado_codigo, mt.codigo AS tecnologia_codigo,
+            mp.codigo AS potencia_codigo,
             ST_Transform(l.ubicacion, 3857) AS g3857
         FROM luminaria l
         JOIN estado e ON e.id = l.estado_id
         LEFT JOIN barrio b ON b.id = l.barrio_id
         LEFT JOIN maestro_valor mt ON mt.id = l.tecnologia_id
+        LEFT JOIN maestro_valor mp ON mp.id = l.potencia_id
         LEFT JOIN maestro_valor mm ON mm.id = l.marca_id
         CROSS JOIN bounds
         WHERE {_MVT_FILTROS_SQL}
@@ -411,6 +429,7 @@ _SQL_MVT_AGRUPADO = text(
             MIN(codigo) AS codigo,
             MIN(estado_codigo) AS estado_codigo,
             MIN(tecnologia_codigo) AS tecnologia_codigo,
+            MIN(potencia_codigo) AS potencia_codigo,
             ST_Centroid(ST_Collect(g3857)) AS centro
         FROM raw
         GROUP BY ST_SnapToGrid(
@@ -420,7 +439,7 @@ _SQL_MVT_AGRUPADO = text(
     ),
     pts AS (
         SELECT
-            id, codigo, estado_codigo, tecnologia_codigo, total,
+            id, codigo, estado_codigo, tecnologia_codigo, potencia_codigo, total,
             (total > 1) AS es_grupo,
             ST_AsMVTGeom(centro, (SELECT env FROM bounds), 4096, 256, true) AS geom
         FROM grupos
@@ -436,6 +455,7 @@ _SQL_MVT_DETALLE = text(
     pts AS (
         SELECT
             l.id, l.codigo, e.codigo AS estado_codigo, mt.codigo AS tecnologia_codigo,
+            mp.codigo AS potencia_codigo,
             1::int AS total, false AS es_grupo,
             ST_AsMVTGeom(
                 ST_Transform(l.ubicacion, 3857), bounds.env, 4096, 256, true
@@ -444,6 +464,7 @@ _SQL_MVT_DETALLE = text(
         JOIN estado e ON e.id = l.estado_id
         LEFT JOIN barrio b ON b.id = l.barrio_id
         LEFT JOIN maestro_valor mt ON mt.id = l.tecnologia_id
+        LEFT JOIN maestro_valor mp ON mp.id = l.potencia_id
         LEFT JOIN maestro_valor mm ON mm.id = l.marca_id
         CROSS JOIN bounds
         WHERE {_MVT_FILTROS_SQL}
@@ -465,6 +486,7 @@ def obtener_tesela_mvt(
     tecnologia_id: int | None = None,
     potencia_id: int | None = None,
     marca_id: int | None = None,
+    tipo_intervencion_id: int | None = None,
     zona_id: int | None = None,
     barrio_id: int | None = None,
     en_bodega: bool | None = None,
@@ -484,6 +506,7 @@ def obtener_tesela_mvt(
         "tecnologia_id": tecnologia_id,
         "potencia_id": potencia_id,
         "marca_id": marca_id,
+        "tipo_intervencion_id": tipo_intervencion_id,
         "validado": validado,
         "en_transito": en_transito,
         "en_bodega": en_bodega,

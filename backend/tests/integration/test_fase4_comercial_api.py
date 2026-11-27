@@ -604,7 +604,7 @@ def test_celsia_control_periodicidad_y_movimiento(
     estados = {f["identificador"]: f for f in tc["items"]}
     assert tc["totales"]["por_estado"]["CORRECTO"] == 3
     assert estados["C2"]["estado"] == "POR_ENCIMA"
-    assert estados["C5"]["estado"] == "NO_VALIDABLE"
+    assert estados["C5"]["estado"] == "REQUIERE_REVISION"  # sin VCE: falta un dato (RN-006)
     assert estados["C3"]["esperado"] == "21129.98"  # tope rural duplicado por ser bimestral
     mov = analista.get("/api/v1/comercial/celsia/analisis/movimientos/202605", headers=AL)
     assert "C3" not in mov.text  # bimestral fuera de su mes: no se cuenta ni se lista

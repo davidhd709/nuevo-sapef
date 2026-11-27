@@ -17,6 +17,7 @@ from app.modulos.comercial.dominio.comun import (
     d,
     desplazar,
     div,
+    div_precisa,
     primer_dia,
     q2,
     q4,
@@ -361,6 +362,12 @@ def tabla_dinamica(
     refa_t = _por_tarifa(f for f in refactura if sin_cuota(f))
     conv_t = _por_tarifa(f for f in convenio if f.get("cod_oper_cont") == OPERACION_CONVENIO)
     nics_recaudo = {str(f["nic"]) for f in recaudo}
+    # Movimiento de usuarios como OPainn: por NIC (cambiar de tarifa no es dejar de facturarse
+    # ni ser nuevo); sin corte comparable, en cero.
+    nics_actuales = {str(f["nic"]) for f in facturacion}
+    nics_previos = {nic for nic, _ in anteriores}
+    nics_historicos = {nic for nic, _ in historicos}
+    hay_comparable = bool(anteriores)
 
     def tipo(f: dict[str, Any]) -> str:
         return f.get("tipo_recaudo") or tipo_recaudo(f, periodo)
@@ -389,7 +396,8 @@ def tabla_dinamica(
         consumos = [d(f["consumo_kwh"]) for f in f_sin if f.get("consumo_kwh") is not None]
         consumo_num += suma(consumos)
         consumo_cnt += len(consumos)
-        promedio = q4(suma(consumos) / Decimal(len(consumos))) if consumos else CERO
+        promedio_exacto = suma(consumos) / Decimal(len(consumos)) if consumos else CERO
+        promedio = q4(promedio_exacto)
         consumo_ci400 = q4(
             suma(f.get("consumo_kwh") for f in f_rows if f.get("concepto") == CONCEPTO_IMPUESTO)
         )
@@ -415,42 +423,41 @@ def tabla_dinamica(
             facturas_por_nic[nic] += 1
         val_conv = q4(suma(por_factura.values()))
         n_fact_conv = len(por_factura)
-        pares = {(nic, tarifa) for nic in nics_f}
-        previos = {p for p in anteriores if p[1] == tarifa}
+        altas = [nic for nic in nics_f if nic not in nics_previos] if hay_comparable else []
         pagaron = len(nics_f & nics_recaudo)
         filas.append(
             {
                 "estrato_uso": tarifa,
-                "estrato_uso_catastro": tarifa,
+                "estrato_uso_catastro": tarifa.replace("_", " "),
                 "n_factura": n_factura,
-                "pct_n_factura": div(n_factura, sum_n_factura),
+                "pct_n_factura": div_precisa(n_factura, sum_n_factura),
                 "promedio_consumo_kwh": promedio,
                 "facturacion": facturacion_v,
-                "tarifa_promedio": div(total_fact, promedio),
+                "tarifa_promedio": div_precisa(total_fact, promedio_exacto),
                 "refacturacion": refacturacion_v,
                 "total_facturacion": total_fact,
                 "n_rec": n_rec,
-                "pct_n_rec": div(n_rec, sum_n_rec),
+                "pct_n_rec": div_precisa(n_rec, sum_n_rec),
                 "recaudo_corriente": rec_corr,
-                "factura_promedio_rec_corriente": div(rec_corr, n_rec),
-                "pct_recaudo_corriente": div(rec_corr, facturacion_v),
+                "factura_promedio_rec_corriente": div_precisa(rec_corr, n_rec),
+                "pct_recaudo_corriente": div_precisa(rec_corr, facturacion_v),
                 "recaudo_total": rec_total,
-                "factura_promedio_rec_total": div(rec_total, n_rec),
-                "pct_recaudo_total": div(rec_total, facturacion_v),
+                "factura_promedio_rec_total": div_precisa(rec_total, n_rec),
+                "pct_recaudo_total": div_precisa(rec_total, facturacion_v),
                 "n_facturas_recaudo_cartera": n_cart,
                 "recaudo_cartera": rec_cart,
-                "pct_recaudo_cartera": div(rec_cart, sum_rec_cartera),
-                "factura_promedio_cartera": div(rec_cart, n_cart),
+                "pct_recaudo_cartera": div_precisa(rec_cart, sum_rec_cartera),
+                "factura_promedio_cartera": div_precisa(rec_cart, n_cart),
                 "n_facturacion_cartera_ordinaria": n_factura - n_rec,
-                "pct_facturacion_cartera_ordinaria": div(n_factura - n_rec, n_factura),
+                "pct_facturacion_cartera_ordinaria": div_precisa(n_factura - n_rec, n_factura),
                 "cartera_periodo": q4(facturacion_v - rec_total),
-                "eficiencia_con_cartera": div(rec_total, facturacion_v),
-                "eficiencia_corriente": div(rec_corr, facturacion_v),
-                "eficiencia_facturacion": div(n_rec, n_factura),
+                "eficiencia_con_cartera": div_precisa(rec_total, facturacion_v),
+                "eficiencia_corriente": div_precisa(rec_corr, facturacion_v),
+                "eficiencia_facturacion": div_precisa(n_rec, n_factura),
                 "n_usuarios_cartera_acumulada": len(deudores),
-                "pct_n_usuarios_cartera": div(con_cartera, n_factura),
+                "pct_n_usuarios_cartera": div_precisa(con_cartera, n_factura),
                 "cartera_acumulada": cartera_acum,
-                "pct_cartera_valor": div(cartera_acum, sum_cartera),
+                "pct_cartera_valor": div_precisa(cartera_acum, sum_cartera),
                 "n_usuarios_cartera_recuperada": n_cart,
                 "cartera_recuperada": rec_cart,
                 "n_usuarios_interes_mora": len({str(f["nic"]) for f in mora}),
@@ -460,17 +467,19 @@ def tabla_dinamica(
                 # [PENDIENTE §E.1] acumulados de convenios: por ahora, los del periodo.
                 "n_usuarios_total_convenios": len(facturas_por_nic),
                 "total_valor_convenios": val_conv,
-                "usuarios_dejados_facturar": len(previos - pares),
-                "nuevos_usuarios": len([p for p in pares - previos if p not in historicos]),
-                "usuarios_reintegrados": len([p for p in pares - previos if p in historicos]),
+                "usuarios_dejados_facturar": len(
+                    {n for n, t in anteriores if t == tarifa and n not in nics_actuales}
+                ),
+                "nuevos_usuarios": sum(1 for n in altas if n not in nics_historicos),
+                "usuarios_reintegrados": sum(1 for n in altas if n in nics_historicos),
                 "n_facturas_convenios": n_fact_conv,
-                "valor_promedio_factura_convenio": div(val_conv, n_fact_conv),
+                "valor_promedio_factura_convenio": div_precisa(val_conv, n_fact_conv),
                 "n_usuarios_multiples_facturas_convenio": sum(
                     1 for n in facturas_por_nic.values() if n > 1
                 ),
                 "consumo_kwh": consumo_ci400,
                 "n_facturados_pagaron": pagaron,
-                "eficiencia_usuarios": div(pagaron, n_factura),
+                "eficiencia_usuarios": div_precisa(pagaron, n_factura),
                 "_facturados_con_cartera": con_cartera,
             }
         )
@@ -481,7 +490,8 @@ def tabla_dinamica(
     fact, rec_total = total_de("facturacion"), total_de("recaudo_total")
     rec_corr, rec_cart = total_de("recaudo_corriente"), total_de("recaudo_cartera")
     total_fact = q4(fact + total_de("refacturacion"))
-    promedio_total = q4(consumo_num / Decimal(consumo_cnt)) if consumo_cnt else CERO
+    promedio_total_exacto = consumo_num / Decimal(consumo_cnt) if consumo_cnt else CERO
+    promedio_total = q4(promedio_total_exacto)
     n_cart = total_de("n_facturas_recaudo_cartera")
     val_conv = total_de("valor_convenios_periodo")
     n_fact_conv = total_de("n_facturas_convenios")
@@ -493,29 +503,29 @@ def tabla_dinamica(
         "pct_n_factura": q4(UNO) if sum_n_factura else CERO,
         "promedio_consumo_kwh": promedio_total,
         "facturacion": q4(fact),
-        "tarifa_promedio": div(total_fact, promedio_total),
+        "tarifa_promedio": div_precisa(total_fact, promedio_total_exacto),
         "refacturacion": q4(total_de("refacturacion")),
         "total_facturacion": total_fact,
         "n_rec": sum_n_rec,
         "pct_n_rec": q4(UNO) if sum_n_rec else CERO,
         "recaudo_corriente": q4(rec_corr),
-        "factura_promedio_rec_corriente": div(rec_corr, sum_n_rec),
-        "pct_recaudo_corriente": div(rec_corr, fact),
+        "factura_promedio_rec_corriente": div_precisa(rec_corr, sum_n_rec),
+        "pct_recaudo_corriente": div_precisa(rec_corr, fact),
         "recaudo_total": q4(rec_total),
-        "factura_promedio_rec_total": div(rec_total, sum_n_rec),
-        "pct_recaudo_total": div(rec_total, fact),
+        "factura_promedio_rec_total": div_precisa(rec_total, sum_n_rec),
+        "pct_recaudo_total": div_precisa(rec_total, fact),
         "n_facturas_recaudo_cartera": n_cart,
         "recaudo_cartera": q4(rec_cart),
         "pct_recaudo_cartera": q4(UNO) if rec_cart else CERO,
-        "factura_promedio_cartera": div(rec_cart, n_cart),
+        "factura_promedio_cartera": div_precisa(rec_cart, n_cart),
         "n_facturacion_cartera_ordinaria": sum_n_factura - sum_n_rec,
-        "pct_facturacion_cartera_ordinaria": div(sum_n_factura - sum_n_rec, sum_n_factura),
+        "pct_facturacion_cartera_ordinaria": div_precisa(sum_n_factura - sum_n_rec, sum_n_factura),
         "cartera_periodo": q4(fact - rec_total),
-        "eficiencia_con_cartera": div(rec_total, fact),
-        "eficiencia_corriente": div(rec_corr, fact),
-        "eficiencia_facturacion": div(sum_n_rec, sum_n_factura),
+        "eficiencia_con_cartera": div_precisa(rec_total, fact),
+        "eficiencia_corriente": div_precisa(rec_corr, fact),
+        "eficiencia_facturacion": div_precisa(sum_n_rec, sum_n_factura),
         "n_usuarios_cartera_acumulada": total_de("n_usuarios_cartera_acumulada"),
-        "pct_n_usuarios_cartera": div(total_de("_facturados_con_cartera"), sum_n_factura),
+        "pct_n_usuarios_cartera": div_precisa(total_de("_facturados_con_cartera"), sum_n_factura),
         "cartera_acumulada": q4(sum_cartera),
         "pct_cartera_valor": q4(UNO) if sum_cartera else CERO,
         "n_usuarios_cartera_recuperada": n_cart,
@@ -530,13 +540,13 @@ def tabla_dinamica(
         "nuevos_usuarios": total_de("nuevos_usuarios"),
         "usuarios_reintegrados": total_de("usuarios_reintegrados"),
         "n_facturas_convenios": n_fact_conv,
-        "valor_promedio_factura_convenio": div(val_conv, n_fact_conv),
+        "valor_promedio_factura_convenio": div_precisa(val_conv, n_fact_conv),
         "n_usuarios_multiples_facturas_convenio": total_de(
             "n_usuarios_multiples_facturas_convenio"
         ),
         "consumo_kwh": q4(total_de("consumo_kwh")),
         "n_facturados_pagaron": pagaron,
-        "eficiencia_usuarios": div(pagaron, sum_n_factura),
+        "eficiencia_usuarios": div_precisa(pagaron, sum_n_factura),
     }
     for f in filas:
         f.pop("_facturados_con_cartera")

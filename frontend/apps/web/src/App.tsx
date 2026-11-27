@@ -17,6 +17,7 @@ import { PantallaAtencion } from "./atencion/PantallaAtencion";
 import { PantallaComercial } from "./comercial/PantallaComercial";
 import { PantallaMapa } from "./activos/PantallaMapa";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
+import { PantallaCambiarClave } from "./auth/PantallaCambiarClave";
 import { PantallaIngresar } from "./auth/PantallaIngresar";
 import { PantallaConfiguracion } from "./configuracion/PantallaConfiguracion";
 import { PantallaInventario } from "./inventario/PantallaInventario";
@@ -74,6 +75,10 @@ function ContenidoApp() {
         }}
       />
     );
+  }
+
+  if (usuario.debe_cambiar_clave) {
+    return <PantallaCambiarClave />;
   }
 
   let contenido = <EstadoSistema />;

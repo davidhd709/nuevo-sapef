@@ -6,7 +6,7 @@ from collections.abc import Sequence
 from typing import Any
 
 from app.modulos.comercial.dominio.analisis import UsuarioCorte
-from app.modulos.comercial.dominio.comun import CERO, d, div, q2, q4, suma
+from app.modulos.comercial.dominio.comun import CERO, d, div, div_precisa, q2, q4, suma
 
 
 def resumen(comercial: Sequence[dict[str, Any]]) -> dict[str, Any]:
@@ -35,7 +35,7 @@ def resumen(comercial: Sequence[dict[str, Any]]) -> dict[str, Any]:
         "saldo_cartera": q4(suma(f.get("saldo_cartera") for f in comercial)),
         "cartera": q4(suma(f.get("saldo_cartera") for f in comercial)),
         "consumo_activa": q4(suma(f.get("consumo_activa_kw") for f in comercial)),
-        "eficiencia": div(recaudo, facturacion) if facturacion > 0 else None,
+        "eficiencia": div_precisa(recaudo, facturacion) if facturacion > 0 else None,
         "eficiencia_usuarios": div(len(pagaron), len(clientes), nulo=True),
     }
 
@@ -67,8 +67,8 @@ def tabla_dinamica(comercial: Sequence[dict[str, Any]]) -> dict[str, Any]:
             "recuperacion_cartera": q4(suma(f.get("recuperacion_cartera") for f in filas)),
             "saldo_cartera": q4(suma(f.get("saldo_cartera") for f in filas)),
             "consumo_activa": consumo,
-            "eficiencia": div(recaudo, facturacion) if facturacion > 0 else None,
-            "promedio_consumo": div(consumo, facturas),
+            "eficiencia": div_precisa(recaudo, facturacion) if facturacion > 0 else None,
+            "promedio_consumo": div_precisa(consumo, facturas),
         }
 
     filas = [

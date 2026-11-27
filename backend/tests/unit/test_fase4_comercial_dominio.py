@@ -254,14 +254,15 @@ def test_celsia_reglas_y_tope_bimestral() -> None:
             ],
             "202610",
             vigencia,
-            set(),
         )
     }
     assert filas["A"].estado == "CORRECTO" and filas["B"].estado == "POR_ENCIMA"
     assert filas["C"].esperado == Decimal("21129.98") and filas["C"].estado == "CORRECTO"
-    assert filas["D"].estado == "NO_VALIDABLE"
+    assert filas["D"].estado == "REQUIERE_REVISION"  # sin VCE: falta un dato (RN-006)
+    # Sin regla en la carta: no hay esperado que calcular (RN-006) -> NO_VALIDABLE.
     assert filas["E"].motivo_revision == "CLASIFICACION_REQUIERE_EXCEPCION"
     assert filas["F"].motivo_revision == "ESTRATO_SIN_REGLA"
+    assert filas["E"].estado == filas["F"].estado == "NO_VALIDABLE"
     assert celsia_ingesta.tipo_concepto("Impuesto Alumbrado Público") == "impuesto"
     assert celsia_ingesta.tipo_concepto("") == "agregado_sin_detalle"
     assert celsia_ingesta.tipo_concepto("Interés de financiación") == "interes"

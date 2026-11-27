@@ -855,6 +855,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/lotes/{lote_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Obtener un lote de marcación de la sede activa */
+        get: operations["obtener_lote_api_v1_lotes__lote_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/mapa/luminarias/{z}/{x}/{y}.mvt": {
         parameters: {
             query?: never;
@@ -7207,6 +7224,8 @@ export interface operations {
                 potencia_id?: number | null;
                 marca_id?: number | null;
                 tipo_intervencion_id?: number | null;
+                accion_operativa_id?: number | null;
+                mision_objetivo_id?: number | null;
                 es_rural?: boolean | null;
                 en_transito?: boolean | null;
                 validado?: boolean | null;
@@ -7553,6 +7572,39 @@ export interface operations {
             };
         };
     };
+    obtener_lote_api_v1_lotes__lote_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Sede"?: string | null;
+            };
+            path: {
+                lote_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoteSalida"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     obtener_tesela_mvt_api_v1_mapa_luminarias__z___x___y__mvt_get: {
         parameters: {
             query?: {
@@ -7560,6 +7612,7 @@ export interface operations {
                 tecnologia_id?: number | null;
                 potencia_id?: number | null;
                 marca_id?: number | null;
+                tipo_intervencion_id?: number | null;
                 zona_id?: number | null;
                 barrio_id?: number | null;
                 en_bodega?: boolean | null;

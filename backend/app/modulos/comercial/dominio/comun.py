@@ -111,6 +111,18 @@ def div(num: Any, den: Any, *, nulo: bool = False) -> Decimal | None:
     return q4(n / m)
 
 
+_Q10 = Decimal("0.0000000001")
+
+
+def div_precisa(num: Any, den: Any) -> Decimal:
+    """num ÷ den a 10 decimales (razones y porcentajes que se comparan con OPainn, que no los
+    redondea); división por cero → 0."""
+    n, m = d(num), d(den)
+    if m == CERO:
+        return CERO
+    return (n / m).quantize(_Q10, rounding=ROUND_HALF_UP)
+
+
 def suma(valores: Iterable[Any]) -> Decimal:
     total = CERO
     for v in valores:

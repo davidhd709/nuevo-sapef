@@ -69,6 +69,8 @@ def listar_luminarias(
     potencia_id: int | None = None,
     marca_id: int | None = None,
     tipo_intervencion_id: int | None = None,
+    accion_operativa_id: int | None = None,
+    mision_objetivo_id: int | None = None,
     es_rural: bool | None = None,
     en_transito: bool | None = None,
     validado: bool | None = None,
@@ -88,6 +90,8 @@ def listar_luminarias(
         potencia_id=potencia_id,
         marca_id=marca_id,
         tipo_intervencion_id=tipo_intervencion_id,
+        accion_operativa_id=accion_operativa_id,
+        mision_objetivo_id=mision_objetivo_id,
         es_rural=es_rural,
         en_transito=en_transito,
         validado=validado,
@@ -215,6 +219,15 @@ def listar_lotes(
     return servicio.listar_lotes(db, sede, page=page, size=size)
 
 
+@router.get(
+    "/lotes/{lote_id}",
+    response_model=LoteSalida,
+    summary="Obtener un lote de marcación de la sede activa",
+)
+def obtener_lote(lote_id: int, sede: SedeActiva, _: VeLuminarias, db: Db) -> LoteSalida:
+    return servicio.obtener_lote(db, sede, lote_id)
+
+
 @router.post(
     "/lotes",
     response_model=LoteSalida,
@@ -248,6 +261,7 @@ def obtener_tesela_mvt(
     tecnologia_id: int | None = None,
     potencia_id: int | None = None,
     marca_id: int | None = None,
+    tipo_intervencion_id: int | None = None,
     zona_id: int | None = None,
     barrio_id: int | None = None,
     en_bodega: bool | None = None,
@@ -265,6 +279,7 @@ def obtener_tesela_mvt(
         tecnologia_id=tecnologia_id,
         potencia_id=potencia_id,
         marca_id=marca_id,
+        tipo_intervencion_id=tipo_intervencion_id,
         zona_id=zona_id,
         barrio_id=barrio_id,
         en_bodega=en_bodega,
@@ -275,7 +290,7 @@ def obtener_tesela_mvt(
     return Response(
         content=mvt,
         media_type="application/vnd.mapbox-vector-tile",
-        headers={"Cache-Control": "public, max-age=60"},
+        headers={"Cache-Control": "private, max-age=60", "Vary": "X-Sede, Cookie"},
     )
 
 
@@ -292,7 +307,7 @@ def obtener_pmtiles(
     contenido, status_code, inicio, fin, total = servicio.obtener_pmtiles_sede(
         db, usuario, sede_codigo, range_header
     )
-    cabeceras = {"Accept-Ranges": "bytes", "Cache-Control": "public, max-age=3600"}
+    cabeceras = {"Accept-Ranges": "bytes", "Cache-Control": "private, max-age=3600"}
     if status_code == 206:
         cabeceras["Content-Range"] = f"bytes {inicio}-{fin}/{total}"
     return Response(

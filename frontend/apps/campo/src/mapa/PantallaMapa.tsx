@@ -15,7 +15,11 @@ import { CACHE_MAPA, despuesDeSincronizar } from "../datos/sincronizacion";
 const COLOR_ESTADO: [string, string][] = [
   ["121", "#2f9e44"], // en operación
   ["122", "#e03131"], // con PQRS
+  ["123", "#1971c2"], // bodega de baja
   ["124", "#1971c2"], // bodega buena
+  ["125", "#1971c2"], // bodega en garantía
+  ["112", "#1971c2"], // desmontada
+  ["126", "#e67700"], // disposición final
 ];
 
 let protocolo: Protocol | null = null;
@@ -25,7 +29,7 @@ async function fuenteBase(): Promise<string | null> {
   if (!url || typeof caches === "undefined") return null;
   const respuesta = await (await caches.open(CACHE_MAPA)).match(url);
   if (!respuesta) return null;
-  const archivo = new File([await respuesta.blob()], url.split("/").pop() ?? "base.pmtiles");
+  const archivo = new File([await respuesta.blob()], new URL(url, window.location.origin).pathname.split("/").pop() ?? "base.pmtiles");
   if (!protocolo) {
     protocolo = new Protocol();
     maplibregl.addProtocol("pmtiles", protocolo.tile);
@@ -39,14 +43,17 @@ function estilo(base: string | null): StyleSpecification {
   const capasBase: StyleSpecification["layers"] = base
     ? [
         // Esquema de capas de OpenStreetMap recortado con Protomaps (SPIKE-02).
-        { id: "tierra", type: "fill", source: "base", "source-layer": "earth", paint: { "fill-color": "#f1f3f5" } },
-        { id: "agua", type: "fill", source: "base", "source-layer": "water", paint: { "fill-color": "#a5d8ff" } },
+        { id: "tierra", type: "fill", source: "base", "source-layer": "earth", paint: { "fill-color": "#edf4e8" } },
+        { id: "vegetacion", type: "fill", source: "base", "source-layer": "landcover", paint: { "fill-color": "#d7efda", "fill-opacity": 0.75 } },
+        { id: "parques", type: "fill", source: "base", "source-layer": "landuse", filter: ["in", ["get", "kind"], ["literal", ["park", "recreation_ground", "grass", "forest"]]], paint: { "fill-color": "#c7e9ce", "fill-opacity": 0.8 } },
+        { id: "agua", type: "fill", source: "base", "source-layer": "water", filter: ["==", ["geometry-type"], "Polygon"], paint: { "fill-color": "#9bd9ee" } },
+        { id: "rios", type: "line", source: "base", "source-layer": "water", filter: ["==", ["geometry-type"], "LineString"], paint: { "line-color": "#8ed0e9", "line-width": ["interpolate", ["linear"], ["zoom"], 8, 1, 14, 3] } },
         {
           id: "edificios",
           type: "fill",
           source: "base",
           "source-layer": "buildings",
-          paint: { "fill-color": "#dee2e6" },
+          paint: { "fill-color": "#e7e5df" },
         },
         {
           id: "vias",
@@ -55,12 +62,79 @@ function estilo(base: string | null): StyleSpecification {
           "source-layer": "roads",
           paint: { "line-color": "#ffffff", "line-width": 2 },
         },
+        {
+          id: "nombres-rios", type: "symbol", source: "base", "source-layer": "water",
+          minzoom: 10, filter: ["all", ["has", "name"], ["==", ["geometry-type"], "LineString"]],
+          layout: { "symbol-placement": "line", "symbol-spacing": 300, "text-field": ["get", "name"], "text-font": ["Noto Sans Regular"], "text-size": 11 },
+          paint: { "text-color": "#1971a5", "text-halo-color": "#ffffff", "text-halo-width": 1.5 },
+        },
+        {
+          id: "nombres-calles",
+          type: "symbol",
+          source: "base",
+          "source-layer": "roads",
+          minzoom: 13,
+          filter: ["has", "name"],
+          layout: {
+            "symbol-placement": "line",
+            "symbol-spacing": 180,
+            "text-field": ["get", "name"],
+            "text-font": ["Noto Sans Regular"],
+            "text-size": ["interpolate", ["linear"], ["zoom"], 13, 10, 16, 13],
+            "text-max-angle": 60,
+          },
+          paint: { "text-color": "#495057", "text-halo-color": "#ffffff", "text-halo-width": 1.5 },
+        },
+        {
+          id: "nombres-lugares",
+          type: "symbol",
+          source: "base",
+          "source-layer": "places",
+          filter: ["has", "name"],
+          layout: {
+            "text-field": ["get", "name"],
+            "text-font": ["Noto Sans Regular"],
+            "text-size": 14,
+          },
+          paint: { "text-color": "#343a40", "text-halo-color": "#ffffff", "text-halo-width": 2 },
+        },
+        {
+          id: "puntos-interes",
+          type: "circle",
+          source: "base",
+          "source-layer": "pois",
+          minzoom: 11,
+          filter: ["has", "name"],
+          paint: {
+            "circle-radius": 3,
+            "circle-color": ["match", ["get", "kind"], "park", "#2b8a3e", "hospital", "#c92a2a", "#4263eb"],
+            "circle-stroke-color": "#ffffff",
+            "circle-stroke-width": 1,
+          },
+        },
+        {
+          id: "nombres-puntos-interes",
+          type: "symbol",
+          source: "base",
+          "source-layer": "pois",
+          minzoom: 11,
+          filter: ["has", "name"],
+          layout: {
+            "text-field": ["get", "name"],
+            "text-font": ["Noto Sans Regular"],
+            "text-size": 11,
+            "text-offset": [0, 1],
+            "text-max-width": 12,
+          },
+          paint: { "text-color": "#343a40", "text-halo-color": "#ffffff", "text-halo-width": 1.5 },
+        },
       ]
     : [];
   return {
     version: 8,
+    glyphs: `${window.location.origin}/mapa/fonts/{fontstack}/{range}.pbf`,
     sources: base ? { base: { type: "vector", url: base } } : {},
-    layers: [{ id: "fondo", type: "background", paint: { "background-color": "#e9ecef" } }, ...capasBase],
+    layers: [{ id: "fondo", type: "background", paint: { "background-color": "#eef4e9" } }, ...capasBase],
   };
 }
 
@@ -198,6 +272,8 @@ export default function PantallaMapa() {
         <Badge color="green">En operación</Badge>
         <Badge color="red">Con PQRS</Badge>
         <Badge color="blue">Bodega</Badge>
+        <Badge color="orange">Disposición final</Badge>
+        <Badge color="gray">Otros estados</Badge>
         <Badge color="dark" variant="outline">
           Borde grueso: en mis órdenes
         </Badge>

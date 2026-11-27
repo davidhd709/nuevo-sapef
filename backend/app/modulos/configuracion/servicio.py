@@ -1160,6 +1160,115 @@ def obtener_vigencia_aprobada(
     return _a_acuerdo_detalle(acuerdo) if acuerdo is not None else None
 
 
+# === Contribuyentes especiales desde un archivo (RN-004) =========================================
+
+
+def reemplazar_excepciones_acuerdo(
+    db: Session,
+    *,
+    sede_id: int,
+    comercializador_codigo: str,
+    anio: int,
+    factores: dict[str, Decimal] | None = None,
+    reglas: dict[str, dict[str, Any]] | None = None,
+    fuente: str,
+    actor_id: int | None,
+) -> dict[str, Any]:
+    """Carga los contribuyentes especiales en la vigencia aprobada, respetando su ciclo: nueva
+    vigencia aprobada con la lista y la anterior queda «reemplazada» (auditado). Si la lista ya
+    es la misma, no cambia nada. Sin commit.
+
+    `factores`: identificador → factor UVT (Afinia, RN-004). `reglas`: identificador → regla
+    individual del anexo de la carta (Celsia). Es para cargar los catálogos privados de OPainn
+    (`excepciones_tarifarias_<comercializador>_<año>.json`) sin escribirlos a mano: los
+    identificadores nunca se guardan en el repositorio."""
+    com = repositorio.obtener_comercializador_por_codigo(db, comercializador_codigo)
+    if com is None:
+        raise HTTPException(status_code=404, detail="Comercializador no encontrado.")
+    anterior = repositorio.obtener_acuerdo_en_estado(db, sede_id, com.id, anio, "aprobado")
+    if anterior is None:
+        raise HTTPException(
+            status_code=422, detail=f"No hay un acuerdo {anio} aprobado de {com.codigo} en la sede."
+        )
+    actuales = {
+        e.identificador: (None if e.factor_uvt is None else Decimal(e.factor_uvt), e.regla or None)
+        for e in anterior.excepciones
+        if e.activo
+    }
+    nuevos: dict[str, tuple[Decimal | None, dict[str, Any] | None]] = {
+        str(k).strip(): (Decimal(v), None) for k, v in (factores or {}).items()
+    }
+    for k, regla in (reglas or {}).items():
+        nuevos[str(k).strip()] = (nuevos.get(str(k).strip(), (None, None))[0], dict(regla))
+    if actuales == nuevos:
+        return {"acuerdo_id": anterior.id, "cambios": 0, "excepciones": len(nuevos)}
+
+    anterior.estado = "reemplazado"
+    anterior.modificado_por = actor_id
+    db.flush()
+    nueva = AcuerdoVigencia(
+        sede_id=sede_id,
+        comercializador_id=com.id,
+        anio=anio,
+        estado="aprobado",
+        uvt=anterior.uvt,
+        umbral_kwh=anterior.umbral_kwh,
+        tolerancia=anterior.tolerancia,
+        base_costo_variable=anterior.base_costo_variable,
+        reglas=dict(anterior.reglas),
+        fuente=fuente[:500],
+        origen_id=anterior.id,
+        creado_por=actor_id,
+        modificado_por=actor_id,
+        aprobado_por=actor_id,
+        aprobado_en=datetime.now(UTC),
+        tarifas=[
+            AcuerdoTarifa(
+                tarifa=t.tarifa,
+                orden=t.orden,
+                tipo_regla=t.tipo_regla,
+                factor_uvt_minimo=t.factor_uvt_minimo,
+                porcentaje_costo_variable=t.porcentaje_costo_variable,
+                valor_urbano=t.valor_urbano,
+                valor_rural=t.valor_rural,
+            )
+            for t in anterior.tarifas
+        ],
+        # La lista del archivo reemplaza la anterior completa.
+        excepciones=[
+            AcuerdoExcepcion(
+                identificador=ident,
+                nombre=str((regla or {}).get("nombre_fuente") or "")[:200] or None,
+                factor_uvt=factor,
+                regla=regla,
+                activo=True,
+            )
+            for ident, (factor, regla) in sorted(nuevos.items())
+        ],
+    )
+    db.add(nueva)
+    db.flush()
+    for accion, entidad_id, despues in (
+        ("reemplazar", anterior.id, {"estado": "reemplazado", "reemplazado_por": nueva.id}),
+        (
+            "cargar_excepciones",
+            nueva.id,
+            # Solo conteos: los identificadores son datos de contribuyentes.
+            {"excepciones": len(nuevos), "antes": len(actuales), "fuente": fuente[:200]},
+        ),
+    ):
+        seguridad.registrar_auditoria(
+            db,
+            usuario_id=actor_id,
+            sede_id=sede_id,
+            accion=accion,
+            entidad="acuerdo_vigencia",
+            entidad_id=str(entidad_id),
+            despues=despues,
+        )
+    return {"acuerdo_id": nueva.id, "cambios": 1, "excepciones": len(nuevos)}
+
+
 # === Catálogos comerciales =====================================================================
 
 

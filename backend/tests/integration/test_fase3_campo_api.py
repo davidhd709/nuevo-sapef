@@ -98,7 +98,7 @@ def test_paquete_completo_y_delta_con_ordenes_retiradas(
     assert len(pkg["catalogos"]["componentes"]) == 12
     assert pkg["catalogos"]["barrios"] and pkg["catalogos"]["tipos_modernizacion"]
     assert {d["codigo"] for d in pkg["catalogos"]["destinos_desmontada"]} >= {"124", "123"}
-    assert pkg["mapa_base"]["url"] == "/api/v1/mapa/base/montelibano.pmtiles"
+    assert pkg["mapa_base"]["url"] == "/api/v1/mapa/base/montelibano.pmtiles?v=20261125-ampliado"
     assert pkg["ordenes_anuladas_o_reasignadas"] == []
     assert ajena["id"] not in {o["id"] for o in pkg["ordenes_asignadas"]}
 

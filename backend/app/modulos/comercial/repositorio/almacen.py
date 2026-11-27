@@ -267,14 +267,65 @@ def _a_tipo(valor: Any, tipo: str) -> Any:
     return valor
 
 
+SIN_MANIFIESTO = (
+    "El paquete de OPainn no trae manifest.json: las familias se tomaron de sus Parquet y las "
+    "huellas se calcularon al importar (no se pudo verificar la integridad contra el origen)."
+)
+MANIFIESTO_OPAINN = (
+    "El manifiesto de OPainn guarda las huellas de los archivos del comercializador, no las de "
+    "los Parquet: las familias se tomaron de sus Parquet y sus huellas se calcularon al importar."
+)
+
+
+def _manifiesto_verificable(manifiesto: dict[str, Any]) -> bool:
+    """Formato con la huella de cada Parquet: {"familias": {familia: {archivo_parquet,
+    sha256_parquet}}}. El almacén de OPainn usa otro (huellas de los archivos fuente)."""
+    familias = manifiesto.get("familias")
+    return isinstance(familias, dict) and all(
+        isinstance(m, dict) and m.get("sha256_parquet") for m in familias.values()
+    )
+
+
+def aviso_manifiesto(carpeta: Path) -> str | None:
+    """Por qué no se pudo verificar la integridad del paquete contra el origen (o None)."""
+    manifiesto = leer_manifiesto(carpeta)
+    if manifiesto is None:
+        return SIN_MANIFIESTO
+    return None if _manifiesto_verificable(manifiesto) else MANIFIESTO_OPAINN
+
+
+def manifiesto_efectivo(
+    carpeta: Path, esquemas: dict[str, dict[str, str]]
+) -> dict[str, Any] | None:
+    """El manifiesto con huellas de los Parquet. Si el paquete no lo trae (cortes viejos de
+    OPainn) o trae el de OPainn (huellas de los archivos fuente), se arma uno con los
+    `<familia>.parquet` conocidos y sus huellas, `inferido: True`, conservando el original en
+    `origen` para la trazabilidad. None si no hay Parquet de familias conocidas."""
+    manifiesto = leer_manifiesto(carpeta)
+    if manifiesto is not None and _manifiesto_verificable(manifiesto):
+        return manifiesto
+    familias = {
+        familia: {
+            "archivo_parquet": f"{familia}.parquet",
+            "sha256_parquet": sha256_archivo(carpeta / f"{familia}.parquet"),
+        }
+        for familia in esquemas
+        if (carpeta / f"{familia}.parquet").is_file()
+    }
+    if not familias:
+        return None
+    periodo = (manifiesto or {}).get("periodo") or carpeta.name
+    return {"periodo": str(periodo), "familias": familias, "inferido": True, "origen": manifiesto}
+
+
 def leer_paquete(
     carpeta: Path, esquemas: dict[str, dict[str, str]]
 ) -> tuple[dict[str, list[dict[str, Any]]], list[str]]:
     """Lee un periodo del almacén de OPainn: verifica el SHA-256 de cada Parquet contra su
     manifiesto y que el esquema sea compatible. Devuelve (familias, errores)."""
-    manifiesto = leer_manifiesto(carpeta)
+    manifiesto = manifiesto_efectivo(carpeta, esquemas)
     if manifiesto is None:
-        return {}, ["El paquete no trae manifest.json."]
+        return {}, ["El paquete no trae manifest.json ni Parquet de familias conocidas."]
     familias: dict[str, list[dict[str, Any]]] = {}
     errores: list[str] = []
     for familia, meta in (manifiesto.get("familias") or {}).items():
@@ -313,9 +364,9 @@ def leer_paquete(
 
 def verificar_paquete(carpeta: Path, esquemas: dict[str, dict[str, str]]) -> list[str]:
     """Comprobación rápida antes de encolar: manifiesto, SHA-256 y esquema (sin leer los datos)."""
-    manifiesto = leer_manifiesto(carpeta)
+    manifiesto = manifiesto_efectivo(carpeta, esquemas)
     if manifiesto is None:
-        return ["El paquete no trae manifest.json."]
+        return ["El paquete no trae manifest.json ni Parquet de familias conocidas."]
     errores = []
     for familia, meta in (manifiesto.get("familias") or {}).items():
         archivo = (carpeta / str(meta.get("archivo_parquet", ""))).resolve()

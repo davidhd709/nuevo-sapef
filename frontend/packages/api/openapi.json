@@ -3250,6 +3250,38 @@
             }
           },
           {
+            "name": "accion_operativa_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Accion Operativa Id"
+            }
+          },
+          {
+            "name": "mision_objetivo_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mision Objetivo Id"
+            }
+          },
+          {
             "name": "es_rural",
             "in": "query",
             "required": false,
@@ -3938,6 +3970,64 @@
         }
       }
     },
+    "/api/v1/lotes/{lote_id}": {
+      "get": {
+        "tags": [
+          "activos"
+        ],
+        "summary": "Obtener un lote de marcación de la sede activa",
+        "operationId": "obtener_lote_api_v1_lotes__lote_id__get",
+        "parameters": [
+          {
+            "name": "lote_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Lote Id"
+            }
+          },
+          {
+            "name": "X-Sede",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Sede"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoteSalida"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/mapa/luminarias/{z}/{x}/{y}.mvt": {
       "get": {
         "tags": [
@@ -4035,6 +4125,22 @@
                 }
               ],
               "title": "Marca Id"
+            }
+          },
+          {
+            "name": "tipo_intervencion_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tipo Intervencion Id"
             }
           },
           {

@@ -114,6 +114,8 @@ def listar_luminarias(
     potencia_id: int | None = None,
     marca_id: int | None = None,
     tipo_intervencion_id: int | None = None,
+    accion_operativa_id: int | None = None,
+    mision_objetivo_id: int | None = None,
     es_rural: bool | None = None,
     en_transito: bool | None = None,
     validado: bool | None = None,
@@ -133,6 +135,8 @@ def listar_luminarias(
         potencia_id=potencia_id,
         marca_id=marca_id,
         tipo_intervencion_id=tipo_intervencion_id,
+        accion_operativa_id=accion_operativa_id,
+        mision_objetivo_id=mision_objetivo_id,
         es_rural=es_rural,
         en_transito=en_transito,
         validado=validado,
@@ -512,6 +516,13 @@ def listar_lotes(
     )
 
 
+def obtener_lote(db: Session, sede: SedeResumen, lote_id: int) -> LoteSalida:
+    lote = db.get(Lote, lote_id)
+    if lote is None or lote.sede_id != sede.id:
+        raise HTTPException(status_code=404, detail="Lote no encontrado.")
+    return _a_lote_salida(lote)
+
+
 def crear_lote(
     db: Session,
     actor: UsuarioAutenticado,
@@ -623,6 +634,7 @@ def generar_mvt_luminarias(
     tecnologia_id: int | None = None,
     potencia_id: int | None = None,
     marca_id: int | None = None,
+    tipo_intervencion_id: int | None = None,
     zona_id: int | None = None,
     barrio_id: int | None = None,
     en_bodega: bool | None = None,
@@ -644,6 +656,7 @@ def generar_mvt_luminarias(
         tecnologia_id=tecnologia_id,
         potencia_id=potencia_id,
         marca_id=marca_id,
+        tipo_intervencion_id=tipo_intervencion_id,
         zona_id=zona_id,
         barrio_id=barrio_id,
         en_bodega=en_bodega,

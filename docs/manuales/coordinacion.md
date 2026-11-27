@@ -37,6 +37,15 @@ desde la oficina y mantiene al día las luminarias.
 ## Luminarias y mapa
 
 - **Luminarias:** buscar por código, filtrar por barrio, estado, tecnología o potencia; crear y
-  editar. Mover una luminaria guarda su ubicación anterior en la hoja de vida.
-- **Mapa:** todas las luminarias de la sede por estado. Haga clic en una para ver su ficha.
+  editar. En la hoja de vida puede asignar coordenadas verificadas a una luminaria sin ubicación.
+  Los cambios de ubicación guardan la posición anterior en el historial.
+- **Mapa:** muestra las luminarias con coordenadas de la sede. Las banderas distinguen PQR activa,
+  tecnología y rango de potencia; la leyenda explica los colores. Acerque el mapa para separar los
+  grupos y haga clic en una bandera para ver la ficha. Puede filtrar por estado, tecnología,
+  potencia, marca, tipo de intervención, zona, barrio, bodega, validación y tránsito, o buscar por
+  texto. El mapa base de OpenStreetMap muestra calles, parques y negocios que tengan nombre en sus
+  datos; la cobertura varía según el municipio. Las luminarias sin coordenadas no aparecen hasta
+  que se registre su ubicación. Si tiene permiso para mover luminarias, seleccione una bandera,
+  pulse **Corregir ubicación**, arrastre el marcador rojo y guarde la nueva posición. El botón de
+  ubicación del mapa centra la vista en su posición si el navegador tiene permiso de GPS.
 - **Exportar:** genera un Excel en segundo plano con los filtros actuales.

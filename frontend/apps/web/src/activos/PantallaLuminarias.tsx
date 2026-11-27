@@ -12,6 +12,7 @@ import {
   Select,
   Stack,
   Table,
+  Tabs,
   Text,
   TextInput,
   Title,
@@ -21,6 +22,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 
 import { useAuth } from "../auth/AuthContext";
+import { HojaDeVida } from "./HojaDeVida";
+import { useMaestro } from "./maestros";
+import { PanelLotes } from "./PanelLotes";
 
 type LuminariaSalida = components["schemas"]["LuminariaSalida"];
 
@@ -30,6 +34,8 @@ export function PantallaLuminarias() {
   const [page, setPage] = useState(1);
   const [texto, setTexto] = useState("");
   const [estadoId, setEstadoId] = useState<string | null>(null);
+  const [accionId, setAccionId] = useState<string | null>(null);
+  const [misionId, setMisionId] = useState<string | null>(null);
   const [seleccionada, setSeleccionada] = useState<LuminariaSalida | null>(null);
   const [modalNueva, setModalNueva] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
@@ -41,9 +47,13 @@ export function PantallaLuminarias() {
   const [potNuevo, setPotNuevo] = useState<string | null>(null);
   const [latNueva, setLatNueva] = useState<number | string>(7.98);
   const [lngNueva, setLngNueva] = useState<number | string>(-75.41);
+  const [latFicha, setLatFicha] = useState<number | string>("");
+  const [lngFicha, setLngFicha] = useState<number | string>("");
 
   const headersSede = sedeActiva ? { "X-Sede": sedeActiva } : undefined;
   const puedeVer = tienePermiso("activos.luminaria.ver");
+  const acciones = useMaestro("ACCION_OPERATIVA", puedeVer);
+  const misiones = useMaestro("MISION_OBJETIVO", puedeVer);
 
   const { data: estados = [] } = useQuery({
     queryKey: ["estados-luminaria"],
@@ -83,7 +93,7 @@ export function PantallaLuminarias() {
   });
 
   const { data: lista, isPending } = useQuery({
-    queryKey: ["luminarias", sedeActiva, page, texto, estadoId],
+    queryKey: ["luminarias", sedeActiva, page, texto, estadoId, accionId, misionId],
     enabled: puedeVer && Boolean(sedeActiva),
     queryFn: async () => {
       const { data } = await api.GET("/api/v1/luminarias", {
@@ -94,6 +104,8 @@ export function PantallaLuminarias() {
             size: 20,
             texto: texto || undefined,
             estado_id: estadoId ? Number(estadoId) : undefined,
+            accion_operativa_id: accionId ? Number(accionId) : undefined,
+            mision_objetivo_id: misionId ? Number(misionId) : undefined,
           },
         },
       });
@@ -165,6 +177,33 @@ export function PantallaLuminarias() {
     },
   });
 
+  const moverMut = useMutation({
+    mutationFn: async () => {
+      if (!seleccionada || typeof latFicha !== "number" || typeof lngFicha !== "number") {
+        throw new Error("Ingrese la latitud y la longitud verificadas.");
+      }
+      const { data, error } = await api.POST("/api/v1/luminarias/{luminaria_id}/ubicacion", {
+        headers: headersSede,
+        params: { path: { luminaria_id: seleccionada.id } },
+        body: { latitud: latFicha, longitud: lngFicha, origen: "ficha_web" },
+      });
+      if (!data) {
+        throw new Error(
+          error && typeof error === "object" && "detail" in error && typeof error.detail === "string"
+            ? error.detail
+            : "No se pudo guardar la ubicación.",
+        );
+      }
+      return data;
+    },
+    onSuccess: (actualizada) => {
+      setSeleccionada(actualizada);
+      setMensaje(`Ubicación de ${actualizada.codigo} actualizada y registrada en el historial.`);
+      void queryClient.invalidateQueries({ queryKey: ["luminarias"] });
+      void queryClient.invalidateQueries({ queryKey: ["luminaria-historial", sedeActiva, actualizada.id] });
+    },
+  });
+
   if (!puedeVer) {
     return (
       <Alert color="red" title="403 · Acceso denegado" data-testid="error-403">
@@ -202,6 +241,14 @@ export function PantallaLuminarias() {
         </Alert>
       )}
 
+      <Tabs defaultValue="luminarias">
+        <Tabs.List>
+          <Tabs.Tab value="luminarias">Luminarias</Tabs.Tab>
+          <Tabs.Tab value="lotes">Lotes de marcación</Tabs.Tab>
+        </Tabs.List>
+
+        <Tabs.Panel value="luminarias" pt="md">
+      <Stack gap="md">
       <Group>
         <TextInput
           placeholder="Buscar código, poste, barrio o marca..."
@@ -223,6 +270,28 @@ export function PantallaLuminarias() {
           }}
           w={240}
         />
+        <Select
+          placeholder="Acción operativa"
+          clearable
+          data={acciones.opciones}
+          value={accionId}
+          onChange={(v) => {
+            setAccionId(v);
+            setPage(1);
+          }}
+          w={220}
+        />
+        <Select
+          placeholder="Misión u objetivo"
+          clearable
+          data={misiones.opciones}
+          value={misionId}
+          onChange={(v) => {
+            setMisionId(v);
+            setPage(1);
+          }}
+          w={260}
+        />
       </Group>
 
       <Card withBorder p={0}>
@@ -235,13 +304,14 @@ export function PantallaLuminarias() {
               <Table.Th>Estado</Table.Th>
               <Table.Th>Tecnología</Table.Th>
               <Table.Th>Potencia</Table.Th>
+              <Table.Th>Acción operativa</Table.Th>
               <Table.Th>Ficha</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
             {isPending && (
               <Table.Tr>
-                <Table.Td colSpan={7}>Cargando luminarias...</Table.Td>
+                <Table.Td colSpan={8}>Cargando luminarias...</Table.Td>
               </Table.Tr>
             )}
             {(lista?.items ?? []).map((lum) => (
@@ -254,9 +324,10 @@ export function PantallaLuminarias() {
                 </Table.Td>
                 <Table.Td>{lum.tecnologia_nombre ?? "-"}</Table.Td>
                 <Table.Td>{lum.potencia_nombre ?? "-"}</Table.Td>
+                <Table.Td>{acciones.nombre(lum.accion_operativa_id)}</Table.Td>
                 <Table.Td>
-                  <Button size="xs" variant="subtle" onClick={() => setSeleccionada(lum)}>
-                    Hoja de vida
+                  <Button size="xs" variant="subtle" onClick={() => { setSeleccionada(lum); setLatFicha(lum.latitud ?? ""); setLngFicha(lum.longitud ?? ""); moverMut.reset(); }}>
+                    Ver ficha
                   </Button>
                 </Table.Td>
               </Table.Tr>
@@ -271,11 +342,18 @@ export function PantallaLuminarias() {
         </Text>
         <Pagination total={totalPaginas} value={page} onChange={setPage} />
       </Group>
+      </Stack>
+        </Tabs.Panel>
+
+        <Tabs.Panel value="lotes" pt="md">
+          <PanelLotes />
+        </Tabs.Panel>
+      </Tabs>
 
       <Drawer
         opened={Boolean(seleccionada)}
         onClose={() => setSeleccionada(null)}
-        title={`Hoja de vida · ${seleccionada?.codigo ?? ""}`}
+        title={`Ficha · ${seleccionada?.codigo ?? ""}`}
         position="right"
         size="lg"
       >
@@ -288,6 +366,33 @@ export function PantallaLuminarias() {
               <strong>Barrio / Zona:</strong> {seleccionada.barrio_nombre ?? "-"} /{" "}
               {seleccionada.zona_nombre ?? "-"}
             </Text>
+            <Text size="sm">
+              <strong>Ubicación actual:</strong> {seleccionada.latitud != null && seleccionada.longitud != null
+                ? `${seleccionada.latitud}, ${seleccionada.longitud}` : "Sin coordenadas"}
+            </Text>
+            <HojaDeVida
+              luminaria={seleccionada}
+              alGuardar={(actualizada) => {
+                setSeleccionada(actualizada);
+                setMensaje(`Hoja de vida de ${actualizada.codigo} actualizada.`);
+              }}
+            />
+            {tienePermiso("activos.luminaria.mover") && (
+              <Card withBorder>
+                <Stack gap="xs">
+                  <Text fw={600} size="sm">Asignar ubicación verificada</Text>
+                  <Text size="xs" c="dimmed">Compruebe las coordenadas antes de guardarlas. El cambio queda en la hoja de vida.</Text>
+                  <Group grow>
+                    <NumberInput label="Latitud" decimalScale={6} value={latFicha} onChange={setLatFicha} />
+                    <NumberInput label="Longitud" decimalScale={6} value={lngFicha} onChange={setLngFicha} />
+                  </Group>
+                  {moverMut.error && <Alert color="red">{moverMut.error.message}</Alert>}
+                  <Button size="xs" disabled={typeof latFicha !== "number" || typeof lngFicha !== "number" ||
+                    (latFicha === seleccionada.latitud && lngFicha === seleccionada.longitud)}
+                    loading={moverMut.isPending} onClick={() => moverMut.mutate()}>Guardar ubicación</Button>
+                </Stack>
+              </Card>
+            )}
             {seleccionada.google_maps_url && (
               <Anchor href={seleccionada.google_maps_url} target="_blank" rel="noreferrer">
                 Ver en Google Maps

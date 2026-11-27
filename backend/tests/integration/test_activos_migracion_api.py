@@ -228,3 +228,83 @@ def test_crud_luminarias_ubicacion_lote_mvt_pmtiles_y_aislamiento(cliente, db_co
         == 403
     )
     assert cliente.get("/api/v1/mapa/base/montelibano.pmtiles").status_code == 403
+
+
+def test_lote_por_id_y_hoja_de_vida_con_filtros(cliente, db_configurado) -> None:
+    crear_usuario_db(
+        db_configurado,
+        nombre_usuario="admin_hv",
+        correo="admin_hv@sapef.local",
+        rol_codigo="ADMIN",
+        sede_codigos=["montelibano", "alcala"],
+    )
+    iniciar_sesion_cliente(cliente, "admin_hv")
+    mt = {"X-Sede": "montelibano"}
+    tech_id = cliente.get("/api/v1/maestros/LUMINARIA_TECNOLOGIA").json()[0]["id"]
+    pot_id = cliente.get("/api/v1/maestros/LUMINARIA_POTENCIA").json()[0]["id"]
+    accion_id = cliente.get("/api/v1/maestros/ACCION_OPERATIVA").json()[0]["id"]
+    mision_id = cliente.get("/api/v1/maestros/MISION_OBJETIVO").json()[0]["id"]
+
+    lote = cliente.post(
+        "/api/v1/lotes",
+        headers=mt,
+        json={
+            "consecutivo_inicial": 7001,
+            "consecutivo_final": 7002,
+            "cantidad": 2,
+            "tecnologia_id": tech_id,
+            "potencia_id": pot_id,
+            "orden_compra": "OC-HV",
+            "fecha_orden_compra": "2026-11-02",
+        },
+    )
+    assert lote.status_code == 201, lote.text
+    lote_id = lote.json()["id"]
+
+    detalle = cliente.get(f"/api/v1/lotes/{lote_id}", headers=mt)
+    assert detalle.status_code == 200
+    assert detalle.json()["orden_compra"] == "OC-HV"
+    assert detalle.json()["fecha_orden_compra"] == "2026-11-02"
+    # Lote de otra sede: no existe para esa sede
+    assert cliente.get(f"/api/v1/lotes/{lote_id}", headers={"X-Sede": "alcala"}).status_code == 404
+    assert cliente.get("/api/v1/lotes/999999", headers=mt).status_code == 404
+
+    lums = cliente.get("/api/v1/luminarias", headers=mt, params={"texto": "7001"}).json()["items"]
+    lum = next(item for item in lums if item["codigo"] == "7001")
+    assert lum["lote_id"] == lote_id
+
+    editada = cliente.patch(
+        f"/api/v1/luminarias/{lum['id']}",
+        headers=mt,
+        json={
+            "accion_operativa_id": accion_id,
+            "mision_objetivo_id": mision_id,
+            "fecha_mision": "2026-11-10",
+            "responsable": "Coordinación",
+        },
+    )
+    assert editada.status_code == 200, editada.text
+    assert editada.json()["accion_operativa_id"] == accion_id
+    assert editada.json()["fecha_mision"] == "2026-11-10"
+
+    por_accion = cliente.get(
+        "/api/v1/luminarias", headers=mt, params={"accion_operativa_id": accion_id}
+    ).json()
+    assert [i["codigo"] for i in por_accion["items"]] == ["7001"]
+    por_mision = cliente.get(
+        "/api/v1/luminarias", headers=mt, params={"mision_objetivo_id": mision_id}
+    ).json()
+    assert por_mision["total"] == 1
+
+    # Quitar la acción operativa la limpia (null) y deja de aparecer en el filtro
+    limpia = cliente.patch(
+        f"/api/v1/luminarias/{lum['id']}", headers=mt, json={"accion_operativa_id": None}
+    )
+    assert limpia.status_code == 200
+    assert limpia.json()["accion_operativa_id"] is None
+    assert (
+        cliente.get(
+            "/api/v1/luminarias", headers=mt, params={"accion_operativa_id": accion_id}
+        ).json()["total"]
+        == 0
+    )

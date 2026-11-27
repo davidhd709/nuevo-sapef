@@ -20,7 +20,8 @@ exportaciones ya se probaron), después Alcalá.
    - Ninguna luminaria ni PQRS rechazada. 92 luminarias venían repetidas (el mismo barrio en dos
      zonas en SAPEF): se tomó la primera fila.
 
-   Decidir con el dueño si esos registros se corrigen en SAPEF antes del corte o se aceptan así.
+   **Decisión del dueño (25-nov-2026): se aceptan así.** No se corrigen en SAPEF; quedan en el
+   informe de la ejecución como consulta.
 4. **Usuarios:** preparar el libro de base (zonas, barrios y usuarios con rol y sedes). Las
    contraseñas no se migran: cada persona define la suya en el primer ingreso.
 5. **Capacitación** por rol con los manuales de `docs/manuales/` en el ambiente de pruebas.

@@ -47,6 +47,7 @@ from app.modulos.comercial.dominio.comun import (
     div,
     q2,
     suma,
+    sumar_meses,
     validar_periodo,
 )
 from app.modulos.comercial.esquemas import (
@@ -1170,11 +1171,7 @@ def filas_control(db: Session, ctx: Contexto, periodo: str) -> tuple[list[afinia
         filas = afinia.control_tarifario(fact, periodo, vigencia)
     else:
         vigencia = vigencia_celsia(db, ctx, anio)
-        lista = [p for p in periodos(db, ctx) if p <= periodo]
-        presencia = _presencia(ctx, lista)
-        ciclos = _periodicidades(ctx, lista, presencia)
-        bimestrales = {k for k, (v, _) in ciclos.items() if v.startswith("bimestral")}
-        filas = celsia.control_tarifario(fact, periodo, vigencia, bimestrales)
+        filas = celsia.control_tarifario(fact, periodo, vigencia)
     datos = usuarios(ctx, periodo)
     for fila in filas:
         u = datos.get(fila.identificador)
@@ -1579,13 +1576,79 @@ def tabla_dinamica(db: Session, sede: SedeResumen, codigo: str, periodo: str) ->
         }
     if ctx.codigo == "vatia":
         return {"periodo": periodo, **vatia.tabla_dinamica(familia(ctx, periodo, "comercial"))}
-    lista = list(usuarios(ctx, periodo).values())
-    filas = analisis.agrupar(lista, "estrato")
+    return {"periodo": periodo, **_td_celsia(db, ctx, periodo)}
+
+
+def _clasificaciones_celsia(ctx: Contexto, periodo: str) -> dict[str, set[str]]:
+    """cuenta → clasificaciones de la TD en el corte (una cuenta puede tener dos)."""
+
+    def calcular() -> dict[str, set[str]]:
+        mapa: dict[str, set[str]] = {}
+        for f in familia(ctx, periodo, "facturacion"):
+            mapa.setdefault(str(f.get("cuenta")), set()).add(celsia.clasificacion_td(f))
+        return mapa
+
+    return _cacheado(ctx, periodo, "clasificaciones_td", calcular)  # type: ignore[no-any-return]
+
+
+def _cortes_celsia(db: Session, ctx: Contexto) -> dict[str, list[tuple[str, Any, Any]]]:
+    """periodo → [(cuenta, periodicidad, sector)] de la facturación de cada corte publicado."""
+    return {
+        p: _cacheado(  # type: ignore[misc]
+            ctx,
+            p,
+            "perfil_celsia",
+            lambda p=p: list(
+                dict.fromkeys(
+                    (str(f.get("cuenta")), f.get("periodicidad"), f.get("sector"))
+                    for f in familia(ctx, p, "facturacion")
+                )
+            ),
+        )
+        for p in periodos(db, ctx)
+    }
+
+
+def _td_celsia(db: Session, ctx: Contexto, periodo: str) -> dict[str, Any]:
+    """TD de Celsia por clasificación, con la misma definición de OPainn (`td_celsia`)."""
+    mov = celsia.clasificar_movimientos(_cortes_celsia(db, ctx), periodo)
+    # Cada baja se cuenta en la clasificación de su propio corte comparable.
+    dejados = {
+        cuenta: _clasificaciones_celsia(ctx, mov.evaluables[cuenta]).get(cuenta, set())
+        for cuenta in mov.dejados
+    }
+    # Variación contra el mismo ciclo de facturación: el corte de dos meses atrás.
+    comparable = sumar_meses(periodo, -2)
+    previo: dict[str, dict[str, Decimal]] | None = None
+    if comparable in periodos(db, ctx):
+        anterior = celsia.tabla_dinamica(
+            comparable,
+            facturacion=familia(ctx, comparable, "facturacion"),
+            recaudo=familia(ctx, comparable, "recaudo"),
+            cartera=None,
+        )
+        previo = {
+            f["clasificacion"]: {"facturacion": f["facturacion"], "recaudo": f["recaudo_total"]}
+            for f in anterior["filas"]
+        }
+    evaluable = bool(mov.evaluables)
+    td = celsia.tabla_dinamica(
+        periodo,
+        facturacion=familia(ctx, periodo, "facturacion"),
+        recaudo=familia(ctx, periodo, "recaudo"),
+        cartera=familia(ctx, periodo, "cartera"),
+        nuevos=mov.nuevos if evaluable else None,
+        reintegrados=mov.reintegrados if evaluable else None,
+        dejados=dejados if evaluable else None,
+        previo=previo,
+    )
     return {
         "periodo": periodo,
-        "por": "estrato",
-        "filas": filas,
-        "total": {"estrato": "Total", **analisis.totales(lista)},
+        "por": "clasificacion",
+        "comparado_con": comparable if previo is not None else None,
+        "cartera_disponible": td["cartera_disponible"],
+        "filas": td["filas"],
+        "total": td["totales"],
     }
 
 
@@ -2557,10 +2620,18 @@ async def importar_opainn(
 ) -> dict[str, Any]:
     ctx = contexto(db, sede, codigo)
     carpeta = resolver_ruta_importacion(ruta)
+
+    # Un periodo es una carpeta con manifest.json o, en los cortes viejos de OPainn que no lo
+    # tienen, con algún Parquet de una familia conocida.
+    def es_paquete(p: Path) -> bool:
+        return (p / "manifest.json").is_file() or any(
+            (p / f"{f}.parquet").is_file() for f in ctx.adaptador.esquemas()
+        )
+
     candidatas = (
         [carpeta]
-        if (carpeta / "manifest.json").is_file()
-        else sorted(p for p in carpeta.iterdir() if p.is_dir() and (p / "manifest.json").is_file())
+        if es_paquete(carpeta)
+        else sorted(p for p in carpeta.iterdir() if p.is_dir() and es_paquete(p))
     )
     por_periodo = {p.name: p for p in candidatas} if carpeta not in candidatas else {}
     if carpeta in candidatas:
@@ -2639,6 +2710,9 @@ def procesar_importacion_opainn(
     cargue.familias = {f: len(v) for f, v in paquete.items()}
     cargue.completo = all(f in paquete for f in adaptador.familias)
     cargue.publicable = True
+    aviso = almacen.aviso_manifiesto(carpeta)
+    avisos = [aviso] if aviso else []
+    cargue.advertencias = avisos
     manifiesto = {
         "sede_codigo": ctx.sede.codigo,
         "comercializador_codigo": comercializador,
@@ -2651,7 +2725,7 @@ def procesar_importacion_opainn(
         "publicable": True,
         "presentes": sorted(paquete),
         "origen": "opainn",
-        "advertencias": [],
+        "advertencias": avisos,
     }
     for filas in paquete.values():
         for fila in filas:

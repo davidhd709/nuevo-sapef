@@ -390,7 +390,8 @@ def evaluate_celsia_tariff_control(
                     identificador=cuenta,
                     periodo=periodo,
                     tarifa=str(first.get("tarifa", "")),
-                    estado="REQUIERE_REVISION",
+                    # RN-006: la regla no permite calcular -> NO_VALIDABLE.
+                    estado="NO_VALIDABLE",
                     motivo_revision="ESTRATO_SIN_REGLA",
                     regla_aplicada=None,
                     facturado_real=facturado,
@@ -415,7 +416,8 @@ def evaluate_celsia_tariff_control(
                         identificador=cuenta,
                         periodo=periodo,
                         tarifa=str(first.get("tarifa", "")),
-                        estado="NO_VALIDABLE",
+                        # RN-006: falta un dato (el VCE) -> REQUIERE_REVISION.
+                        estado="REQUIERE_REVISION",
                         motivo_revision="SIN_VCE",
                         regla_aplicada=rule_key,
                         facturado_real=facturado,
