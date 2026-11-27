@@ -6,7 +6,7 @@ exportaciones ya se probaron), después Alcalá.
 
 ## Antes del corte (semanas previas)
 
-1. **Servidor listo:** producción en el VPS con `infra/docker-compose.prod.yml`, Nginx del host con
+1. **Servidor listo** ([despliegue.md](despliegue.md)): staging y producción en el VPS con `infra/desplegar.sh` e `infra/docker-compose.prod.yml`, Nginx del host con
    HTTPS (`infra/nginx/sapef.conf.example`), respaldo diario con copia cifrada fuera del servidor
    (`docs/operacion/respaldos.md`) y una prueba de restauración hecha.
 2. **Ensayo completo en pruebas:** el mismo procedimiento de abajo, con exportaciones recientes, en

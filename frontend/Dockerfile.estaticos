@@ -1,0 +1,14 @@
+# Estáticos de la web de oficina y de la app de campo (TASK-006).
+# La imagen no corre ningún servidor: el despliegue copia /estaticos/web y /estaticos/campo a la
+# carpeta que sirve el Nginx del host. Así el VPS recibe exactamente lo que probó la CI.
+FROM node:22-slim AS build
+RUN npm install -g pnpm@11.23.0
+WORKDIR /src
+COPY . .
+RUN pnpm install --frozen-lockfile \
+    && pnpm --filter @sapef/web build \
+    && pnpm --filter @sapef/campo build
+
+FROM busybox:1.37
+COPY --from=build /src/apps/web/dist /estaticos/web
+COPY --from=build /src/apps/campo/dist /estaticos/campo

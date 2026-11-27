@@ -4,6 +4,11 @@
 #
 # Copiar a /etc/nginx/sites-available/sapef.conf, ajustar dominios y rutas, enlazar en
 # sites-enabled y probar con `nginx -t` antes de `systemctl reload nginx`.
+#
+# Staging: copie este archivo como sapef-pruebas.conf y cambie los dominios a pruebas.<dominio> y
+# campo.pruebas.<dominio>, el upstream a 127.0.0.1:8101 (con otro nombre, p. ej., sapef_pruebas_api)
+# y las raíces a /srv/sapef-pruebas/estaticos/actual/{web,campo}. Quite el HSTS con includeSubDomains
+# si el dominio de producción todavía no tiene HTTPS.
 
 upstream sapef_api {
     server 127.0.0.1:8100;
@@ -18,7 +23,7 @@ server {
     listen 443 ssl http2;
     server_name sapef.<dominio>;
 
-    root /srv/sapef/web;          # salida de `pnpm --filter @sapef/web build` (apps/web/dist)
+    root /srv/sapef/estaticos/actual/web;     # lo publica infra/desplegar.sh
     index index.html;
 
     # Igual al tope de los cargues (SAPEF_ARCHIVO_MAX_GENERAL_MB=256).
@@ -53,7 +58,7 @@ server {
     listen 443 ssl http2;
     server_name campo.sapef.<dominio>;
 
-    root /srv/sapef/campo;        # salida de `pnpm --filter @sapef/campo build` (apps/campo/dist)
+    root /srv/sapef/estaticos/actual/campo;   # lo publica infra/desplegar.sh
     index index.html;
     client_max_body_size 16m;     # evidencias (SAPEF_ARCHIVO_MAX_EVIDENCIA_MB=10) con margen
 
