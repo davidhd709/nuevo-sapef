@@ -1,4 +1,10 @@
 import "@mantine/core/styles.css";
+import "@fontsource/ibm-plex-sans/400.css";
+import "@fontsource/ibm-plex-sans/500.css";
+import "@fontsource/ibm-plex-sans/600.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
+import "./estilos.css";
 
 import { MantineProvider } from "@mantine/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -17,7 +23,7 @@ if (!raiz) throw new Error("No se encontró el elemento #raiz");
 
 createRoot(raiz).render(
   <StrictMode>
-    <MantineProvider theme={tema} defaultColorScheme="auto">
+    <MantineProvider theme={tema} defaultColorScheme="light">
       <QueryClientProvider client={consultas}>
         <App />
       </QueryClientProvider>

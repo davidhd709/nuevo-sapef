@@ -45,10 +45,12 @@ server {
     }
 
     # Archivos con huella en el nombre: caché larga. index.html: sin caché.
-    location /assets/ { expires 1y; add_header Cache-Control "public, immutable" always; }
+    # Caché con «expires» y no con add_header: un add_header dentro de un location anula los
+    # encabezados de seguridad del server (herencia de Nginx).
+    location /assets/ { expires 1y; }
     location / {
         try_files $uri /index.html;
-        add_header Cache-Control "no-cache" always;
+        expires -1;
     }
 
     # ssl_certificate / ssl_certificate_key: los agrega certbot.
@@ -80,12 +82,18 @@ server {
     }
 
     # El service worker y el manifiesto no se guardan en caché: así llegan las actualizaciones.
-    location = /sw.js { add_header Cache-Control "no-cache" always; }
-    location = /manifest.webmanifest { add_header Cache-Control "no-cache" always; }
-    location /assets/ { expires 1y; add_header Cache-Control "public, immutable" always; }
+    location = /sw.js { expires -1; }
+    location = /manifest.webmanifest {
+        types { }
+        default_type application/manifest+json;
+        expires -1;
+    }
+    # Caché con «expires» y no con add_header: un add_header dentro de un location anula los
+    # encabezados de seguridad del server (herencia de Nginx).
+    location /assets/ { expires 1y; }
     location / {
         try_files $uri /index.html;
-        add_header Cache-Control "no-cache" always;
+        expires -1;
     }
 }
 

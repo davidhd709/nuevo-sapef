@@ -1,4 +1,4 @@
-import { Alert, Badge, Card, Group, Loader, Stack, Text, Title } from "@mantine/core";
+import { Alert, Badge, Group, Loader, Stack, Text } from "@mantine/core";
 import { api, type Salud } from "@sapef/api";
 import { useQuery } from "@tanstack/react-query";
 
@@ -10,40 +10,58 @@ async function consultarSalud(): Promise<Salud> {
   throw new Error(`La API respondió ${response.status}`);
 }
 
-export function EstadoSistema() {
+/** Estado técnico de la API y la base de datos (franja discreta para administradores). */
+export function EstadoSistema({ compacto = false }: { compacto?: boolean }) {
   const { data, isPending, isError, error } = useQuery({
     queryKey: ["salud"],
     queryFn: consultarSalud,
   });
 
+  const color = (valor: string) => (valor === "ok" ? "green" : valor === "degradado" ? "orange" : "red");
+
   return (
-    <Stack maw={560}>
-      <Title order={2}>Estado del sistema</Title>
-      {isPending && <Loader aria-label="Consultando" />}
+    <Stack gap={6}>
+      <Text fz={11} fw={600} tt="uppercase" c="dimmed" style={{ letterSpacing: "0.08em" }}>
+        Estado del sistema
+      </Text>
+      {isPending && <Loader size="xs" color="gray" aria-label="Consultando" />}
       {isError && (
         <Alert color="red" title="No se pudo consultar la API">
           {error.message}. Revise que los contenedores estén encendidos.
         </Alert>
       )}
       {data && (
-        <Card withBorder>
-          <Group justify="space-between">
-            <Text fw={600}>API</Text>
-            <Badge color={data.estado === "ok" ? "green" : "orange"}>{data.estado}</Badge>
+        <Group
+          gap="lg"
+          wrap="wrap"
+          style={{
+            border: "1px solid var(--sapef-borde)",
+            borderRadius: "var(--mantine-radius-sm)",
+            background: "var(--sapef-superficie)",
+            padding: compacto ? "8px 14px" : "12px 16px",
+          }}
+        >
+          <Group gap={6}>
+            <Text size="sm">API</Text>
+            <Badge variant="dot" color={color(data.estado)}>
+              {data.estado}
+            </Badge>
           </Group>
-          <Text size="sm" c="dimmed">
+          <Group gap={6}>
+            <Text size="sm">Base de datos</Text>
+            <Badge variant="dot" color={color(data.base_de_datos)}>
+              {data.base_de_datos}
+            </Badge>
+          </Group>
+          <Text size="xs" c="dimmed" className="sapef-cifra">
             Versión {data.version}
           </Text>
-          <Group justify="space-between" mt="sm">
-            <Text fw={600}>Base de datos</Text>
-            <Badge color={data.base_de_datos === "ok" ? "green" : "red"}>{data.base_de_datos}</Badge>
-          </Group>
           {data.postgres && (
-            <Text size="sm" c="dimmed">
+            <Text size="xs" c="dimmed" className="sapef-cifra">
               PostgreSQL {data.postgres} · PostGIS {data.postgis}
             </Text>
           )}
-        </Card>
+        </Group>
       )}
     </Stack>
   );

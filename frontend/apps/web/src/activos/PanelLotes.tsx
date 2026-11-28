@@ -4,7 +4,6 @@
 import {
   Alert,
   Button,
-  Card,
   Checkbox,
   Group,
   Modal,
@@ -21,6 +20,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 
 import { useAuth } from "../auth/AuthContext";
+import { Codigo, MarcoTabla } from "../comun/ui";
 import { exigir } from "../comun/api";
 import { fechaCorta, useMaestro } from "./maestros";
 
@@ -128,8 +128,8 @@ export function PanelLotes() {
         </Alert>
       )}
 
-      <Card withBorder p={0}>
-        <Table striped highlightOnHover>
+      <MarcoTabla>
+        <Table>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Tecnología</Table.Th>
@@ -137,7 +137,7 @@ export function PanelLotes() {
               <Table.Th>Marca</Table.Th>
               <Table.Th>Consecutivo inicial</Table.Th>
               <Table.Th>Consecutivo final</Table.Th>
-              <Table.Th>Cantidad</Table.Th>
+              <Table.Th ta="right">Cantidad</Table.Th>
               <Table.Th>Zona</Table.Th>
               <Table.Th>Orden de compra</Table.Th>
               <Table.Th>Entrada de almacén</Table.Th>
@@ -160,9 +160,13 @@ export function PanelLotes() {
                 <Table.Td>{tecnologias.nombre(lote.tecnologia_id)}</Table.Td>
                 <Table.Td>{potencias.nombre(lote.potencia_id)}</Table.Td>
                 <Table.Td>{marcas.nombre(lote.marca_id)}</Table.Td>
-                <Table.Td>{lote.consecutivo_inicial}</Table.Td>
-                <Table.Td>{lote.consecutivo_final}</Table.Td>
-                <Table.Td>{lote.cantidad}</Table.Td>
+                <Table.Td>
+                  <Codigo>{lote.consecutivo_inicial}</Codigo>
+                </Table.Td>
+                <Table.Td>
+                  <Codigo>{lote.consecutivo_final}</Codigo>
+                </Table.Td>
+                <Table.Td ta="right">{lote.cantidad}</Table.Td>
                 <Table.Td>{lote.es_rural ? "Rural" : "Urbana"}</Table.Td>
                 <Table.Td>
                   {lote.orden_compra ?? "—"}
@@ -177,7 +181,7 @@ export function PanelLotes() {
             ))}
           </Table.Tbody>
         </Table>
-      </Card>
+      </MarcoTabla>
 
       <Group justify="space-between">
         <Text size="sm" c="dimmed">

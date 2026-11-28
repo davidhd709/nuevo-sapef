@@ -1,7 +1,6 @@
 import {
   Alert,
   Anchor,
-  Badge,
   Button,
   Checkbox,
   Drawer,
@@ -14,16 +13,27 @@ import {
   SimpleGrid,
   Stack,
   Table,
+  Tabs,
   Text,
   TextInput,
   Textarea,
-  Title,
 } from "@mantine/core";
 import { api, type components } from "@sapef/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { useAuth } from "../auth/AuthContext";
+import {
+  Cargando,
+  cifra,
+  Codigo,
+  EncabezadoPagina,
+  EstadoVacio,
+  EtiquetaEstado,
+  MarcoTabla,
+  SinPermiso,
+} from "../comun/ui";
+import { IconAlertTriangle, IconPlus } from "@tabler/icons-react";
 import { PRIORIDADES, exigir, fecha, mensajeError, subirArchivo } from "../comun/api";
 
 type Orden = components["schemas"]["OrdenSalida"];
@@ -35,6 +45,32 @@ const TIPOS = [
   { value: "expansion", label: "Expansión" },
   { value: "reubicacion", label: "Reubicación" },
 ];
+function nombreTipo(tipo: string): string {
+  return TIPOS.find((t) => t.value === tipo)?.label ?? tipo;
+}
+
+const ROL: Record<string, string> = { intervenida: "", instalada: "instalada", desmontada: "desmontada" };
+
+/** Códigos de las luminarias de una orden; en cambios, indica cuál se instala y cuál se desmonta. */
+function Luminarias({ items }: { items: { luminaria_codigo: string; rol: string }[] }) {
+  return (
+    <span>
+      {items.map((l, i) => (
+        <span key={`${l.luminaria_codigo}-${i}`}>
+          {i > 0 && <span style={{ color: "var(--sapef-texto-suave)" }}> → </span>}
+          <Codigo>{l.luminaria_codigo}</Codigo>
+          {ROL[l.rol] ? (
+            <Text span size="xs" c="dimmed">
+              {" "}
+              {ROL[l.rol]}
+            </Text>
+          ) : null}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 const COMPONENTES: [string, string][] = [
   ["conexion_red", "Conexión a red"],
   ["conexion_interna", "Conexión interna"],
@@ -60,59 +96,80 @@ export function PantallaOrdenes() {
   const { sedeActiva, tienePermiso } = useAuth();
   const [page, setPage] = useState(1);
   const [tipo, setTipo] = useState<string | null>(null);
+  const [estadoId, setEstadoId] = useState<string | null>(null);
   const [seleccionada, setSeleccionada] = useState<number | null>(null);
   const [nueva, setNueva] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
   const puedeVer = tienePermiso("trabajos.orden.ver") || tienePermiso("trabajos.orden.ver_propias");
 
   const { data, isPending } = useQuery({
-    queryKey: ["ordenes", sedeActiva, page, tipo],
+    queryKey: ["ordenes", sedeActiva, page, tipo, estadoId],
     enabled: puedeVer && Boolean(sedeActiva),
     queryFn: async () => {
       const { data, error } = await api.GET("/api/v1/ordenes", {
         headers: { "X-Sede": sedeActiva ?? "" },
-        params: { query: { page, size: 20, tipo: (tipo as TipoOrden) ?? undefined } },
+        params: {
+          query: {
+            page,
+            size: 20,
+            tipo: (tipo as TipoOrden) ?? undefined,
+            estado_id: estadoId ? Number(estadoId) : undefined,
+          },
+        },
       });
       return exigir(data, error, "No se pudieron cargar las órdenes.");
     },
   });
 
+  const { data: estadosOrden = [] } = useQuery({
+    queryKey: ["estados", "orden"],
+    enabled: puedeVer,
+    queryFn: async () =>
+      (await api.GET("/api/v1/estados", { params: { query: { proceso: "orden" } } })).data ?? [],
+  });
+
   if (!puedeVer) {
-    return (
-      <Alert color="red" title="403 · Acceso denegado">
-        No tiene permiso para consultar órdenes de trabajo.
-      </Alert>
-    );
+    return <SinPermiso mensaje="No tiene permiso para consultar órdenes de trabajo." />;
   }
 
-  return (
-    <Stack gap="md">
-      <Group justify="space-between">
-        <Title order={2}>Órdenes de trabajo</Title>
-        {tienePermiso("trabajos.orden.crear") && (
-          <Button onClick={() => setNueva(true)}>Nueva orden</Button>
-        )}
+  const lista = (
+    <Stack gap="sm">
+      <Group gap="xs">
+        <Select
+          placeholder="Tipo"
+          aria-label="Tipo"
+          clearable
+          data={TIPOS}
+          value={tipo}
+          onChange={(v) => {
+            setTipo(v);
+            setPage(1);
+          }}
+          w={180}
+        />
+        <Select
+          placeholder="Estado"
+          aria-label="Estado"
+          clearable
+          data={estadosOrden.map((e) => ({ value: String(e.id), label: e.nombre }))}
+          value={estadoId}
+          onChange={(v) => {
+            setEstadoId(v);
+            setPage(1);
+          }}
+          w={180}
+        />
       </Group>
-      {mensaje && (
-        <Alert color="green" withCloseButton onClose={() => setMensaje(null)}>
-          {mensaje}
-        </Alert>
-      )}
-      <Select
-        placeholder="Tipo"
-        clearable
-        data={TIPOS}
-        value={tipo}
-        onChange={(v) => {
-          setTipo(v);
-          setPage(1);
-        }}
-        w={200}
-      />
       {isPending ? (
-        <Text c="dimmed">Cargando…</Text>
+        <Cargando texto="Cargando órdenes…" />
+      ) : !data || data.items.length === 0 ? (
+        <EstadoVacio
+          titulo={tipo || estadoId ? "Ninguna orden coincide con los filtros" : "Aún no hay órdenes en esta sede"}
+          descripcion="Las órdenes se crean desde una PQRS pendiente o con «Nueva orden»."
+        />
       ) : (
-        <Table striped highlightOnHover>
+        <MarcoTabla>
+        <Table>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Número</Table.Th>
@@ -126,26 +183,71 @@ export function PantallaOrdenes() {
           <Table.Tbody>
             {data?.items.map((o) => (
               <Table.Tr key={o.id} onClick={() => setSeleccionada(o.id)} style={{ cursor: "pointer" }}>
-                <Table.Td>{o.numero}</Table.Td>
-                <Table.Td>{o.tipo}</Table.Td>
                 <Table.Td>
-                  {o.luminarias.map((l) => `${l.luminaria_codigo} (${l.rol})`).join(", ")}
+                  <Codigo>#{o.numero}</Codigo>
                 </Table.Td>
-                <Table.Td>{o.tecnico_nombre ?? o.cuadrilla_nombre ?? "—"}</Table.Td>
+                <Table.Td>{nombreTipo(o.tipo)}</Table.Td>
+                <Table.Td>
+                  <Luminarias items={o.luminarias} />
+                </Table.Td>
+                <Table.Td c={o.tecnico_nombre || o.cuadrilla_nombre ? undefined : "dimmed"}>
+                  {o.tecnico_nombre ?? o.cuadrilla_nombre ?? "Sin asignar"}
+                </Table.Td>
                 <Table.Td>{fecha(o.creado_en)}</Table.Td>
                 <Table.Td>
-                  <Badge variant="light">{o.estado_nombre}</Badge>
+                  <EtiquetaEstado codigo={o.estado_codigo} nombre={o.estado_nombre} />
                 </Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>
         </Table>
+        </MarcoTabla>
       )}
-      {data && data.total > data.size && (
-        <Pagination value={page} onChange={setPage} total={Math.ceil(data.total / data.size)} />
+      <Group justify="space-between">
+        <Text size="sm" c="dimmed" className="sapef-cifra">
+          {cifra(data?.total ?? 0)} órdenes
+        </Text>
+        {data && data.total > data.size && (
+          <Pagination value={page} onChange={setPage} total={Math.ceil(data.total / data.size)} />
+        )}
+      </Group>
+    </Stack>
+  );
+
+  return (
+    <Stack gap="md">
+      <EncabezadoPagina
+        seccion="Operación"
+        titulo="Órdenes de trabajo"
+        descripcion="Mantenimientos, modernizaciones, expansiones y reubicaciones: asignación, ejecución en campo y cierre."
+        acciones={
+          tienePermiso("trabajos.orden.crear") && (
+            <Button leftSection={<IconPlus size={16} />} onClick={() => setNueva(true)}>
+              Nueva orden
+            </Button>
+          )
+        }
+      />
+      {mensaje && (
+        <Alert color="green" withCloseButton onClose={() => setMensaje(null)}>
+          {mensaje}
+        </Alert>
       )}
       {tienePermiso("trabajos.orden.ver") && <ConflictosCampo onAbrir={setSeleccionada} />}
-      {tienePermiso("trabajos.cargue_masivo.crear") && <CargueMasivo onMensaje={setMensaje} />}
+      {tienePermiso("trabajos.cargue_masivo.crear") ? (
+        <Tabs defaultValue="ordenes">
+          <Tabs.List mb="md">
+            <Tabs.Tab value="ordenes">Órdenes</Tabs.Tab>
+            <Tabs.Tab value="cargue">Cargue masivo</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="ordenes">{lista}</Tabs.Panel>
+          <Tabs.Panel value="cargue">
+            <CargueMasivo onMensaje={setMensaje} />
+          </Tabs.Panel>
+        </Tabs>
+      ) : (
+        lista
+      )}
       <NuevaOrden
         abierta={nueva}
         onCerrar={() => setNueva(false)}
@@ -176,7 +278,14 @@ function ConflictosCampo({ onAbrir }: { onAbrir: (id: number) => void }) {
   });
   if (!data || data.total === 0) return null;
   return (
-    <Alert color="orange" title={`Conflictos de la app de campo (${data.total})`}>
+    <Alert
+      color="orange"
+      icon={<IconAlertTriangle size={18} />}
+      title={`${data.total} trabajos de la app de campo no se aplicaron`}
+    >
+      <Text size="sm" mb="xs">
+        La orden se anuló o reasignó mientras el técnico estaba sin señal, o faltó material. Revise cada caso.
+      </Text>
       <Table>
         <Table.Thead>
           <Table.Tr>
@@ -383,14 +492,26 @@ function DetalleOrden({
   const abierta = orden && ["201", "202", "205"].includes(orden.estado_codigo);
   const puedeCerrar = tienePermiso("trabajos.orden.cerrar") || tienePermiso("trabajos.orden.ejecutar");
   return (
-    <Drawer opened={id !== null} onClose={onCerrar} position="right" size="xl" title="Orden de trabajo">
+    <Drawer
+      opened={id !== null}
+      onClose={onCerrar}
+      position="right"
+      size="xl"
+      title={
+        orden && (
+          <Group gap="sm">
+            <Text fw={600} fz="lg">
+              {nombreTipo(orden.tipo)} <Codigo>#{orden.numero}</Codigo>
+            </Text>
+            <EtiquetaEstado codigo={orden.estado_codigo} nombre={orden.estado_nombre} />
+          </Group>
+        )
+      }
+    >
       {orden && (
         <Stack gap="sm">
-          <Title order={3}>
-            Orden {orden.numero} · {orden.tipo} · <Badge>{orden.estado_nombre}</Badge>
-          </Title>
           <Text size="sm">
-            Luminarias: {orden.luminarias.map((l) => `${l.luminaria_codigo} (${l.rol})`).join(", ")}
+            Luminarias: <Luminarias items={orden.luminarias} />
             {orden.pqrs_id && ` · desde la PQRS #${orden.pqrs_id}`}
           </Text>
           {orden.materiales.length > 0 && (
@@ -439,7 +560,7 @@ function DetalleOrden({
           {abierta && tienePermiso("trabajos.orden.anular") && (
             <Group align="end">
               <TextInput label="Motivo de anulación" value={motivo} onChange={(e) => setMotivo(e.currentTarget.value)} style={{ flex: 1 }} />
-              <Button color="red" variant="light" disabled={motivo.trim().length < 3} loading={anular.isPending} onClick={() => anular.mutate()}>
+              <Button color="red" variant="outline" disabled={motivo.trim().length < 3} loading={anular.isPending} onClick={() => anular.mutate()}>
                 Anular
               </Button>
             </Group>
@@ -674,8 +795,11 @@ function CargueMasivo({ onMensaje }: { onMensaje: (m: string) => void }) {
   });
 
   return (
-    <Stack gap="xs" mt="lg">
-      <Title order={4}>Cargue masivo de órdenes ejecutadas</Title>
+    <Stack gap="sm" maw={900}>
+      <Text size="sm" c="dimmed">
+        Para registrar de una vez expansiones, modernizaciones o reubicaciones ya ejecutadas. Descargue la
+        plantilla del tipo, llénela y cárguela. Si una fila tiene errores no se carga ninguna.
+      </Text>
       <Group align="end">
         <Select
           label="Tipo"

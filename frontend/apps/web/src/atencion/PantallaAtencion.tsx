@@ -15,13 +15,25 @@ import {
   Text,
   TextInput,
   Textarea,
-  Title,
 } from "@mantine/core";
 import { api, type components } from "@sapef/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { useAuth } from "../auth/AuthContext";
+import {
+  Cargando,
+  Codigo,
+  EncabezadoPagina,
+  EstadoVacio,
+  EtiquetaEstado,
+  MarcoTabla,
+  SinPermiso,
+} from "../comun/ui";
+import { IconPlus } from "@tabler/icons-react";
+
+// Plazo de atención según el semáforo de la sede (umbrales configurables).
+const PLAZO: Record<string, string> = { verde: "A tiempo", amarillo: "Por vencer", rojo: "Vencida" };
 import { COLOR_SEMAFORO, PRIORIDADES, exigir, fecha, mensajeError } from "../comun/api";
 
 type Pqrs = components["schemas"]["PqrsSalida"];
@@ -40,21 +52,23 @@ export function PantallaAtencion({ ruta, navegar }: Props) {
   const pestana = ruta.startsWith("/atencion/pqrs") ? "pqrs" : "pendientes";
 
   if (!tienePermiso("atencion.pqrs.ver")) {
-    return (
-      <Alert color="red" title="403 · Acceso denegado">
-        No tiene permiso para consultar PQRS.
-      </Alert>
-    );
+    return <SinPermiso mensaje="No tiene permiso para consultar PQRS." />;
   }
 
   return (
     <Stack gap="md">
-      <Group justify="space-between">
-        <Title order={2}>Atención · PQRS</Title>
-        {tienePermiso("atencion.pqrs.crear") && (
-          <Button onClick={() => setNueva(true)}>Registrar PQRS</Button>
-        )}
-      </Group>
+      <EncabezadoPagina
+        seccion="Operación"
+        titulo="Atención al ciudadano"
+        descripcion="PQRS que llegan por WhatsApp, en la oficina u otros canales, y luminarias reportadas pendientes de reparar."
+        acciones={
+          tienePermiso("atencion.pqrs.crear") && (
+            <Button leftSection={<IconPlus size={16} />} onClick={() => setNueva(true)}>
+              Registrar PQRS
+            </Button>
+          )
+        }
+      />
       {mensaje && (
         <Alert color="green" withCloseButton onClose={() => setMensaje(null)}>
           {mensaje}
@@ -118,19 +132,23 @@ function Pendientes({ onMensaje }: { onMensaje: (m: string) => void }) {
         }}
         data={[
           { value: "todos", label: "Todas" },
-          { value: "verde", label: "Verde" },
-          { value: "amarillo", label: "Amarillo" },
-          { value: "rojo", label: "Rojo" },
+          { value: "rojo", label: "Vencidas" },
+          { value: "amarillo", label: "Por vencer" },
+          { value: "verde", label: "A tiempo" },
         ]}
-        w={360}
+        w={420}
       />
       {error && <Alert color="red">{mensajeError(error, "Error al cargar.")}</Alert>}
       {isPending ? (
-        <Text c="dimmed">Cargando…</Text>
+        <Cargando texto="Cargando luminarias pendientes…" />
       ) : !data || data.items.length === 0 ? (
-        <Text c="dimmed">No hay luminarias pendientes.</Text>
+        <EstadoVacio
+          titulo={semaforo === "todos" ? "No hay luminarias pendientes" : "Ninguna luminaria en este grupo"}
+          descripcion="Las luminarias aparecen aquí cuando se reportan en una PQRS y salen al quedar reparadas."
+        />
       ) : (
-        <Table striped highlightOnHover>
+        <MarcoTabla>
+        <Table>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Luminaria</Table.Th>
@@ -139,29 +157,33 @@ function Pendientes({ onMensaje }: { onMensaje: (m: string) => void }) {
               <Table.Th>Prioridad</Table.Th>
               <Table.Th>Solicitante</Table.Th>
               <Table.Th>Reporte</Table.Th>
-              <Table.Th>Días</Table.Th>
-              <Table.Th>Semáforo</Table.Th>
+              <Table.Th ta="right">Días</Table.Th>
+              <Table.Th>Plazo</Table.Th>
               <Table.Th />
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
             {data.items.map((f) => (
               <Table.Tr key={`${f.pqrs_id}-${f.luminaria_id}`}>
-                <Table.Td>{f.luminaria_codigo}</Table.Td>
-                <Table.Td>{f.pqrs_numero}</Table.Td>
+                <Table.Td>
+                  <Codigo>{f.luminaria_codigo}</Codigo>
+                </Table.Td>
+                <Table.Td>
+                  <Codigo>#{f.pqrs_numero}</Codigo>
+                </Table.Td>
                 <Table.Td>{f.barrio_nombre ?? "—"}</Table.Td>
                 <Table.Td>{f.prioridad_nombre}</Table.Td>
                 <Table.Td>{f.solicitante ?? "—"}</Table.Td>
                 <Table.Td>{fecha(f.fecha_reporte)}</Table.Td>
-                <Table.Td>{f.dias_abierta}</Table.Td>
+                <Table.Td ta="right">{f.dias_abierta}</Table.Td>
                 <Table.Td>
-                  <Badge color={COLOR_SEMAFORO[f.semaforo]}>{f.semaforo}</Badge>
+                  <EtiquetaEstado color={COLOR_SEMAFORO[f.semaforo]} nombre={PLAZO[f.semaforo] ?? f.semaforo} />
                 </Table.Td>
-                <Table.Td>
+                <Table.Td ta="right">
                   {tienePermiso("trabajos.orden.crear") && (
                     <Button
-                      size="xs"
-                      variant="light"
+                      size="compact-xs"
+                      variant="default"
                       loading={crearOrden.isPending}
                       onClick={() =>
                         crearOrden.mutate({ pqrsId: f.pqrs_id, luminariaId: f.luminaria_id })
@@ -175,6 +197,7 @@ function Pendientes({ onMensaje }: { onMensaje: (m: string) => void }) {
             ))}
           </Table.Tbody>
         </Table>
+        </MarcoTabla>
       )}
       {data && data.total > data.size && (
         <Pagination value={page} onChange={setPage} total={Math.ceil(data.total / data.size)} />
@@ -249,9 +272,12 @@ function ListaPqrs({ onMensaje }: { onMensaje: (m: string) => void }) {
         </Text>
       </Group>
       {isPending ? (
-        <Text c="dimmed">Cargando…</Text>
+        <Cargando texto="Cargando PQRS…" />
+      ) : !data || data.items.length === 0 ? (
+        <EstadoVacio titulo="No hay PQRS en el último mes" descripcion="Registre una con «Registrar PQRS»." />
       ) : (
-        <Table striped highlightOnHover>
+        <MarcoTabla>
+        <Table>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Número</Table.Th>
@@ -266,19 +292,24 @@ function ListaPqrs({ onMensaje }: { onMensaje: (m: string) => void }) {
           <Table.Tbody>
             {data?.items.map((p) => (
               <Table.Tr key={p.id} onClick={() => setSeleccionada(p.id)} style={{ cursor: "pointer" }}>
-                <Table.Td>{p.numero}</Table.Td>
+                <Table.Td>
+                  <Codigo>#{p.numero}</Codigo>
+                </Table.Td>
                 <Table.Td>{fecha(p.fecha_solicitud)}</Table.Td>
                 <Table.Td>{p.canal_nombre}</Table.Td>
                 <Table.Td>{p.ciudadano?.nombre_completo ?? "—"}</Table.Td>
-                <Table.Td>{p.luminarias.map((l) => l.luminaria_codigo).join(", ")}</Table.Td>
+                <Table.Td>
+                  <Codigo>{p.luminarias.map((l) => l.luminaria_codigo).join(", ")}</Codigo>
+                </Table.Td>
                 <Table.Td>{p.prioridad_nombre}</Table.Td>
                 <Table.Td>
-                  <Badge variant="light">{p.estado_nombre}</Badge>
+                  <EtiquetaEstado codigo={p.estado_codigo} nombre={p.estado_nombre} />
                 </Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>
         </Table>
+        </MarcoTabla>
       )}
       {data && data.total > data.size && (
         <Pagination value={page} onChange={setPage} total={Math.ceil(data.total / data.size)} />
@@ -334,13 +365,25 @@ function DetallePqrs({
 
   const abierta = pqrs && !["303", "304"].includes(pqrs.estado_codigo);
   return (
-    <Drawer opened={id !== null} onClose={onCerrar} position="right" size="lg" title="PQRS">
+    <Drawer
+      opened={id !== null}
+      onClose={onCerrar}
+      position="right"
+      size={560}
+      title={
+        pqrs && (
+          <Group gap="sm">
+            <Text fw={600} fz="lg">
+              PQRS <Codigo>#{pqrs.numero}</Codigo>
+            </Text>
+            <EtiquetaEstado codigo={pqrs.estado_codigo} nombre={pqrs.estado_nombre} />
+          </Group>
+        )
+      }
+    >
       {pqrs && (
         <Stack gap="sm">
-          <Title order={3}>
-            PQRS {pqrs.numero} · <Badge>{pqrs.estado_nombre}</Badge>
-          </Title>
-          <Text size="sm">
+          <Text size="sm" c="dimmed">
             {fecha(pqrs.fecha_solicitud)} · {pqrs.canal_nombre} · prioridad {pqrs.prioridad_nombre}
           </Text>
           {pqrs.ciudadano && (
@@ -351,6 +394,7 @@ function DetallePqrs({
             </Text>
           )}
           {pqrs.observacion_solicitante && <Text>{pqrs.observacion_solicitante}</Text>}
+          <MarcoTabla>
           <Table>
             <Table.Thead>
               <Table.Tr>
@@ -363,14 +407,16 @@ function DetallePqrs({
             <Table.Tbody>
               {pqrs.luminarias.map((l) => (
                 <Table.Tr key={l.id}>
-                  <Table.Td>{l.luminaria_codigo}</Table.Td>
+                  <Table.Td>
+                    <Codigo>{l.luminaria_codigo}</Codigo>
+                  </Table.Td>
                   <Table.Td>{l.reparada ? `Sí (${fecha(l.fecha_reparacion)})` : "No"}</Table.Td>
                   <Table.Td>{l.observacion_tecnico ?? "—"}</Table.Td>
                   <Table.Td>
                     {abierta && !l.reparada && !l.es_comodin && tienePermiso("trabajos.orden.crear") && (
                       <Button
-                        size="xs"
-                        variant="light"
+                        size="compact-xs"
+                        variant="default"
                         onClick={() =>
                           crearOrden.mutate({ pqrsId: pqrs.id, luminariaId: l.luminaria_id })
                         }
@@ -383,6 +429,7 @@ function DetallePqrs({
               ))}
             </Table.Tbody>
           </Table>
+          </MarcoTabla>
           {abierta && tienePermiso("atencion.pqrs.anular") && (
             <Group align="end">
               <TextInput
@@ -393,7 +440,7 @@ function DetallePqrs({
               />
               <Button
                 color="red"
-                variant="light"
+                variant="outline"
                 disabled={motivo.trim().length < 3}
                 loading={anular.isPending}
                 onClick={() => anular.mutate()}

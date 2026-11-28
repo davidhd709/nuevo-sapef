@@ -1,6 +1,7 @@
 # Despliegue en el VPS (staging y producción)
 
-Para quien administra el servidor. El VPS se comparte con otros sistemas: SAPEF corre en proyectos
+Para quien administra el servidor. Antes de tocar el VPS, el mismo procedimiento se ensaya en un
+equipo de desarrollo con el [staging local](staging-local.md). El VPS se comparte con otros sistemas: SAPEF corre en proyectos
 de Docker Compose aislados (su propia base, volúmenes y límites de memoria) y solo el Nginx del
 host recibe tráfico de afuera.
 

@@ -92,9 +92,10 @@ class Configuracion(BaseSettings):
 
     @property
     def cookie_segura_efectiva(self) -> bool:
+        # Fuera de desarrollo (staging y producción) el sistema va detrás de HTTPS.
         if self.cookie_segura is not None:
             return self.cookie_segura
-        return self.es_produccion
+        return self.entorno != "desarrollo"
 
 
 @lru_cache

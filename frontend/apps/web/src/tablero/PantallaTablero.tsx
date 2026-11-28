@@ -3,7 +3,6 @@
 import { api, type components } from "@sapef/api";
 import {
   Alert,
-  Badge,
   Button,
   Card,
   Group,
@@ -21,6 +20,8 @@ import { useMemo, useState } from "react";
 
 import { useAuth } from "../auth/AuthContext";
 import { exigir, mensajeError } from "../comun/api";
+import { EncabezadoPagina, MarcoTabla } from "../comun/ui";
+import { IconRefresh } from "@tabler/icons-react";
 import { Grafico, type OpcionGrafico } from "./Grafico";
 
 type Resumen = components["schemas"]["ResumenTableroSalida"];
@@ -44,7 +45,7 @@ function Variacion({ valor, inversa = false }: { valor: number | null | undefine
   if (valor === null || valor === undefined) return <Text size="xs" c="dimmed">sin comparación</Text>;
   const bueno = inversa ? valor <= 0 : valor >= 0;
   return (
-    <Text size="xs" c={bueno ? "teal" : "red"}>
+    <Text size="xs" c={bueno ? "green.8" : "red.7"} className="sapef-cifra">
       {valor > 0 ? "▲" : valor < 0 ? "▼" : "="} {Math.abs(valor).toLocaleString("es-CO")} % vs. mes anterior
     </Text>
   );
@@ -52,43 +53,85 @@ function Variacion({ valor, inversa = false }: { valor: number | null | undefine
 
 function Indicador({ titulo, valor, pie }: { titulo: string; valor: string; pie?: React.ReactNode }) {
   return (
-    <Card withBorder padding="sm">
-      <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
+    <Card padding="md">
+      <Text size="sm" c="dimmed">
         {titulo}
       </Text>
-      <Text size="xl" fw={700}>
+      <Text fz={26} fw={500} lh={1.15} mt={6} className="sapef-cifra">
         {valor}
       </Text>
-      {pie}
+      <div style={{ marginTop: 4 }}>{pie}</div>
     </Card>
   );
 }
 
+/** Tarjeta de una gráfica: título, nota opcional y contenido. */
+function Panel({ titulo, nota, children }: { titulo: string; nota?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <Card padding="md">
+      <Text fw={600} size="sm">
+        {titulo}
+      </Text>
+      {nota && (
+        <Text size="xs" c="dimmed" mt={2}>
+          {nota}
+        </Text>
+      )}
+      <div style={{ marginTop: 8 }}>{children}</div>
+    </Card>
+  );
+}
+
+/** Barras horizontales de una sola serie (magnitud por categoría), ordenadas de mayor a menor. */
 function barrasHorizontales(filas: Conteo[], nombre: string): OpcionGrafico {
   const datos = [...filas].slice(0, 12).reverse();
   return {
-    tooltip: { trigger: "axis" },
-    grid: { left: 8, right: 24, top: 8, bottom: 8, containLabel: true },
-    xAxis: { type: "value" },
+    tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+    grid: { left: 4, right: 36, top: 4, bottom: 4, containLabel: true },
+    xAxis: { type: "value", splitNumber: 3 },
     yAxis: { type: "category", data: datos.map((f) => f.etiqueta) },
-    series: [{ name: nombre, type: "bar", data: datos.map((f) => f.cantidad), label: { show: true, position: "right" } }],
-  };
-}
-
-function dona(filas: { name: string; value: number; color?: string }[], nombre: string): OpcionGrafico {
-  return {
-    tooltip: { trigger: "item" },
-    legend: { bottom: 0 },
     series: [
       {
         name: nombre,
-        type: "pie",
-        radius: ["45%", "70%"],
-        label: { formatter: "{b}: {c}" },
-        data: filas.map((f) => ({ name: f.name, value: f.value, itemStyle: f.color ? { color: f.color } : undefined })),
+        type: "bar",
+        data: datos.map((f) => f.cantidad),
+        itemStyle: { borderRadius: [0, 4, 4, 0] },
+        barCategoryGap: "35%",
+        label: { show: true, position: "right", color: "#63635e", fontSize: 11 },
       },
     ],
   };
+}
+
+const COLOR_PLAZO = { verde: "#0aac23", amarillo: "#fbb315", rojo: "#dc3c3d" } as const;
+
+/** PQRS abiertas por plazo: tres cifras con su estado (no necesita gráfico). */
+function Semaforo({ s }: { s: Resumen["operacion"]["pqrs_semaforo"] }) {
+  const filas = [
+    { clave: "rojo" as const, nombre: "Vencidas", nota: `más de ${s.umbral_amarillo_dias ?? "?"} días`, valor: s.rojo },
+    { clave: "amarillo" as const, nombre: "Por vencer", nota: `hasta ${s.umbral_amarillo_dias ?? "?"} días`, valor: s.amarillo },
+    { clave: "verde" as const, nombre: "A tiempo", nota: `hasta ${s.umbral_verde_dias ?? "?"} días`, valor: s.verde },
+  ];
+  return (
+    <Stack gap={10} py={4}>
+      {filas.map((f) => (
+        <Group key={f.clave} justify="space-between" wrap="nowrap">
+          <Group gap={8} wrap="nowrap">
+            <span style={{ width: 10, height: 10, borderRadius: 2, background: COLOR_PLAZO[f.clave], flex: "none" }} />
+            <div>
+              <Text size="sm">{f.nombre}</Text>
+              <Text size="xs" c="dimmed">
+                {f.nota}
+              </Text>
+            </div>
+          </Group>
+          <Text fz={22} fw={500} className="sapef-cifra">
+            {numero(f.valor)}
+          </Text>
+        </Group>
+      ))}
+    </Stack>
+  );
 }
 
 function SeccionComercializador({ c }: { c: Comercializador }) {
@@ -112,18 +155,22 @@ function SeccionComercializador({ c }: { c: Comercializador }) {
     ["Consumo (kWh)", numero(a.consumo), v.consumo],
   ];
   return (
-    <Card withBorder>
-      <Group justify="space-between" mb="xs">
-        <Title order={4}>
-          {c.nombre} · {c.sede_nombre}
-        </Title>
-        <Badge variant="light">
+    <Card padding="md">
+      <Group justify="space-between" mb="sm">
+        <Text fw={600}>
+          {c.nombre}{" "}
+          <Text span c="dimmed" fw={400}>
+            · {c.sede_nombre}
+          </Text>
+        </Text>
+        <Text size="sm" c="dimmed" className="sapef-cifra">
           Corte {c.periodo}
-          {c.periodo_anterior ? ` vs. ${c.periodo_anterior}` : ""}
-        </Badge>
+          {c.periodo_anterior ? ` frente a ${c.periodo_anterior}` : ""}
+        </Text>
       </Group>
       <SimpleGrid cols={{ base: 1, lg: 2 }}>
-        <Table striped withTableBorder fz="sm">
+        <MarcoTabla>
+        <Table fz="sm">
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Indicador</Table.Th>
@@ -136,8 +183,10 @@ function SeccionComercializador({ c }: { c: Comercializador }) {
               <Table.Tr key={nombre}>
                 <Table.Td>{nombre}</Table.Td>
                 <Table.Td ta="right">{valor}</Table.Td>
-                <Table.Td ta="right">
-                  {variacion === null || variacion === undefined ? "—" : `${variacion.toLocaleString("es-CO")} %`}
+                <Table.Td ta="right" c={variacion == null ? "dimmed" : variacion >= 0 ? "green.8" : "red.7"}>
+                  {variacion === null || variacion === undefined
+                    ? "—"
+                    : `${variacion > 0 ? "+" : ""}${variacion.toLocaleString("es-CO")} %`}
                 </Table.Td>
               </Table.Tr>
             ))}
@@ -148,23 +197,30 @@ function SeccionComercializador({ c }: { c: Comercializador }) {
             </Table.Tr>
           </Table.Tbody>
         </Table>
+        </MarcoTabla>
         <Stack gap="xs">
           <Grafico
             descripcion={`Histórico de facturación y recaudo de ${c.nombre}`}
             opcion={{
               tooltip: { trigger: "axis" },
-              legend: { top: 0 },
-              grid: { left: 8, right: 8, top: 32, bottom: 8, containLabel: true },
+              legend: { top: 0, left: 0 },
+              grid: { left: 4, right: 8, top: 32, bottom: 4, containLabel: true },
               xAxis: { type: "category", data: historico.map((h) => h.periodo) },
-              yAxis: { type: "value" },
+              yAxis: { type: "value", splitNumber: 4 },
               series: [
                 { name: "Facturado", type: "line", data: historico.map((h) => h.facturacion) },
                 { name: "Recaudo", type: "line", data: historico.map((h) => h.recaudo) },
-                { name: "Cartera", type: "bar", data: historico.map((h) => h.cartera) },
+                {
+                  name: "Cartera",
+                  type: "bar",
+                  data: historico.map((h) => h.cartera),
+                  itemStyle: { borderRadius: [4, 4, 0, 0] },
+                },
               ],
             }}
           />
-          <Table fz="xs" withTableBorder>
+          <MarcoTabla>
+          <Table fz="xs">
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>{c.comercializador === "afinia" ? "Tarifa" : "Segmento"}</Table.Th>
@@ -182,6 +238,7 @@ function SeccionComercializador({ c }: { c: Comercializador }) {
               ))}
             </Table.Tbody>
           </Table>
+          </MarcoTabla>
         </Stack>
       </SimpleGrid>
     </Card>
@@ -243,31 +300,26 @@ export function PantallaTablero() {
   const opciones = useMemo(() => {
     if (!r) return null;
     const meses = r.activos.luminarias_instaladas_mes;
-    const s = r.operacion.pqrs_semaforo;
     return {
+      // Un solo eje: las instaladas de cada mes. El acumulado va como cifra en el título.
       instaladas: {
-        tooltip: { trigger: "axis" },
-        legend: { top: 0 },
-        grid: { left: 8, right: 8, top: 32, bottom: 8, containLabel: true },
+        tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+        grid: { left: 4, right: 8, top: 12, bottom: 4, containLabel: true },
         xAxis: { type: "category", data: meses.map((m) => MESES[m.mes - 1]) },
-        yAxis: [{ type: "value", name: "Mes" }, { type: "value", name: "Acumulado" }],
+        yAxis: { type: "value", splitNumber: 4, minInterval: 1 },
         series: [
-          { name: "Instaladas en el mes", type: "bar", data: meses.map((m) => m.cantidad) },
-          { name: "Acumulado del año", type: "line", yAxisIndex: 1, data: meses.map((m) => m.acumulado) },
+          {
+            name: "Instaladas en el mes",
+            type: "bar",
+            data: meses.map((m) => m.cantidad),
+            itemStyle: { borderRadius: [4, 4, 0, 0] },
+          },
         ],
       } satisfies OpcionGrafico,
-      tecnologia: dona(r.activos.por_tecnologia.map((f) => ({ name: f.etiqueta, value: f.cantidad })), "Tecnología"),
+      tecnologia: barrasHorizontales(r.activos.por_tecnologia, "Luminarias"),
       potencia: barrasHorizontales(r.activos.por_potencia, "Luminarias"),
       zona: barrasHorizontales(r.activos.por_zona, "Luminarias"),
       estado: barrasHorizontales(r.operacion.luminarias_por_estado, "Luminarias"),
-      semaforo: dona(
-        [
-          { name: `Verde (≤ ${s.umbral_verde_dias ?? "?"} d)`, value: s.verde, color: "#2f9e44" },
-          { name: `Amarillo (≤ ${s.umbral_amarillo_dias ?? "?"} d)`, value: s.amarillo, color: "#f59f00" },
-          { name: "Rojo", value: s.rojo, color: "#e03131" },
-        ],
-        "PQRS abiertas",
-      ),
       pqrsBarrio: barrasHorizontales(r.operacion.pqrs_por_barrio, "PQRS"),
     };
   }, [r]);
@@ -282,16 +334,16 @@ export function PantallaTablero() {
 
   return (
     <Stack>
-      <Group justify="space-between" wrap="wrap">
-        <div>
-          <Title order={2}>Tablero gerencial</Title>
-          <Text size="sm" c="dimmed">
-            {r
-              ? `${r.sede === "todas" ? "Consolidado: " + r.sedes_incluidas.map((s) => s.nombre).join(", ") : r.sedes_incluidas[0]?.nombre ?? ""} · calculado ${r.calculado_en ? new Date(r.calculado_en).toLocaleString("es-CO") : "—"}`
-              : "Cargando…"}
-          </Text>
-        </div>
-        <Group>
+      <EncabezadoPagina
+        seccion="Gestión"
+        titulo="Tablero gerencial"
+        descripcion={
+          r
+            ? `${r.sede === "todas" ? "Consolidado de " + r.sedes_incluidas.map((s) => s.nombre).join(" y ") : r.sedes_incluidas[0]?.nombre ?? ""} · datos calculados el ${r.calculado_en ? new Date(r.calculado_en).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" }) : "—"}`
+            : "Cargando…"
+        }
+        acciones={
+        <>
           {puedeConsolidado && (
             <SegmentedControl
               aria-label="Alcance del tablero"
@@ -303,12 +355,18 @@ export function PantallaTablero() {
               ]}
             />
           )}
-          <Select aria-label="Año" data={anios} value={anio} onChange={(v) => v && setAnio(v)} w={100} />
-          <Button variant="light" loading={recalcular.isPending} onClick={() => recalcular.mutate()}>
+          <Select aria-label="Año" data={anios} value={anio} onChange={(v) => v && setAnio(v)} w={100} allowDeselect={false} />
+          <Button
+            variant="default"
+            leftSection={<IconRefresh size={16} />}
+            loading={recalcular.isPending}
+            onClick={() => recalcular.mutate()}
+          >
             Recalcular
           </Button>
-        </Group>
-      </Group>
+        </>
+        }
+      />
 
       {recalcular.isSuccess && <Alert color="blue">Recálculo encolado; el tablero se actualizará en unos segundos.</Alert>}
       {recalcular.isError && <Alert color="red">{mensajeError(recalcular.error, "No se pudo recalcular.")}</Alert>}
@@ -322,7 +380,7 @@ export function PantallaTablero() {
             <Indicador
               titulo="PQRS abiertas"
               valor={numero(r.operacion.pqrs_abiertas)}
-              pie={<Text size="xs" c={r.operacion.pqrs_semaforo.rojo ? "red" : "dimmed"}>{numero(r.operacion.pqrs_semaforo.rojo)} en rojo</Text>}
+              pie={<Text size="xs" c={r.operacion.pqrs_semaforo.rojo ? "red.7" : "dimmed"}>{numero(r.operacion.pqrs_semaforo.rojo)} vencidas</Text>}
             />
             <Indicador
               titulo="PQRS recibidas (mes)"
@@ -342,16 +400,16 @@ export function PantallaTablero() {
           </SimpleGrid>
 
           {r.sede === "todas" && (
-            <Card withBorder>
-              <Title order={4} mb="xs">Por sede</Title>
-              <Table striped fz="sm">
+            <Panel titulo="Por sede">
+              <MarcoTabla>
+              <Table fz="sm">
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Sede</Table.Th>
                     <Table.Th ta="right">Luminarias</Table.Th>
                     <Table.Th ta="right">Instaladas {r.anio}</Table.Th>
                     <Table.Th ta="right">PQRS abiertas</Table.Th>
-                    <Table.Th ta="right">En rojo</Table.Th>
+                    <Table.Th ta="right">Vencidas</Table.Th>
                     <Table.Th ta="right">Mantenimientos del mes</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
@@ -368,53 +426,49 @@ export function PantallaTablero() {
                   ))}
                 </Table.Tbody>
               </Table>
-            </Card>
+              </MarcoTabla>
+            </Panel>
           )}
 
-          <Card withBorder>
-            <Title order={4}>Luminarias instaladas en {r.anio}, mes a mes</Title>
-            <Grafico descripcion={`Luminarias instaladas por mes en ${r.anio}`} opcion={opciones.instaladas} alto={280} />
-          </Card>
+          <Panel
+            titulo={`Luminarias instaladas en ${r.anio}, mes a mes`}
+            nota={`${numero(r.activos.instaladas_anio)} en el año`}
+          >
+            <Grafico descripcion={`Luminarias instaladas por mes en ${r.anio}`} opcion={opciones.instaladas} alto={240} />
+          </Panel>
 
           <SimpleGrid cols={{ base: 1, md: 3 }}>
-            <Card withBorder>
-              <Title order={5}>Por tecnología</Title>
+            <Panel titulo="Por tecnología" nota="Clic para ver la tabla">
               <Grafico
                 descripcion="Luminarias en servicio por tecnología"
                 opcion={opciones.tecnologia}
                 onClicCategoria={() => setDetalle({ titulo: "Luminarias por tecnología", filas: r.activos.por_tecnologia })}
               />
-            </Card>
-            <Card withBorder>
-              <Title order={5}>Por potencia</Title>
+            </Panel>
+            <Panel titulo="Por potencia" nota="Clic para ver la tabla">
               <Grafico
                 descripcion="Luminarias en servicio por potencia"
                 opcion={opciones.potencia}
                 onClicCategoria={() => setDetalle({ titulo: "Luminarias por potencia", filas: r.activos.por_potencia })}
               />
-            </Card>
-            <Card withBorder>
-              <Title order={5}>Por zona</Title>
-              <Text size="xs" c="dimmed">Clic en una zona para ver sus barrios</Text>
+            </Panel>
+            <Panel titulo="Por zona" nota="Clic en una zona para ver sus barrios">
               <Grafico descripcion="Luminarias en servicio por zona" opcion={opciones.zona} onClicCategoria={verBarriosDeZona} />
-            </Card>
+            </Panel>
           </SimpleGrid>
 
           <SimpleGrid cols={{ base: 1, md: 3 }}>
-            <Card withBorder>
-              <Title order={5}>PQRS abiertas por antigüedad</Title>
-              <Grafico descripcion="Semáforo de PQRS abiertas" opcion={opciones.semaforo} />
-            </Card>
-            <Card withBorder>
-              <Title order={5}>PQRS del año por barrio</Title>
+            <Panel titulo="PQRS abiertas por plazo" nota="Umbrales de la sede">
+              <Semaforo s={r.operacion.pqrs_semaforo} />
+            </Panel>
+            <Panel titulo="PQRS del año por barrio" nota="Clic para ver la tabla">
               <Grafico
                 descripcion="PQRS del año por barrio"
                 opcion={opciones.pqrsBarrio}
                 onClicCategoria={() => setDetalle({ titulo: "PQRS del año por barrio", filas: r.operacion.pqrs_por_barrio })}
               />
-            </Card>
-            <Card withBorder>
-              <Title order={5}>Luminarias por estado</Title>
+            </Panel>
+            <Panel titulo="Luminarias por estado" nota="Clic para ver la tabla">
               <Grafico
                 descripcion="Luminarias por estado"
                 opcion={opciones.estado}
@@ -423,10 +477,12 @@ export function PantallaTablero() {
               <Text size="xs" c="dimmed">
                 {numero(r.operacion.ordenes_abiertas)} órdenes abiertas · {numero(r.operacion.materiales_bajo_minimo)} materiales bajo el mínimo
               </Text>
-            </Card>
+            </Panel>
           </SimpleGrid>
 
-          <Title order={3}>Informe gerencial comercial</Title>
+          <Title order={2} fz="md" mt="sm">
+            Informe gerencial comercial
+          </Title>
           {r.comercial.estado === "sin_cortes_cargados" && (
             <Alert color="gray">Todavía no hay cortes comerciales publicados para {r.sede === "todas" ? "estas sedes" : "esta sede"}.</Alert>
           )}
@@ -440,7 +496,8 @@ export function PantallaTablero() {
       )}
 
       <Modal opened={detalle !== null} onClose={() => setDetalle(null)} title={detalle?.titulo} size="lg">
-        <Table striped fz="sm">
+        <MarcoTabla>
+        <Table fz="sm">
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Nombre</Table.Th>
@@ -458,6 +515,7 @@ export function PantallaTablero() {
             ))}
           </Table.Tbody>
         </Table>
+        </MarcoTabla>
       </Modal>
     </Stack>
   );

@@ -69,9 +69,9 @@ describe("Atención · luminarias pendientes", () => {
 
     const fila = (await screen.findByText("L-100")).closest("tr");
     expect(fila).not.toBeNull();
-    expect(within(fila!).getByText("rojo")).toBeInTheDocument();
+    expect(within(fila!).getByText("Vencida")).toBeInTheDocument();
     expect(within(fila!).getByText("13")).toBeInTheDocument();
-    expect(within(screen.getByText("L-200").closest("tr")!).getByText("verde")).toBeInTheDocument();
+    expect(within(screen.getByText("L-200").closest("tr")!).getByText("A tiempo")).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: "Crear orden" })).toHaveLength(2);
 
     const consulta = peticiones.find((p) => p.url.includes("/api/v1/pqrs/pendientes"));

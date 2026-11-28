@@ -1,0 +1,152 @@
+/* Estilos globales del sistema visual (ver tema.ts). Solo lo que el tema de Mantine no cubre. */
+
+:root {
+  --sapef-fondo: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-8));
+  --sapef-superficie: light-dark(#ffffff, var(--mantine-color-dark-7));
+  --sapef-borde: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+  --sapef-texto-suave: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2));
+  --sapef-lateral: #1c1c1a;
+  --sapef-lateral-borde: #2e2e2b;
+}
+
+body {
+  background: var(--sapef-fondo);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01";
+}
+
+/* Cifras alineadas en tablas, indicadores y códigos. */
+.mantine-Table-td,
+.sapef-cifra {
+  font-variant-numeric: tabular-nums;
+}
+
+.sapef-mono {
+  white-space: nowrap;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 0.8125rem;
+  letter-spacing: -0.01em;
+}
+
+/* Tablas: encabezado discreto en versalitas, superficie blanca y bordes finos. */
+.mantine-Table-table {
+  background: var(--sapef-superficie);
+}
+.mantine-Table-th {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sapef-texto-suave);
+  background: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
+  white-space: nowrap;
+}
+.mantine-Table-thead {
+  border-bottom: 1px solid var(--sapef-borde);
+}
+
+/* Contenedor de tabla con borde, usado por <MarcoTabla>. */
+.sapef-marco-tabla {
+  border: 1px solid var(--sapef-borde);
+  border-radius: var(--mantine-radius-sm);
+  background: var(--sapef-superficie);
+  overflow: auto;
+}
+
+.mantine-Card-root,
+.mantine-Paper-root[data-with-border] {
+  border-color: var(--sapef-borde);
+}
+
+/* Menú lateral oscuro (siempre oscuro, también en modo claro). */
+.sapef-lateral {
+  background: var(--sapef-lateral);
+  border-right: 1px solid var(--sapef-lateral-borde);
+  color: #d9d8d3;
+}
+.sapef-lateral-grupo {
+  padding: 14px 12px 4px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7b7a74;
+}
+.sapef-lateral-enlace {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #c9c8c2;
+  font: inherit;
+  font-size: 0.8125rem;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+}
+.sapef-lateral-enlace:hover {
+  background: #262624;
+  color: #f2f1ec;
+}
+.sapef-lateral-enlace[data-activo] {
+  background: #2a2926;
+  color: #ffffff;
+  font-weight: 500;
+}
+.sapef-lateral-enlace[data-activo]::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--mantine-color-ambar-5);
+}
+.sapef-lateral-enlace svg {
+  color: #8f8e88;
+  flex: none;
+}
+.sapef-lateral-enlace[data-activo] svg {
+  color: var(--mantine-color-ambar-4);
+}
+.sapef-lateral-enlace:focus-visible {
+  outline: 2px solid var(--mantine-color-ambar-5);
+  outline-offset: 1px;
+}
+
+/* Encabezado superior: claro y plano. */
+.sapef-cabecera {
+  background: var(--sapef-superficie);
+  border-bottom: 1px solid var(--sapef-borde);
+}
+
+/* Estado vacío y de error: discretos, sin ilustraciones. */
+.sapef-estado {
+  border: 1px dashed var(--sapef-borde);
+  border-radius: var(--mantine-radius-sm);
+  background: var(--sapef-superficie);
+  padding: 32px 24px;
+  text-align: center;
+}
+
+/* Barras de desplazamiento finas. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: light-dark(#cfcfca, #4d4c47) transparent;
+}
+
+/* Etiqueta de estado (Badge variant="dot"): sin recuadro, solo punto y texto. */
+.mantine-Badge-root[data-variant="dot"] {
+  border: 0;
+  background: transparent;
+  padding-inline: 0;
+  height: auto;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: inherit;
+}

@@ -99,7 +99,7 @@ export function HojaDeVida({
             Hoja de vida
           </Text>
           {puedeEditar && !editando && (
-            <Button size="xs" variant="light" onClick={() => setEditando(true)}>
+            <Button size="xs" variant="default" onClick={() => setEditando(true)}>
               Modificar
             </Button>
           )}

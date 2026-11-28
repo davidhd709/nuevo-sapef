@@ -1,9 +1,6 @@
 import {
   Alert,
-  Badge,
   Button,
-  Card,
-  Group,
   Modal,
   MultiSelect,
   PasswordInput,
@@ -13,13 +10,15 @@ import {
   Tabs,
   Text,
   TextInput,
-  Title,
 } from "@mantine/core";
 import { api } from "@sapef/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 
+import { IconSearch, IconUserPlus } from "@tabler/icons-react";
+
 import { useAuth } from "../auth/AuthContext";
+import { Codigo, EncabezadoPagina, EtiquetaEstado, MarcoTabla, SinPermiso } from "../comun/ui";
 
 export function PantallaSeguridad() {
   const { tienePermiso } = useAuth();
@@ -126,11 +125,7 @@ export function PantallaSeguridad() {
   });
 
   if (!puedeVerUsuarios) {
-    return (
-      <Alert color="red" title="403 · Acceso denegado" data-testid="error-403">
-        No tiene permiso suficiente (<code>seguridad.usuario.ver</code>) para administrar usuarios.
-      </Alert>
-    );
+    return <SinPermiso mensaje="No tiene permiso para administrar usuarios." />;
   }
 
   function manejarCrear(e: FormEvent) {
@@ -141,30 +136,37 @@ export function PantallaSeguridad() {
 
   return (
     <Stack gap="md">
-      <Group justify="space-between">
-        <Title order={2}>Seguridad y usuarios</Title>
-        {puedeCrearUsuario && (
-          <Button onClick={() => setModalUsuario(true)}>Nuevo usuario</Button>
-        )}
-      </Group>
+      <EncabezadoPagina
+        seccion="Administración"
+        titulo="Usuarios y roles"
+        descripcion="Quién entra al sistema, con qué rol y en qué sedes. Los permisos se validan siempre en el servidor."
+        acciones={
+          puedeCrearUsuario && (
+            <Button leftSection={<IconUserPlus size={16} />} onClick={() => setModalUsuario(true)}>
+              Nuevo usuario
+            </Button>
+          )
+        }
+      />
 
       <Tabs defaultValue="usuarios">
-        <Tabs.List>
+        <Tabs.List mb="md">
           <Tabs.Tab value="usuarios">Usuarios</Tabs.Tab>
           {puedeVerRoles && <Tabs.Tab value="roles">Roles y permisos</Tabs.Tab>}
           {puedeVerAuditoria && <Tabs.Tab value="auditoria">Auditoría</Tabs.Tab>}
         </Tabs.List>
 
-        <Tabs.Panel value="usuarios" pt="md">
+        <Tabs.Panel value="usuarios">
           <Stack gap="sm">
             <TextInput
-              placeholder="Buscar por usuario, nombre o identificación..."
+              placeholder="Usuario, nombre o identificación"
+              leftSection={<IconSearch size={15} />}
               value={buscar}
               onChange={(e) => setBuscar(e.currentTarget.value)}
               maw={360}
             />
-            <Card withBorder p={0}>
-              <Table striped highlightOnHover>
+            <MarcoTabla>
+              <Table>
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Usuario</Table.Th>
@@ -182,27 +184,27 @@ export function PantallaSeguridad() {
                   )}
                   {(usuariosData?.items ?? []).map((u) => (
                     <Table.Tr key={u.id}>
-                      <Table.Td>{u.nombre_usuario}</Table.Td>
+                      <Table.Td>
+                        <Codigo>{u.nombre_usuario}</Codigo>
+                      </Table.Td>
                       <Table.Td>{u.nombre_completo}</Table.Td>
                       <Table.Td>{u.rol.nombre}</Table.Td>
                       <Table.Td>{u.sedes.map((s) => s.nombre).join(", ")}</Table.Td>
                       <Table.Td>
-                        <Badge color={u.activo ? "green" : "gray"}>
-                          {u.activo ? "Activo" : "Inactivo"}
-                        </Badge>
+                        <EtiquetaEstado color={u.activo ? "green" : "gray"} nombre={u.activo ? "Activo" : "Inactivo"} />
                       </Table.Td>
                     </Table.Tr>
                   ))}
                 </Table.Tbody>
               </Table>
-            </Card>
+            </MarcoTabla>
           </Stack>
         </Tabs.Panel>
 
         {puedeVerRoles && (
-          <Tabs.Panel value="roles" pt="md">
-            <Card withBorder p={0}>
-              <Table striped>
+          <Tabs.Panel value="roles">
+            <MarcoTabla>
+              <Table>
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Código</Table.Th>
@@ -224,14 +226,14 @@ export function PantallaSeguridad() {
                   ))}
                 </Table.Tbody>
               </Table>
-            </Card>
+            </MarcoTabla>
           </Tabs.Panel>
         )}
 
         {puedeVerAuditoria && (
-          <Tabs.Panel value="auditoria" pt="md">
-            <Card withBorder p={0}>
-              <Table striped>
+          <Tabs.Panel value="auditoria">
+            <MarcoTabla>
+              <Table>
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Instante</Table.Th>
@@ -251,7 +253,7 @@ export function PantallaSeguridad() {
                   ))}
                 </Table.Tbody>
               </Table>
-            </Card>
+            </MarcoTabla>
           </Tabs.Panel>
         )}
       </Tabs>

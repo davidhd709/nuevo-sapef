@@ -96,6 +96,6 @@ describe("Migración desde SAPEF", () => {
 
   it("sin permisos de importación muestra 403", async () => {
     montar(["activos.luminaria.ver"]);
-    expect(await screen.findByText("403 · Acceso denegado")).toBeInTheDocument();
+    expect(await screen.findByTestId("error-403")).toHaveTextContent("No tiene permiso para importar datos.");
   });
 });

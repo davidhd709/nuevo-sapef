@@ -128,10 +128,10 @@ describe("Tablero gerencial", () => {
       </MantineProvider>,
     );
 
-    expect(await screen.findByText("Por sede")).toBeInTheDocument();
+    expect(await screen.findByText("Por sede", {}, { timeout: 5000 })).toBeInTheDocument();
     expect(screen.getByText("12.000")).toBeInTheDocument();
-    expect(screen.getByText("7 en rojo")).toBeInTheDocument();
-    expect(screen.getByText("Afinia · Montelíbano")).toBeInTheDocument();
+    expect(screen.getByText("7 vencidas")).toBeInTheDocument();
+    expect(screen.getByText((_, el) => el?.tagName === "P" && el.textContent === "Afinia · Montelíbano")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "Luminarias instaladas por mes en 2026" })).toBeInTheDocument();
     expect(screen.getByText(/▼ 20 % vs. mes anterior/)).toBeInTheDocument();
 

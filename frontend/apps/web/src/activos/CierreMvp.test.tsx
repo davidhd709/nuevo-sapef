@@ -161,7 +161,7 @@ describe("Cierre del MVP de la web", () => {
 
   it("muestra la hoja de vida con la compra del lote en la ficha y filtra por acción operativa", async () => {
     const peticiones = montar("/activos", ["activos.luminaria.ver", "activos.luminaria.editar"]);
-    fireEvent.click(await screen.findByRole("button", { name: "Ver ficha" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ver ficha de 7001" }));
     const hoja = await screen.findByTestId("hoja-de-vida");
     await waitFor(() => expect(hoja).toHaveTextContent("OC-77"));
     expect(hoja).toHaveTextContent("BODEGA BUENA");

@@ -1,18 +1,21 @@
 import {
   Alert,
   Anchor,
+  Box,
   Button,
-  Card,
   Center,
+  Group,
   PasswordInput,
   Stack,
   Text,
   TextInput,
   Title,
 } from "@mantine/core";
+import { IconAlertCircle, IconMailCheck } from "@tabler/icons-react";
 import { api } from "@sapef/api";
 import { useState, type FormEvent } from "react";
 
+import { MarcaSapef } from "../comun/Marca";
 import { useAuth } from "./AuthContext";
 
 export function PantallaIngresar({ onExito }: { onExito: () => void }) {
@@ -59,35 +62,82 @@ export function PantallaIngresar({ onExito }: { onExito: () => void }) {
   }
 
   return (
-    <Center mih="80vh">
-      <Card withBorder shadow="sm" p="xl" w={400}>
-        <Stack gap="md">
+    <div style={{ display: "flex", minHeight: "100vh", background: "var(--sapef-superficie)" }}>
+      <Box
+        visibleFrom="md"
+        style={{
+          width: "42%",
+          maxWidth: 560,
+          background: "var(--sapef-lateral)",
+          color: "#e9e8e3",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          padding: "40px 48px",
+          borderRight: "1px solid var(--sapef-lateral-borde)",
+        }}
+      >
+        <MarcaSapef tinta="#f2f1ec" tamano={24} />
+        <div>
+          <div style={{ width: 32, height: 3, background: "var(--mantine-color-ambar-5)", marginBottom: 20 }} />
+          <Text fz={26} fw={500} lh={1.25} maw={380} c="#f2f1ec">
+            Inventario, atención y operación del alumbrado público.
+          </Text>
+          <Stack gap={10} mt={28}>
+            {[
+              "Luminarias, hoja de vida y mapa",
+              "PQRS y órdenes de trabajo con la app de campo",
+              "Materiales y bodega",
+              "Análisis comercial de Afinia, Celsia y Vatia",
+            ].map((t) => (
+              <Group key={t} gap={10} wrap="nowrap">
+                <div style={{ width: 6, height: 6, background: "#7b7a74", flex: "none" }} />
+                <Text size="sm" c="#b9b8b2">
+                  {t}
+                </Text>
+              </Group>
+            ))}
+          </Stack>
+        </div>
+        <Text fz={11} c="#7b7a74" style={{ letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          Montelíbano · Alcalá
+        </Text>
+      </Box>
+
+      <Center style={{ flex: 1 }} p="xl">
+        <Stack gap="lg" w="100%" maw={360}>
+          <Box hiddenFrom="md" mb="md">
+            <MarcaSapef tamano={24} />
+          </Box>
           <div>
-            <Title order={2}>SAPEF</Title>
-            <Text size="sm" c="dimmed">
-              Sistema de gestión de alumbrado público
+            <Title order={1}>{modoRecuperar ? "Recuperar contraseña" : "Iniciar sesión"}</Title>
+            <Text size="sm" c="dimmed" mt={6}>
+              {modoRecuperar
+                ? "Escriba el correo de su cuenta y le enviaremos un enlace para crear una nueva contraseña."
+                : "Ingrese con el usuario que le asignó el administrador."}
             </Text>
           </div>
 
           {error && (
-            <Alert color="red" title="Error">
+            <Alert color="red" icon={<IconAlertCircle size={18} />}>
               {error}
             </Alert>
           )}
           {mensajeRec && (
-            <Alert color="blue" title="Recuperación">
+            <Alert color="blue" icon={<IconMailCheck size={18} />}>
               {mensajeRec}
             </Alert>
           )}
 
           {!modoRecuperar ? (
             <form onSubmit={manejarSubmit}>
-              <Stack gap="sm">
+              <Stack gap="md">
                 <TextInput
                   label="Usuario o correo"
                   name="usuario"
                   autoComplete="username"
                   required
+                  size="md"
                   value={usuario}
                   onChange={(e) => setUsuario(e.currentTarget.value)}
                 />
@@ -96,16 +146,18 @@ export function PantallaIngresar({ onExito }: { onExito: () => void }) {
                   name="clave"
                   autoComplete="current-password"
                   required
+                  size="md"
                   value={clave}
                   onChange={(e) => setClave(e.currentTarget.value)}
                 />
-                <Button type="submit" loading={enviando} fullWidth mt="xs">
+                <Button type="submit" loading={enviando} fullWidth size="md" mt={4}>
                   Ingresar
                 </Button>
                 <Anchor
                   component="button"
                   type="button"
                   size="sm"
+                  ta="left"
                   onClick={() => {
                     setModoRecuperar(true);
                     setError(null);
@@ -117,22 +169,24 @@ export function PantallaIngresar({ onExito }: { onExito: () => void }) {
             </form>
           ) : (
             <form onSubmit={manejarRecuperar}>
-              <Stack gap="sm">
+              <Stack gap="md">
                 <TextInput
                   label="Correo electrónico"
                   name="correo"
                   type="email"
                   required
+                  size="md"
                   value={correoRec}
                   onChange={(e) => setCorreoRec(e.currentTarget.value)}
                 />
-                <Button type="submit" loading={enviando} fullWidth>
+                <Button type="submit" loading={enviando} fullWidth size="md">
                   Enviar instrucciones
                 </Button>
                 <Anchor
                   component="button"
                   type="button"
                   size="sm"
+                  ta="left"
                   onClick={() => {
                     setModoRecuperar(false);
                     setMensajeRec(null);
@@ -144,7 +198,7 @@ export function PantallaIngresar({ onExito }: { onExito: () => void }) {
             </form>
           )}
         </Stack>
-      </Card>
-    </Center>
+      </Center>
+    </div>
   );
 }

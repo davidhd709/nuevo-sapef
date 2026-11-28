@@ -26,7 +26,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
 import { useAuth } from "../auth/AuthContext";
+import { Codigo, EncabezadoPagina, EtiquetaEstado, MarcoTabla, SinPermiso } from "../comun/ui";
 import { formatear, VistaResultado } from "./VistaResultado";
+import { IconCalendarMonth } from "@tabler/icons-react";
 
 type Objeto = Record<string, unknown>;
 
@@ -82,6 +84,25 @@ const COLOR_ESTADO: Record<string, string> = {
   NO_VALIDABLE: "gray",
   REQUIERE_REVISION: "yellow",
 };
+
+const NOMBRE_ESTADO: Record<string, string> = {
+  publicado: "Publicado",
+  con_errores: "Con errores",
+  no_publicable: "No publicable",
+  validando: "Validando",
+  recibido: "Recibido",
+  reemplazado: "Reemplazado",
+  eliminado: "Eliminado",
+  CORRECTO: "Correcto",
+  POR_ENCIMA: "Por encima",
+  POR_DEBAJO: "Por debajo",
+  NO_VALIDABLE: "No validable",
+  REQUIERE_REVISION: "Requiere revisión",
+};
+
+function nombreEstado(estado: string): string {
+  return NOMBRE_ESTADO[estado] ?? estado.replaceAll("_", " ");
+}
 
 async function pedir<T>(url: string, sede: string, init: RequestInit = {}): Promise<T> {
   const respuesta = await fetch(url, {
@@ -204,8 +225,9 @@ function Cargues({ operador, sede }: { operador: string; sede: string }) {
           {error}
         </Alert>
       )}
+      <MarcoTabla>
       <ScrollArea type="auto">
-        <Table striped withTableBorder fz="sm">
+        <Table fz="sm">
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Periodo</Table.Th>
@@ -219,14 +241,18 @@ function Cargues({ operador, sede }: { operador: string; sede: string }) {
           <Table.Tbody>
             {cargues.map((c) => (
               <Table.Tr key={c.id}>
-                <Table.Td>{c.periodo}</Table.Td>
                 <Table.Td>
-                  <Badge color={COLOR_ESTADO[c.estado] ?? "gray"}>{c.estado.replace("_", " ")}</Badge>
-                  {c.origen === "opainn" && (
-                    <Badge ml={4} variant="outline" size="xs">
-                      OPainn
-                    </Badge>
-                  )}
+                  <Codigo>{c.periodo}</Codigo>
+                </Table.Td>
+                <Table.Td>
+                  <Group gap={6} wrap="nowrap">
+                    <EtiquetaEstado color={COLOR_ESTADO[c.estado] ?? "gray"} nombre={nombreEstado(c.estado)} />
+                    {c.origen === "opainn" && (
+                      <Badge variant="outline" color="gray" size="xs">
+                        OPainn
+                      </Badge>
+                    )}
+                  </Group>
                 </Table.Td>
                 <Table.Td>
                   {Object.entries(c.familias)
@@ -266,6 +292,7 @@ function Cargues({ operador, sede }: { operador: string; sede: string }) {
           </Table.Tbody>
         </Table>
       </ScrollArea>
+      </MarcoTabla>
     </Stack>
   );
 }
@@ -310,20 +337,25 @@ function Analisis({ operador, sede, periodo }: { operador: string; sede: string;
       <ScrollArea h="70vh" w={260} type="auto">
         {grupos.map(([grupo, lista]) => (
           <Stack key={grupo} gap={0} mb="xs">
-            <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+            <Text fz={10} fw={600} c="dimmed" tt="uppercase" px="sm" pt="xs" pb={4} style={{ letterSpacing: "0.08em" }}>
               {grupo}
             </Text>
             {lista.map((c) => (
               <Tooltip key={c.id} label={c.nota ?? c.pregunta} multiline w={260} withArrow>
                 <NavLink
                   label={c.nombre}
+                  color="gray"
+                  variant="light"
+                  fz="sm"
+                  py={6}
+                  style={{ borderRadius: 4 }}
                   active={c.id === elegido}
                   disabled={c.estado === "no_aplica"}
                   rightSection={
                     c.estado !== "disponible" ? (
-                      <Badge size="xs" color={c.estado === "no_aplica" ? "gray" : "yellow"}>
+                      <Text fz={10} c="dimmed">
                         {c.estado.replace("_", " ")}
-                      </Badge>
+                      </Text>
                     ) : null
                   }
                   onClick={() => setElegido(c.id)}
@@ -336,7 +368,9 @@ function Analisis({ operador, sede, periodo }: { operador: string; sede: string;
       <Stack style={{ flex: 1, minWidth: 0 }}>
         {actual && (
           <div>
-            <Title order={4}>{actual.nombre}</Title>
+            <Title order={2} fz="lg">
+              {actual.nombre}
+            </Title>
             <Text size="sm" c="dimmed">
               {actual.pregunta}
             </Text>
@@ -421,55 +455,62 @@ function ControlTarifario({ operador, sede, periodo }: { operador: string; sede:
       {totales && (
         <SimpleGrid cols={{ base: 2, md: 4, lg: 7 }} spacing="xs">
           {Object.entries(totales.por_estado ?? {}).map(([k, v]) => (
-            <Card key={k} withBorder padding="xs">
-              <Badge color={COLOR_ESTADO[k]}>{k.replace("_", " ")}</Badge>
-              <Text fw={700} size="lg">
+            <Card key={k} padding="sm">
+              <EtiquetaEstado color={COLOR_ESTADO[k]} nombre={nombreEstado(k)} />
+              <Text fz="xl" fw={500} className="sapef-cifra" mt={4}>
                 {formatear(v)}
               </Text>
             </Card>
           ))}
-          <Card withBorder padding="xs">
-            <Text size="xs" c="dimmed">
+          <Card padding="sm">
+            <Text size="sm" c="dimmed">
               Cobrado por encima
             </Text>
-            <Text fw={700}>${formatear(totales.valor_por_encima)}</Text>
+            <Text fz="xl" fw={500} className="sapef-cifra" mt={4}>
+              $ {formatear(totales.valor_por_encima)}
+            </Text>
           </Card>
-          <Card withBorder padding="xs">
-            <Text size="xs" c="dimmed">
+          <Card padding="sm">
+            <Text size="sm" c="dimmed">
               Cobrado por debajo
             </Text>
-            <Text fw={700}>${formatear(totales.valor_por_debajo)}</Text>
+            <Text fz="xl" fw={500} className="sapef-cifra" mt={4}>
+              $ {formatear(totales.valor_por_debajo)}
+            </Text>
           </Card>
         </SimpleGrid>
       )}
       {isFetching && <Text c="dimmed">Calculando…</Text>}
       {data && (
         <>
+          <MarcoTabla>
           <ScrollArea type="auto">
-            <Table striped withTableBorder fz="xs" miw={900}>
+            <Table fz="xs" miw={900}>
               <Table.Thead>
                 <Table.Tr>
                   {["Usuario", "Nombre", "Tarifa", "Regla", "Estado", "Motivo", "Facturado", "Esperado", "Diferencia", "Señal CI401", "Señal CI851"].map((c) => (
-                    <Table.Th key={c}>{c}</Table.Th>
+                    <Table.Th key={c} ta={["Facturado", "Esperado", "Diferencia"].includes(c) ? "right" : undefined}>
+                      {c}
+                    </Table.Th>
                   ))}
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
                 {data.items.map((f, i) => (
                   <Table.Tr key={i}>
-                    <Table.Td>{formatear(f.identificador)}</Table.Td>
+                    <Table.Td>
+                      <Codigo>{formatear(f.identificador, "identificador")}</Codigo>
+                    </Table.Td>
                     <Table.Td>{formatear(f.nombre)}</Table.Td>
                     <Table.Td>{formatear(f.tarifa)}</Table.Td>
                     <Table.Td>{formatear(f.regla_aplicada)}</Table.Td>
                     <Table.Td>
-                      <Badge size="sm" color={COLOR_ESTADO[String(f.estado)]}>
-                        {String(f.estado).replace("_", " ")}
-                      </Badge>
+                      <EtiquetaEstado color={COLOR_ESTADO[String(f.estado)]} nombre={nombreEstado(String(f.estado))} />
                     </Table.Td>
                     <Table.Td>{formatear(f.motivo_revision)}</Table.Td>
-                    <Table.Td>{formatear(f.facturado_real)}</Table.Td>
-                    <Table.Td>{formatear(f.esperado)}</Table.Td>
-                    <Table.Td>{formatear(f.diferencia)}</Table.Td>
+                    <Table.Td ta="right">{formatear(f.facturado_real)}</Table.Td>
+                    <Table.Td ta="right">{formatear(f.esperado)}</Table.Td>
+                    <Table.Td ta="right">{formatear(f.diferencia)}</Table.Td>
                     <Table.Td>{formatear(f.senal_ci401)}</Table.Td>
                     <Table.Td>{formatear(f.senal_ci851)}</Table.Td>
                   </Table.Tr>
@@ -477,6 +518,7 @@ function ControlTarifario({ operador, sede, periodo }: { operador: string; sede:
               </Table.Tbody>
             </Table>
           </ScrollArea>
+          </MarcoTabla>
           {data.total > 100 && (
             <Pagination value={pagina} onChange={setPagina} total={Math.ceil(data.total / 100)} />
           )}
@@ -668,61 +710,73 @@ export function PantallaComercial() {
       : (cortes[cortes.length - 1]?.periodo ?? null);
 
   if (!puedeVer) {
-    return (
-      <Alert color="red" title="403 · Acceso denegado">
-        No tiene permiso para el módulo comercial.
-      </Alert>
-    );
+    return <SinPermiso mensaje="No tiene permiso para el módulo comercial." />;
   }
 
   return (
     <Stack gap="md">
-      <Group justify="space-between" wrap="wrap">
-        <Title order={2}>Comercial</Title>
-        <Group>
-          <Select
-            label="Comercializador"
-            data={disponibles}
-            value={operador}
-            onChange={setElegido}
-            w={180}
-            disabled={isPending}
-          />
-          <Select
-            label="Corte"
-            data={[...cortes].reverse().map((c) => ({ value: c.periodo, label: `${c.periodo}${c.completo ? "" : " (incompleto)"}` }))}
-            value={periodo}
-            onChange={setPeriodoElegido}
-            w={180}
-            placeholder="Sin cortes"
-          />
-        </Group>
-      </Group>
+      <EncabezadoPagina
+        seccion="Comercial"
+        titulo="Análisis comercial"
+        descripcion="Impuesto de alumbrado facturado y recaudado por los comercializadores: cargues mensuales, indicadores, control tarifario y entregables."
+        acciones={
+          <>
+            {disponibles.length > 1 ? (
+              <SegmentedControl
+                aria-label="Comercializador"
+                data={disponibles}
+                value={operador ?? undefined}
+                onChange={setElegido}
+                disabled={isPending}
+              />
+            ) : (
+              <Select
+                aria-label="Comercializador"
+                data={disponibles}
+                value={operador}
+                onChange={setElegido}
+                w={150}
+                disabled={isPending}
+              />
+            )}
+            <Select
+              aria-label="Corte"
+              leftSection={<IconCalendarMonth size={15} />}
+              data={[...cortes].reverse().map((c) => ({ value: c.periodo, label: `${c.periodo}${c.completo ? "" : " (incompleto)"}` }))}
+              value={periodo}
+              onChange={setPeriodoElegido}
+              w={200}
+              placeholder="Sin cortes"
+              allowDeselect={false}
+            />
+          </>
+        }
+      />
       {!isPending && disponibles.length === 0 && (
         <Alert color="gray">Ningún comercializador opera en esta sede.</Alert>
       )}
       {operador && (
         <Tabs defaultValue="analisis" keepMounted={false}>
-          <Tabs.List>
+          <Tabs.List mb="md">
             <Tabs.Tab value="analisis">Análisis</Tabs.Tab>
             {nominal && <Tabs.Tab value="control">Control tarifario</Tabs.Tab>}
             <Tabs.Tab value="cargues">Cargues</Tabs.Tab>
             {tienePermiso("comercial.entregable.generar") && <Tabs.Tab value="entregables">Entregables</Tabs.Tab>}
             {nominal && <Tabs.Tab value="hallazgos">Hallazgos</Tabs.Tab>}
           </Tabs.List>
-          <Tabs.Panel value="analisis" pt="md">
+          <Tabs.Panel value="analisis">
             <Analisis operador={operador} sede={sede} periodo={periodo} />
           </Tabs.Panel>
-          <Tabs.Panel value="control" pt="md">
+          <Tabs.Panel value="control">
             <ControlTarifario operador={operador} sede={sede} periodo={periodo} />
           </Tabs.Panel>
-          <Tabs.Panel value="cargues" pt="md">
+          <Tabs.Panel value="cargues">
             <Cargues operador={operador} sede={sede} />
           </Tabs.Panel>
-          <Tabs.Panel value="entregables" pt="md">
+          <Tabs.Panel value="entregables">
             <Entregables operador={operador} sede={sede} periodo={periodo} />
           </Tabs.Panel>
-          <Tabs.Panel value="hallazgos" pt="md">
+          <Tabs.Panel value="hallazgos">
             <Hallazgos operador={operador} sede={sede} periodo={periodo} />
           </Tabs.Panel>
         </Tabs>

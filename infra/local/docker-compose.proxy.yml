@@ -1,0 +1,24 @@
+# Nginx con HTTPS del staging local (lo levanta infra/local/staging.sh). Se une a la red del proyecto
+# sapef-local para llegar a la API; publica los puertos en todas las interfaces para que los
+# teléfonos de la misma red puedan entrar.
+name: sapef-local-proxy
+
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "8443:8443"
+      - "8444:8444"
+      - "8080:8080"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../../.staging-local/certs:/certs:ro
+      - ../../.staging-local/certs-publicos:/certs-publicos:ro
+      - ../../.staging-local/srv/estaticos:/srv/estaticos:ro
+    networks: [sapef]
+
+networks:
+  sapef:
+    name: sapef-local_default
+    external: true

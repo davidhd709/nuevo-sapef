@@ -1,6 +1,5 @@
 import {
   Alert,
-  Badge,
   Button,
   Checkbox,
   Drawer,
@@ -15,13 +14,25 @@ import {
   Tabs,
   Text,
   TextInput,
-  Title,
 } from "@mantine/core";
 import { api, type components } from "@sapef/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
+import { IconPlus, IconSearch } from "@tabler/icons-react";
+
 import { useAuth } from "../auth/AuthContext";
+import {
+  Cargando,
+  capitalizar,
+  cifra,
+  Codigo,
+  EncabezadoPagina,
+  EstadoVacio,
+  EtiquetaEstado,
+  MarcoTabla,
+  SinPermiso,
+} from "../comun/ui";
 import { exigir, fecha, mensajeError, subirArchivo } from "../comun/api";
 
 type Material = components["schemas"]["MaterialSalida"];
@@ -32,29 +43,29 @@ export function PantallaInventario() {
   const { tienePermiso } = useAuth();
   const [mensaje, setMensaje] = useState<string | null>(null);
   if (!tienePermiso("inventario.material.ver") && !tienePermiso("inventario.bodega.ver")) {
-    return (
-      <Alert color="red" title="403 · Acceso denegado">
-        No tiene permiso para consultar el inventario.
-      </Alert>
-    );
+    return <SinPermiso mensaje="No tiene permiso para consultar el inventario." />;
   }
   return (
     <Stack gap="md">
-      <Title order={2}>Inventario</Title>
+      <EncabezadoPagina
+        seccion="Almacén"
+        titulo="Inventario"
+        descripcion="Materiales con su kárdex y luminarias en bodega. Las salidas de material de las órdenes se descuentan solas."
+      />
       {mensaje && (
         <Alert color="green" withCloseButton onClose={() => setMensaje(null)}>
           {mensaje}
         </Alert>
       )}
       <Tabs defaultValue={tienePermiso("inventario.material.ver") ? "materiales" : "bodega"}>
-        <Tabs.List>
+        <Tabs.List mb="md">
           {tienePermiso("inventario.material.ver") && <Tabs.Tab value="materiales">Materiales</Tabs.Tab>}
           {tienePermiso("inventario.bodega.ver") && <Tabs.Tab value="bodega">Bodega de luminarias</Tabs.Tab>}
         </Tabs.List>
-        <Tabs.Panel value="materiales" pt="md">
+        <Tabs.Panel value="materiales">
           <Materiales onMensaje={setMensaje} />
         </Tabs.Panel>
-        <Tabs.Panel value="bodega" pt="md">
+        <Tabs.Panel value="bodega">
           <Bodega onMensaje={setMensaje} />
         </Tabs.Panel>
       </Tabs>
@@ -111,44 +122,75 @@ function Materiales({ onMensaje }: { onMensaje: (m: string) => void }) {
 
   return (
     <Stack gap="sm">
-      <Group>
-        <TextInput placeholder="Código o descripción" value={buscar} onChange={(e) => setBuscar(e.currentTarget.value)} w={260} />
-        <Checkbox label="Solo bajo el mínimo" checked={soloBajos} onChange={(e) => setSoloBajos(e.currentTarget.checked)} />
-        {tienePermiso("inventario.material.editar") && <Button onClick={() => setNuevo(true)}>Nuevo material</Button>}
+      <Group justify="space-between">
+        <Group gap="sm">
+          <TextInput
+            placeholder="Código o descripción"
+            aria-label="Buscar material"
+            leftSection={<IconSearch size={15} />}
+            value={buscar}
+            onChange={(e) => setBuscar(e.currentTarget.value)}
+            w={260}
+          />
+          <Checkbox label="Solo bajo el mínimo" checked={soloBajos} onChange={(e) => setSoloBajos(e.currentTarget.checked)} />
+        </Group>
+        {tienePermiso("inventario.material.editar") && (
+          <Button variant="default" leftSection={<IconPlus size={16} />} onClick={() => setNuevo(true)}>
+            Nuevo material
+          </Button>
+        )}
       </Group>
       {isPending ? (
-        <Text c="dimmed">Cargando…</Text>
+        <Cargando texto="Cargando materiales…" />
+      ) : !data || data.items.length === 0 ? (
+        <EstadoVacio
+          titulo={buscar || soloBajos ? "Ningún material coincide" : "Aún no hay materiales"}
+          descripcion={buscar || soloBajos ? "Cambie la búsqueda o quite el filtro." : "Créelos con «Nuevo material» o con la migración desde SAPEF."}
+        />
       ) : (
-        <Table striped highlightOnHover>
+        <MarcoTabla>
+        <Table>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Código</Table.Th>
               <Table.Th>Descripción</Table.Th>
               <Table.Th>Categoría</Table.Th>
-              <Table.Th>Existencias</Table.Th>
-              <Table.Th>Mínimo</Table.Th>
+              <Table.Th ta="right">Existencias</Table.Th>
+              <Table.Th ta="right">Mínimo</Table.Th>
+              <Table.Th>Unidad</Table.Th>
               <Table.Th />
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {data?.items.map((m) => (
+            {data.items.map((m) => (
               <Table.Tr key={m.id} onClick={() => setElegido(m)} style={{ cursor: "pointer" }}>
-                <Table.Td>{m.codigo}</Table.Td>
-                <Table.Td>{m.descripcion}</Table.Td>
-                <Table.Td>{m.categoria}</Table.Td>
                 <Table.Td>
-                  {Number(m.existencias)} {m.unidad}
+                  <Codigo>{m.codigo}</Codigo>
                 </Table.Td>
-                <Table.Td>{Number(m.existencias_minimas)}</Table.Td>
-                <Table.Td>{m.bajo_minimo && <Badge color="red">Bajo el mínimo</Badge>}</Table.Td>
+                <Table.Td>{m.descripcion}</Table.Td>
+                <Table.Td c="dimmed">{m.categoria}</Table.Td>
+                <Table.Td ta="right" fw={m.bajo_minimo ? 600 : undefined} c={m.bajo_minimo ? "red.7" : undefined}>
+                  {cifra(Number(m.existencias))}
+                </Table.Td>
+                <Table.Td ta="right" c="dimmed">
+                  {cifra(Number(m.existencias_minimas))}
+                </Table.Td>
+                <Table.Td c="dimmed">{m.unidad}</Table.Td>
+                <Table.Td>{m.bajo_minimo && <EtiquetaEstado color="red" nombre="Bajo el mínimo" />}</Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>
         </Table>
+        </MarcoTabla>
       )}
-      {data && data.total > data.size && (
-        <Pagination value={page} onChange={setPage} total={Math.ceil(data.total / data.size)} />
-      )}
+      <Group justify="space-between">
+        <Text size="sm" c="dimmed" className="sapef-cifra">
+          {cifra(data?.total ?? 0)} materiales
+        </Text>
+        {data && data.total > data.size && (
+          <Pagination value={page} onChange={setPage} total={Math.ceil(data.total / data.size)} />
+        )}
+      </Group>
       <Modal opened={nuevo} onClose={() => setNuevo(false)} title="Nuevo material">
         <Stack gap="sm">
           {(
@@ -229,7 +271,24 @@ function Kardex({ material, onCerrar }: { material: Material | null; onCerrar: (
     ...(tienePermiso("inventario.movimiento.ajustar") ? [{ value: "ajuste", label: "Ajuste (±)" }] : []),
   ];
   return (
-    <Drawer opened={material !== null} onClose={onCerrar} position="right" size="lg" title={`Kárdex · ${material?.codigo ?? ""}`}>
+    <Drawer
+      opened={material !== null}
+      onClose={onCerrar}
+      position="right"
+      size={600}
+      title={
+        material && (
+          <div>
+            <Text fw={600} fz="lg">
+              Kárdex <Codigo>{material.codigo}</Codigo>
+            </Text>
+            <Text size="sm" c="dimmed">
+              {material.descripcion} · existencias {cifra(Number(material.existencias))} {material.unidad}
+            </Text>
+          </div>
+        )
+      }
+    >
       <Stack gap="sm">
         {tipos.length > 0 && (
           <Group align="end">
@@ -242,13 +301,17 @@ function Kardex({ material, onCerrar }: { material: Material | null; onCerrar: (
           </Group>
         )}
         {registrar.error && <Alert color="red">{mensajeError(registrar.error, "Error.")}</Alert>}
+        {(movimientos?.items.length ?? 0) === 0 ? (
+          <EstadoVacio titulo="Sin movimientos" descripcion="Las entradas, salidas y ajustes de este material aparecerán aquí." />
+        ) : (
+        <MarcoTabla>
         <Table>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Fecha</Table.Th>
               <Table.Th>Tipo</Table.Th>
-              <Table.Th>Cantidad</Table.Th>
-              <Table.Th>Saldo</Table.Th>
+              <Table.Th ta="right">Cantidad</Table.Th>
+              <Table.Th ta="right">Saldo</Table.Th>
               <Table.Th>Origen</Table.Th>
             </Table.Tr>
           </Table.Thead>
@@ -256,14 +319,19 @@ function Kardex({ material, onCerrar }: { material: Material | null; onCerrar: (
             {movimientos?.items.map((m) => (
               <Table.Tr key={m.id}>
                 <Table.Td>{fecha(m.creado_en)}</Table.Td>
-                <Table.Td>{m.tipo}</Table.Td>
-                <Table.Td>{Number(m.delta)}</Table.Td>
-                <Table.Td>{Number(m.existencias_resultantes)}</Table.Td>
-                <Table.Td>{m.orden_id ? `Orden #${m.orden_id}` : m.origen}</Table.Td>
+                <Table.Td>{capitalizar(m.tipo)}</Table.Td>
+                <Table.Td ta="right" c={Number(m.delta) < 0 ? "red.7" : "green.8"}>
+                  {Number(m.delta) > 0 ? "+" : ""}
+                  {cifra(Number(m.delta))}
+                </Table.Td>
+                <Table.Td ta="right">{cifra(Number(m.existencias_resultantes))}</Table.Td>
+                <Table.Td c="dimmed">{m.orden_id ? <Codigo>Orden #{m.orden_id}</Codigo> : capitalizar(m.origen)}</Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>
         </Table>
+        </MarcoTabla>
+        )}
       </Stack>
     </Drawer>
   );
@@ -324,7 +392,7 @@ function Bodega({ onMensaje }: { onMensaje: (m: string) => void }) {
         <Select
           label="Estado"
           clearable
-          data={deBodega.map((e) => ({ value: String(e.id), label: `${e.codigo} · ${e.nombre}` }))}
+          data={deBodega.map((e) => ({ value: String(e.id), label: capitalizar(e.nombre) }))}
           value={estado}
           onChange={(v) => {
             setEstado(v);
@@ -335,7 +403,7 @@ function Bodega({ onMensaje }: { onMensaje: (m: string) => void }) {
         {editable && (
           <>
             <FileInput placeholder="Cargue de bodega (.xlsx)" accept=".xlsx" value={archivo} onChange={setArchivo} w={240} />
-            <Button variant="light" disabled={!archivo} loading={cargar.isPending} onClick={() => cargar.mutate()}>
+            <Button variant="default" disabled={!archivo} loading={cargar.isPending} onClick={() => cargar.mutate()}>
               Cargar
             </Button>
           </>
@@ -345,9 +413,12 @@ function Bodega({ onMensaje }: { onMensaje: (m: string) => void }) {
         <Alert color="red">{mensajeError(cambiar.error ?? cargar.error, "Error.")}</Alert>
       )}
       {isPending ? (
-        <Text c="dimmed">Cargando…</Text>
+        <Cargando texto="Cargando bodega…" />
+      ) : !data || data.items.length === 0 ? (
+        <EstadoVacio titulo="No hay luminarias en bodega con ese estado" />
       ) : (
-        <Table striped>
+        <MarcoTabla>
+        <Table>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Código</Table.Th>
@@ -360,9 +431,11 @@ function Bodega({ onMensaje }: { onMensaje: (m: string) => void }) {
           <Table.Tbody>
             {data?.items.map((l) => (
               <Table.Tr key={l.id}>
-                <Table.Td>{l.codigo}</Table.Td>
                 <Table.Td>
-                  <Badge variant="light">{l.estado_nombre}</Badge>
+                  <Codigo>{l.codigo}</Codigo>
+                </Table.Td>
+                <Table.Td>
+                  <EtiquetaEstado codigo={l.estado_codigo} nombre={l.estado_nombre ?? ""} />
                 </Table.Td>
                 <Table.Td>{l.tecnologia_nombre ?? "—"}</Table.Td>
                 <Table.Td>{l.potencia_nombre ?? "—"}</Table.Td>
@@ -374,13 +447,14 @@ function Bodega({ onMensaje }: { onMensaje: (m: string) => void }) {
                           size="xs"
                           data={deBodega
                             .filter((e) => e.codigo !== l.estado_codigo)
-                            .map((e) => ({ value: String(e.id), label: `${e.codigo} · ${e.nombre}` }))}
+                            .map((e) => ({ value: String(e.id), label: capitalizar(e.nombre) }))}
                           value={destinos[l.id] ?? null}
                           onChange={(v) => setDestinos({ ...destinos, [l.id]: v })}
                           w={200}
                         />
                         <Button
                           size="xs"
+                          variant="default"
                           disabled={!destinos[l.id]}
                           onClick={() => cambiar.mutate({ id: l.id, estadoId: Number(destinos[l.id]) })}
                         >
@@ -394,10 +468,16 @@ function Bodega({ onMensaje }: { onMensaje: (m: string) => void }) {
             ))}
           </Table.Tbody>
         </Table>
+        </MarcoTabla>
       )}
-      {data && data.total > data.size && (
-        <Pagination value={page} onChange={setPage} total={Math.ceil(data.total / data.size)} />
-      )}
+      <Group justify="space-between">
+        <Text size="sm" c="dimmed" className="sapef-cifra">
+          {cifra(data?.total ?? 0)} luminarias en bodega
+        </Text>
+        {data && data.total > data.size && (
+          <Pagination value={page} onChange={setPage} total={Math.ceil(data.total / data.size)} />
+        )}
+      </Group>
     </Stack>
   );
 }

@@ -103,3 +103,7 @@ def test_configuracion_rechaza_secreto_debil_en_produccion():
         secret_key="9f8e7d6c5b4a39281726354453627180abcdef123456",
     )
     assert cfg.cookie_segura_efectiva is True
+    # Staging también va detrás de HTTPS; solo desarrollo emite la cookie sin Secure.
+    assert Configuracion(entorno="pruebas").cookie_segura_efectiva is True
+    assert Configuracion(entorno="desarrollo").cookie_segura_efectiva is False
+    assert Configuracion(entorno="pruebas", cookie_segura=False).cookie_segura_efectiva is False

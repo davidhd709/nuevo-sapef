@@ -52,3 +52,6 @@ Thumbs.db
 
 # Paquetes de OPainn para importar en desarrollo (datos reales: nunca al repositorio)
 importacion/
+
+# Staging local (infra/local/staging.sh): entorno, certificados, estáticos y respaldos con datos reales
+.staging-local/

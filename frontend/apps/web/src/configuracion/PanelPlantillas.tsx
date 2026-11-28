@@ -4,7 +4,6 @@ import {
   Alert,
   Badge,
   Button,
-  Card,
   Checkbox,
   Group,
   Modal,
@@ -19,6 +18,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { useAuth } from "../auth/AuthContext";
+import { EtiquetaEstado, MarcoTabla } from "../comun/ui";
 import { exigir } from "../comun/api";
 
 type Plantilla = components["schemas"]["PlantillaCorreoSalida"];
@@ -74,8 +74,8 @@ export function PanelPlantillas() {
           {mensaje}
         </Alert>
       )}
-      <Card withBorder p={0}>
-        <Table striped highlightOnHover>
+      <MarcoTabla>
+        <Table>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Nombre</Table.Th>
@@ -101,11 +101,11 @@ export function PanelPlantillas() {
                 <Table.Td>{p.nombre}</Table.Td>
                 <Table.Td>{p.asunto}</Table.Td>
                 <Table.Td>
-                  <Badge color={p.activa ? "green" : "gray"}>{p.activa ? "Activa" : "Inactiva"}</Badge>
+                  <EtiquetaEstado color={p.activa ? "green" : "gray"} nombre={p.activa ? "Activa" : "Inactiva"} />
                 </Table.Td>
                 <Table.Td>{new Date(p.modificado_en).toLocaleString("es-CO")}</Table.Td>
                 <Table.Td>
-                  <Button size="xs" variant="light" onClick={() => abrir(p)}>
+                  <Button size="xs" variant="default" onClick={() => abrir(p)}>
                     {puedeEditar ? "Modificar" : "Ver"}
                   </Button>
                 </Table.Td>
@@ -113,7 +113,7 @@ export function PanelPlantillas() {
             ))}
           </Table.Tbody>
         </Table>
-      </Card>
+      </MarcoTabla>
 
       <Modal
         opened={Boolean(seleccionada)}

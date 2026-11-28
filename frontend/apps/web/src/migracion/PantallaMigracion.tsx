@@ -19,6 +19,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { useAuth } from "../auth/AuthContext";
+import { Codigo, EncabezadoPagina, EstadoVacio, EtiquetaEstado, MarcoTabla, SinPermiso } from "../comun/ui";
 import { exigir, mensajeError } from "../comun/api";
 
 type Ejecucion = components["schemas"]["EjecucionMigracionSalida"];
@@ -144,33 +145,37 @@ export function PantallaMigracion() {
   });
 
   if (permitidos.length === 0) {
-    return (
-      <Alert color="red" title="403 · Acceso denegado">
-        No tiene permiso para importar datos.
-      </Alert>
-    );
+    return <SinPermiso mensaje="No tiene permiso para importar datos." />;
   }
 
   const actual = elegida ? (ejecuciones.find((e) => e.id === elegida.id) ?? elegida) : null;
 
   return (
     <Stack gap="md">
-      <Title order={2}>Migración desde SAPEF</Title>
-      <Text c="dimmed" size="sm">
-        Sede: <b>{nombreSede}</b>. Cada importación se procesa en segundo plano y se puede repetir sin
-        duplicar datos. Siga el orden numerado.
-      </Text>
+      <EncabezadoPagina
+        seccion="Administración"
+        titulo="Migración de datos"
+        descripcion={
+          <>
+            Importación de las exportaciones de SAPEF para la sede <b>{nombreSede}</b>. Cada archivo se procesa en
+            segundo plano y se puede repetir sin duplicar datos. Siga el orden numerado.
+          </>
+        }
+      />
       <SimpleGrid cols={{ base: 1, md: 2 }}>
         {permitidos.map((imp) => (
           <TarjetaImportador key={imp.tipo} importador={imp} sede={sede} />
         ))}
       </SimpleGrid>
 
-      <Title order={3}>Ejecuciones</Title>
+      <Title order={2} fz="md" mt="sm">
+        Ejecuciones
+      </Title>
       {ejecuciones.length === 0 ? (
-        <Text c="dimmed">Aún no hay importaciones en esta sede.</Text>
+        <EstadoVacio titulo="Aún no hay importaciones en esta sede" />
       ) : (
-        <Table striped highlightOnHover>
+        <MarcoTabla>
+        <Table>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>#</Table.Th>
@@ -186,11 +191,13 @@ export function PantallaMigracion() {
           <Table.Tbody>
             {ejecuciones.map((e) => (
               <Table.Tr key={e.id} onClick={() => setElegida(e)} style={{ cursor: "pointer" }}>
-                <Table.Td>{e.id}</Table.Td>
+                <Table.Td>
+                  <Codigo>{e.id}</Codigo>
+                </Table.Td>
                 <Table.Td>{e.tipo}</Table.Td>
                 <Table.Td>{e.archivos.join(", ")}</Table.Td>
                 <Table.Td>
-                  <Badge color={COLOR_ESTADO[e.estado] ?? "gray"}>{TEXTO_ESTADO[e.estado] ?? e.estado}</Badge>
+                  <EtiquetaEstado color={COLOR_ESTADO[e.estado] ?? "gray"} nombre={TEXTO_ESTADO[e.estado] ?? e.estado} />
                 </Table.Td>
                 <Table.Td>{e.conciliacion.leidas ?? "—"}</Table.Td>
                 <Table.Td>{e.conciliacion.creadas ?? "—"}</Table.Td>
@@ -200,6 +207,7 @@ export function PantallaMigracion() {
             ))}
           </Table.Tbody>
         </Table>
+        </MarcoTabla>
       )}
 
       <Drawer
@@ -318,7 +326,7 @@ function ListaDetalles({
       <Title order={4} c={color}>
         {titulo} · {filas.length.toLocaleString("es-CO")}
       </Title>
-      <Table striped>
+      <Table>
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Fila</Table.Th>

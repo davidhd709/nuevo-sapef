@@ -2,20 +2,19 @@ import {
   Alert,
   Badge,
   Button,
-  Card,
   Group,
   Select,
   Stack,
   Table,
   Tabs,
   Text,
-  Title,
 } from "@mantine/core";
 import { api } from "@sapef/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { useAuth } from "../auth/AuthContext";
+import { Codigo, EncabezadoPagina, EtiquetaEstado, MarcoTabla } from "../comun/ui";
 import { PanelPlantillas } from "./PanelPlantillas";
 
 export function PantallaConfiguracion() {
@@ -103,7 +102,11 @@ export function PantallaConfiguracion() {
 
   return (
     <Stack gap="md">
-      <Title order={2}>Configuración del sistema</Title>
+      <EncabezadoPagina
+        seccion="Administración"
+        titulo="Configuración"
+        descripcion="Sedes, catálogos, zonas y barrios, estados, parámetros, plantillas de correo y acuerdos tarifarios."
+      />
       {mensaje && (
         <Alert color="green" onClose={() => setMensaje(null)} withCloseButton>
           {mensaje}
@@ -111,10 +114,10 @@ export function PantallaConfiguracion() {
       )}
 
       <Tabs defaultValue="sedes">
-        <Tabs.List>
+        <Tabs.List mb="md">
           <Tabs.Tab value="sedes">Sedes</Tabs.Tab>
           <Tabs.Tab value="maestros">Maestros</Tabs.Tab>
-          <Tabs.Tab value="zonas">Zonas y barrios ({sedeActiva ?? "-"})</Tabs.Tab>
+          <Tabs.Tab value="zonas">Zonas y barrios</Tabs.Tab>
           <Tabs.Tab value="estados">Estados</Tabs.Tab>
           <Tabs.Tab value="parametros">Parámetros</Tabs.Tab>
           <Tabs.Tab value="plantillas">Plantillas de correo</Tabs.Tab>
@@ -123,9 +126,9 @@ export function PantallaConfiguracion() {
           )}
         </Tabs.List>
 
-        <Tabs.Panel value="sedes" pt="md">
-          <Card withBorder p={0}>
-            <Table striped>
+        <Tabs.Panel value="sedes">
+          <MarcoTabla>
+            <Table>
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>Código</Table.Th>
@@ -138,23 +141,23 @@ export function PantallaConfiguracion() {
               <Table.Tbody>
                 {sedes.map((s) => (
                   <Table.Tr key={s.id}>
-                    <Table.Td>{s.codigo}</Table.Td>
+                    <Table.Td>
+                      <Codigo>{s.codigo}</Codigo>
+                    </Table.Td>
                     <Table.Td>{s.nombre}</Table.Td>
                     <Table.Td>{s.municipio}</Table.Td>
                     <Table.Td>{s.departamento}</Table.Td>
                     <Table.Td>
-                      <Badge color={s.activa ? "green" : "gray"}>
-                        {s.activa ? "Activa" : "Inactiva"}
-                      </Badge>
+                      <EtiquetaEstado color={s.activa ? "green" : "gray"} nombre={s.activa ? "Activa" : "Inactiva"} />
                     </Table.Td>
                   </Table.Tr>
                 ))}
               </Table.Tbody>
             </Table>
-          </Card>
+          </MarcoTabla>
         </Tabs.Panel>
 
-        <Tabs.Panel value="maestros" pt="md">
+        <Tabs.Panel value="maestros">
           <Stack gap="sm">
             <Select
               label="Clase de maestro"
@@ -163,8 +166,8 @@ export function PantallaConfiguracion() {
               value={claseSel}
               onChange={(v) => v && setClaseSel(v)}
             />
-            <Card withBorder p={0}>
-              <Table striped>
+            <MarcoTabla>
+              <Table>
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Código</Table.Th>
@@ -175,28 +178,28 @@ export function PantallaConfiguracion() {
                 <Table.Tbody>
                   {valores.map((v) => (
                     <Table.Tr key={v.id}>
-                      <Table.Td>{v.codigo}</Table.Td>
+                      <Table.Td>
+                        <Codigo>{v.codigo}</Codigo>
+                      </Table.Td>
                       <Table.Td>{v.nombre}</Table.Td>
                       <Table.Td>
-                        <Badge color={v.activo ? "green" : "gray"}>
-                          {v.activo ? "Activo" : "Inactivo"}
-                        </Badge>
+                        <EtiquetaEstado color={v.activo ? "green" : "gray"} nombre={v.activo ? "Activo" : "Inactivo"} />
                       </Table.Td>
                     </Table.Tr>
                   ))}
                 </Table.Tbody>
               </Table>
-            </Card>
+            </MarcoTabla>
           </Stack>
         </Tabs.Panel>
 
-        <Tabs.Panel value="zonas" pt="md">
+        <Tabs.Panel value="zonas">
           <Stack gap="sm">
             <Text size="sm" c="dimmed">
               {zonas.length} zonas y {barrios.length} barrios registrados en la sede activa.
             </Text>
-            <Card withBorder p={0}>
-              <Table striped>
+            <MarcoTabla>
+              <Table>
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Zona</Table.Th>
@@ -210,21 +213,19 @@ export function PantallaConfiguracion() {
                       <Table.Td>{b.zona_nombre}</Table.Td>
                       <Table.Td>{b.nombre}</Table.Td>
                       <Table.Td>
-                        <Badge color={b.activo ? "green" : "gray"}>
-                          {b.activo ? "Activo" : "Inactivo"}
-                        </Badge>
+                        <EtiquetaEstado color={b.activo ? "green" : "gray"} nombre={b.activo ? "Activo" : "Inactivo"} />
                       </Table.Td>
                     </Table.Tr>
                   ))}
                 </Table.Tbody>
               </Table>
-            </Card>
+            </MarcoTabla>
           </Stack>
         </Tabs.Panel>
 
-        <Tabs.Panel value="estados" pt="md">
-          <Card withBorder p={0}>
-            <Table striped>
+        <Tabs.Panel value="estados">
+          <MarcoTabla>
+            <Table>
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>Proceso</Table.Th>
@@ -237,19 +238,21 @@ export function PantallaConfiguracion() {
                 {estados.map((e) => (
                   <Table.Tr key={e.id}>
                     <Table.Td>{e.proceso}</Table.Td>
-                    <Table.Td>{e.codigo}</Table.Td>
+                    <Table.Td>
+                    <Codigo>{e.codigo}</Codigo>
+                  </Table.Td>
                     <Table.Td>{e.nombre}</Table.Td>
                     <Table.Td>{e.vigente ? "Sí" : "Histórico"}</Table.Td>
                   </Table.Tr>
                 ))}
               </Table.Tbody>
             </Table>
-          </Card>
+          </MarcoTabla>
         </Tabs.Panel>
 
-        <Tabs.Panel value="parametros" pt="md">
-          <Card withBorder p={0}>
-            <Table striped>
+        <Tabs.Panel value="parametros">
+          <MarcoTabla>
+            <Table>
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>Alcance</Table.Th>
@@ -262,7 +265,9 @@ export function PantallaConfiguracion() {
                 {parametros.map((p) => (
                   <Table.Tr key={p.id}>
                     <Table.Td>{p.alcance}</Table.Td>
-                    <Table.Td>{p.codigo}</Table.Td>
+                    <Table.Td>
+                    <Codigo>{p.codigo}</Codigo>
+                  </Table.Td>
                     <Table.Td>{p.nombre}</Table.Td>
                     <Table.Td>
                       <code>{JSON.stringify(p.valor)}</code>
@@ -271,17 +276,17 @@ export function PantallaConfiguracion() {
                 ))}
               </Table.Tbody>
             </Table>
-          </Card>
+          </MarcoTabla>
         </Tabs.Panel>
 
-        <Tabs.Panel value="plantillas" pt="md">
+        <Tabs.Panel value="plantillas">
           <PanelPlantillas />
         </Tabs.Panel>
 
         {tienePermiso("configuracion.acuerdo.ver") && (
-          <Tabs.Panel value="acuerdos" pt="md">
-            <Card withBorder p={0}>
-              <Table striped>
+          <Tabs.Panel value="acuerdos">
+            <MarcoTabla>
+              <Table>
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Año</Table.Th>
@@ -323,7 +328,7 @@ export function PantallaConfiguracion() {
                   ))}
                 </Table.Tbody>
               </Table>
-            </Card>
+            </MarcoTabla>
           </Tabs.Panel>
         )}
       </Tabs>
